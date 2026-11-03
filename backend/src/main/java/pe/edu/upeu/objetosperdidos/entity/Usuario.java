@@ -18,17 +18,19 @@ public class Usuario {
     @Column(name = "PASSWORD", length = 255)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ROL", length = 50)
-    private String rol;
+    private RolUsuario rol;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoUsuario estado;
 
     public Usuario() {
     }
 
     public Usuario(Persona persona, String password,
-                   String rol, String estado) {
+                   RolUsuario rol, EstadoUsuario estado) {
         this.persona = persona;
         this.password = password;
         this.rol = rol;
@@ -55,19 +57,19 @@ public class Usuario {
         this.password = password;
     }
 
-    public String getRol() {
+    public RolUsuario getRol() {
         return rol;
     }
 
-    public void setRol(String rol) {
+    public void setRol(RolUsuario rol) {
         this.rol = rol;
     }
 
-    public String getEstado() {
+    public EstadoUsuario getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoUsuario estado) {
         this.estado = estado;
     }
 }
