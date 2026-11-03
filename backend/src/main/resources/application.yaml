@@ -1,6 +1,6 @@
 spring:
   application:
-    name: lp2_gp2
+    name: objetos_perdidos
   datasource:
     url: jdbc:oracle:thin:@localhost:1521/XE
     username:  OP_UPEU
@@ -18,7 +18,7 @@ spring:
 
 server:
   servlet:
-    context-path: /lp2_gp2
+    context-path: objetos_perdidos
   port: 8085
 
 storage:
