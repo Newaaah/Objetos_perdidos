@@ -22,14 +22,15 @@ public class Personal {
     @Column(name = "CARGO", length = 20)
     private String cargo;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoPersonal estado;
 
     public Personal() {
     }
 
     public Personal(Persona persona, Area area,
-                    String cargo, String estado) {
+                    String cargo, EstadoPersonal estado) {
         this.persona = persona;
         this.area = area;
         this.cargo = cargo;
@@ -64,11 +65,11 @@ public class Personal {
         this.cargo = cargo;
     }
 
-    public String getEstado() {
+    public EstadoPersonal getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoPersonal estado) {
         this.estado = estado;
     }
 }

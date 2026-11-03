@@ -43,8 +43,9 @@ public class ReporteHallazgos {
     @Column(name = "IMAGEN_REF", length = 255)
     private String imagenRef;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoReporteHallazgos estado;
 
     @Column(name = "FECHA_REPORTE", updatable = false)
     private LocalDateTime fechaReporte;
@@ -71,7 +72,7 @@ public class ReporteHallazgos {
                             String color,
                             String descripcion,
                             String imagenRef,
-                            String estado) {
+                            EstadoReporteHallazgos estado) {
         this.persona = persona;
         this.categoria = categoria;
         this.ubicacionEncontrado = ubicacionEncontrado;
@@ -171,11 +172,11 @@ public class ReporteHallazgos {
         this.imagenRef = imagenRef;
     }
 
-    public String getEstado() {
+    public EstadoReporteHallazgos getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReporteHallazgos estado) {
         this.estado = estado;
     }
 

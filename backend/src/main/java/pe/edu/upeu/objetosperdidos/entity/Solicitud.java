@@ -23,8 +23,9 @@ public class Solicitud {
     @Column(name = "DETALLE_PRUEBA", length = 100)
     private String detallePrueba;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoSolicitud estado;
 
     @Column(name = "FECHA_SOLICITUD", updatable = false)
     private LocalDateTime fechaSolicitud;
@@ -45,7 +46,7 @@ public class Solicitud {
     public Solicitud(ObjetosCustodiados objeto,
                      Persona persona,
                      String detallePrueba,
-                     String estado) {
+                     EstadoSolicitud estado) {
         this.objeto = objeto;
         this.persona = persona;
         this.detallePrueba = detallePrueba;
@@ -91,11 +92,11 @@ public class Solicitud {
         this.detallePrueba = detallePrueba;
     }
 
-    public String getEstado() {
+    public EstadoSolicitud getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoSolicitud estado) {
         this.estado = estado;
     }
 

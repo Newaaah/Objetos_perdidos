@@ -23,8 +23,9 @@ public class Reclamos {
     @Column(name = "DETALLE_ARGUMENTO", length = 255)
     private String detalleArgumento;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoReclamo estado;
 
     @Column(name = "FECHA_RECLAMO", updatable = false)
     private LocalDateTime fechaReclamo;
@@ -35,7 +36,7 @@ public class Reclamos {
     public Reclamos(Entrega entrega,
                     Persona personaReclama,
                     String detalleArgumento,
-                    String estado) {
+                    EstadoReclamo estado) {
         this.entrega = entrega;
         this.personaReclama = personaReclama;
         this.detalleArgumento = detalleArgumento;
@@ -81,11 +82,11 @@ public class Reclamos {
         this.detalleArgumento = detalleArgumento;
     }
 
-    public String getEstado() {
+    public EstadoReclamo getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReclamo estado) {
         this.estado = estado;
     }
 

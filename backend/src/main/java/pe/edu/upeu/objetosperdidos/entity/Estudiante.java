@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
@@ -25,14 +26,16 @@ public class Estudiante {
     @Column(name = "CICLO")
     private Integer ciclo;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoEstudiante estado;
 
     public Estudiante() {
     }
 
     public Estudiante(Persona persona, String codigoUni,
-                      Carrera carrera, Integer ciclo, String estado) {
+                      Carrera carrera, Integer ciclo,
+                      EstadoEstudiante estado) {
         this.persona = persona;
         this.codigoUni = codigoUni;
         this.carrera = carrera;
@@ -76,11 +79,11 @@ public class Estudiante {
         this.ciclo = ciclo;
     }
 
-    public String getEstado() {
+    public EstadoEstudiante getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoEstudiante estado) {
         this.estado = estado;
     }
 }

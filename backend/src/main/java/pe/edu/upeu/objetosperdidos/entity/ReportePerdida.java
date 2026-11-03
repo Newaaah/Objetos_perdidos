@@ -46,8 +46,9 @@ public class ReportePerdida {
     @Column(name = "FECHA_REPORTE", updatable = false)
     private LocalDateTime fechaReporte;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", length = 20)
-    private String estado;
+    private EstadoReportePerdida estado;
 
     public ReportePerdida() {
     }
@@ -143,11 +144,11 @@ public class ReportePerdida {
         return fechaReporte;
     }
 
-    public String getEstado() {
+    public EstadoReportePerdida getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReportePerdida estado) {
         this.estado = estado;
     }
 }
