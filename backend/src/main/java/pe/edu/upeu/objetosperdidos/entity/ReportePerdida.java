@@ -3,61 +3,52 @@ package pe.edu.upeu.objetosperdidos.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "REPORTE_PERDIDA")
 public class ReportePerdida {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_REPORTE_PERDIDA")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_reporte_perdida")
+    @SequenceGenerator(name = "gen_reporte_perdida", sequenceName = "SEQ_REPORTE_PERDIDA", allocationSize = 1)
+    @Column(name = "ID_REPORTE_PERDIDA", nullable = false)
     private Long idReportePerdida;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONA", nullable = false)
     private Persona persona;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_CATEGORIA")
-    private Categoria categoria;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_OBJETO", nullable = false, unique = true)
+    private Objeto objeto;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_UBICACION_PERDIDA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_UBICACION_PERDIDA", nullable = true)
     private Ubicacion ubicacionPerdida;
 
-    @Column(name = "NOMBRE", length = 100)
-    private String nombre;
-
-    @Column(name = "MARCA", length = 50)
-    private String marca;
-
-    @Column(name = "COLOR", length = 50)
-    private String color;
-
-    @Column(name = "DESCRIPCION", length = 255)
-    private String descripcion;
-
-    @Column(name = "IMAGEN", length = 255)
+    @Column(name = "IMAGEN", nullable = true, length = 255)
     private String imagen;
 
-    @Column(name = "FECHA_PERDIDA")
+    @Column(name = "FECHA_PERDIDA", nullable = true)
     private LocalDate fechaPerdida;
 
-    @Column(name = "FECHA_REPORTE", updatable = false)
+    @Column(name = "FECHA_REPORTE", nullable = false)
     private LocalDateTime fechaReporte;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", length = 20)
-    private EstadoReportePerdida estado;
-
-    public ReportePerdida() {
-    }
+    @Column(name = "ESTADO", nullable = false, length = 20)
+    private EstadoReportePerdida estado = EstadoReportePerdida.REPORTADO;
 
     @PrePersist
-    public void registrarFecha() {
+    protected void asignarValoresAutomaticos() {
         if (fechaReporte == null) {
-            fechaReporte = LocalDateTime.now();
+            fechaReporte = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
         }
+    }
+
+    public ReportePerdida() {
     }
 
     public Long getIdReportePerdida() {
@@ -76,12 +67,12 @@ public class ReportePerdida {
         this.persona = persona;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public Objeto getObjeto() {
+        return objeto;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setObjeto(Objeto objeto) {
+        this.objeto = objeto;
     }
 
     public Ubicacion getUbicacionPerdida() {
@@ -90,38 +81,6 @@ public class ReportePerdida {
 
     public void setUbicacionPerdida(Ubicacion ubicacionPerdida) {
         this.ubicacionPerdida = ubicacionPerdida;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public String getImagen() {
@@ -144,6 +103,10 @@ public class ReportePerdida {
         return fechaReporte;
     }
 
+    public void setFechaReporte(LocalDateTime fechaReporte) {
+        this.fechaReporte = fechaReporte;
+    }
+
     public EstadoReportePerdida getEstado() {
         return estado;
     }
@@ -151,4 +114,5 @@ public class ReportePerdida {
     public void setEstado(EstadoReportePerdida estado) {
         this.estado = estado;
     }
+
 }

@@ -2,94 +2,77 @@ package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
+/** IMAGEN es opcional solo si existe un hallazgo con IMAGEN_REF; sin hallazgo, el servicio debe exigir una fotografia. */
 @Entity
 @Table(name = "OBJETOS_CUSTODIADOS")
 public class ObjetosCustodiados {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_OBJETO")
-    private Long idObjeto;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_objetos_custodiados")
+    @SequenceGenerator(name = "gen_objetos_custodiados", sequenceName = "SEQ_OBJETOS_CUSTODIADOS", allocationSize = 1)
+    @Column(name = "ID_CUSTODIA", nullable = false)
+    private Long idCustodia;
 
-    @OneToOne
-    @JoinColumn(name = "ID_HALLAZGO")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_OBJETO", nullable = false)
+    private Objeto objeto;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_HALLAZGO", nullable = true, unique = true)
     private ReporteHallazgos hallazgo;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_CATEGORIA")
-    private Categoria categoria;
-
-    @ManyToOne
-    @JoinColumn(name = "ID_UBICACION_ENCONTRADO")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_UBICACION_ENCONTRADO", nullable = true)
     private Ubicacion ubicacionEncontrado;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_UBICACION_ACTUAL")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_UBICACION_ACTUAL", nullable = false)
     private Ubicacion ubicacionActual;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONAL_REGISTRA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONAL_REGISTRA", nullable = false)
     private Personal personalRegistra;
 
-    @Column(name = "NOMBRE", length = 100)
-    private String nombre;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_PERSONA_ENTREGA", nullable = true)
+    private Persona personaEntrega;
 
-    @Column(name = "MARCA", length = 50)
-    private String marca;
-
-    @Column(name = "COLOR", length = 50)
-    private String color;
-
-    @Column(name = "DESCRIPCION", length = 255)
-    private String descripcion;
-
-    @Column(name = "IMAGEN", length = 255)
+    @Column(name = "IMAGEN", nullable = true, length = 255)
     private String imagen;
 
-    @Column(name = "FECHA_REGISTRO", updatable = false)
+    @Column(name = "FECHA_REGISTRO", nullable = false)
     private LocalDateTime fechaRegistro;
+
+    @Column(name = "OBSERVACION_RECEPCION", nullable = true, length = 255)
+    private String observacionRecepcion;
+
+    @PrePersist
+    protected void asignarValoresAutomaticos() {
+        if (fechaRegistro == null) {
+            fechaRegistro = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
+        }
+    }
 
     public ObjetosCustodiados() {
     }
 
-    public ObjetosCustodiados(
-            ReporteHallazgos hallazgo,
-            Categoria categoria,
-            Ubicacion ubicacionEncontrado,
-            Ubicacion ubicacionActual,
-            Personal personalRegistra,
-            String nombre,
-            String marca,
-            String color,
-            String descripcion,
-            String imagen) {
-
-        this.hallazgo = hallazgo;
-        this.categoria = categoria;
-        this.ubicacionEncontrado = ubicacionEncontrado;
-        this.ubicacionActual = ubicacionActual;
-        this.personalRegistra = personalRegistra;
-        this.nombre = nombre;
-        this.marca = marca;
-        this.color = color;
-        this.descripcion = descripcion;
-        this.imagen = imagen;
+    public Long getIdCustodia() {
+        return idCustodia;
     }
 
-    @PrePersist
-    public void registrarFecha() {
-        if (fechaRegistro == null) {
-            fechaRegistro = LocalDateTime.now();
-        }
+    public void setIdCustodia(Long idCustodia) {
+        this.idCustodia = idCustodia;
     }
 
-    public Long getIdObjeto() {
-        return idObjeto;
+    public Objeto getObjeto() {
+        return objeto;
     }
 
-    public void setIdObjeto(Long idObjeto) {
-        this.idObjeto = idObjeto;
+    public void setObjeto(Objeto objeto) {
+        this.objeto = objeto;
     }
 
     public ReporteHallazgos getHallazgo() {
@@ -98,14 +81,6 @@ public class ObjetosCustodiados {
 
     public void setHallazgo(ReporteHallazgos hallazgo) {
         this.hallazgo = hallazgo;
-    }
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
     }
 
     public Ubicacion getUbicacionEncontrado() {
@@ -132,36 +107,12 @@ public class ObjetosCustodiados {
         this.personalRegistra = personalRegistra;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Persona getPersonaEntrega() {
+        return personaEntrega;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setPersonaEntrega(Persona personaEntrega) {
+        this.personaEntrega = personaEntrega;
     }
 
     public String getImagen() {
@@ -175,4 +126,17 @@ public class ObjetosCustodiados {
     public LocalDateTime getFechaRegistro() {
         return fechaRegistro;
     }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public String getObservacionRecepcion() {
+        return observacionRecepcion;
+    }
+
+    public void setObservacionRecepcion(String observacionRecepcion) {
+        this.observacionRecepcion = observacionRecepcion;
+    }
+
 }

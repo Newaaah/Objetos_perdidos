@@ -2,58 +2,57 @@ package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
+/** FOTO_EVIDENCIA y OBSERVACION_VERIFICACION son obligatorias. La entrega solo se confirma cuando la evidencia se almacena. */
 @Entity
 @Table(name = "ENTREGA")
 public class Entrega {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_ENTREGA")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_entrega")
+    @SequenceGenerator(name = "gen_entrega", sequenceName = "SEQ_ENTREGA", allocationSize = 1)
+    @Column(name = "ID_ENTREGA", nullable = false)
     private Long idEntrega;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_OBJETO")
-    private ObjetosCustodiados objeto;
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_COINCIDENCIA", nullable = true, unique = true)
+    private Coincidencia coincidencia;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_SOLICITUD")
-    private Solicitud solicitud;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_CUSTODIA", nullable = false, unique = true)
+    private ObjetosCustodiados custodia;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONAL")
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_REPORTE_PERDIDA", nullable = true, unique = true)
+    private ReportePerdida reportePerdida;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONAL", nullable = false)
     private Personal personal;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONA", nullable = false)
     private Persona persona;
 
-    @Column(name = "IMAGEN", length = 255)
-    private String imagen;
+    @Column(name = "FOTO_EVIDENCIA", nullable = false, length = 255)
+    private String fotoEvidencia;
 
-    @Column(name = "FECHA_ENTREGA", updatable = false)
+    @Column(name = "OBSERVACION_VERIFICACION", nullable = false, length = 255)
+    private String observacionVerificacion;
+
+    @Column(name = "FECHA_ENTREGA", nullable = false)
     private LocalDateTime fechaEntrega;
 
-    public Entrega() {
-    }
-
-    public Entrega(ObjetosCustodiados objeto,
-                   Solicitud solicitud,
-                   Personal personal,
-                   Persona persona,
-                   String imagen) {
-        this.objeto = objeto;
-        this.solicitud = solicitud;
-        this.personal = personal;
-        this.persona = persona;
-        this.imagen = imagen;
-    }
-
     @PrePersist
-    public void registrarFecha() {
+    protected void asignarValoresAutomaticos() {
         if (fechaEntrega == null) {
-            fechaEntrega = LocalDateTime.now();
+            fechaEntrega = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
         }
+    }
+
+    public Entrega() {
     }
 
     public Long getIdEntrega() {
@@ -64,20 +63,28 @@ public class Entrega {
         this.idEntrega = idEntrega;
     }
 
-    public ObjetosCustodiados getObjeto() {
-        return objeto;
+    public Coincidencia getCoincidencia() {
+        return coincidencia;
     }
 
-    public void setObjeto(ObjetosCustodiados objeto) {
-        this.objeto = objeto;
+    public void setCoincidencia(Coincidencia coincidencia) {
+        this.coincidencia = coincidencia;
     }
 
-    public Solicitud getSolicitud() {
-        return solicitud;
+    public ObjetosCustodiados getCustodia() {
+        return custodia;
     }
 
-    public void setSolicitud(Solicitud solicitud) {
-        this.solicitud = solicitud;
+    public void setCustodia(ObjetosCustodiados custodia) {
+        this.custodia = custodia;
+    }
+
+    public ReportePerdida getReportePerdida() {
+        return reportePerdida;
+    }
+
+    public void setReportePerdida(ReportePerdida reportePerdida) {
+        this.reportePerdida = reportePerdida;
     }
 
     public Personal getPersonal() {
@@ -96,15 +103,28 @@ public class Entrega {
         this.persona = persona;
     }
 
-    public String getImagen() {
-        return imagen;
+    public String getFotoEvidencia() {
+        return fotoEvidencia;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public void setFotoEvidencia(String fotoEvidencia) {
+        this.fotoEvidencia = fotoEvidencia;
+    }
+
+    public String getObservacionVerificacion() {
+        return observacionVerificacion;
+    }
+
+    public void setObservacionVerificacion(String observacionVerificacion) {
+        this.observacionVerificacion = observacionVerificacion;
     }
 
     public LocalDateTime getFechaEntrega() {
         return fechaEntrega;
     }
+
+    public void setFechaEntrega(LocalDateTime fechaEntrega) {
+        this.fechaEntrega = fechaEntrega;
+    }
+
 }

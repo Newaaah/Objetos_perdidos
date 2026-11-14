@@ -2,52 +2,71 @@ package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
+/** Reclamo y incidencia comparten tabla. Requiere al menos una referencia a hallazgo, custodia o entrega. */
 @Entity
 @Table(name = "RECLAMOS")
 public class Reclamos {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_RECLAMO")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_reclamos")
+    @SequenceGenerator(name = "gen_reclamos", sequenceName = "SEQ_RECLAMOS", allocationSize = 1)
+    @Column(name = "ID_RECLAMO", nullable = false)
     private Long idReclamo;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_ENTREGA")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TIPO_RECLAMO", nullable = false, length = 20)
+    private TipoReclamo tipoReclamo;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_ENTREGA", nullable = true)
     private Entrega entrega;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONA_RECLAMA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_CUSTODIA", nullable = true)
+    private ObjetosCustodiados custodia;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_PERSONA_RECLAMA", nullable = true)
     private Persona personaReclama;
 
-    @Column(name = "DETALLE_ARGUMENTO", length = 255)
-    private String detalleArgumento;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_PERSONAL_REGISTRA", nullable = true)
+    private Personal personalRegistra;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_HALLAZGO", nullable = true)
+    private ReporteHallazgos hallazgo;
+
+    @Column(name = "EVIDENCIA", nullable = true, length = 255)
+    private String evidencia;
+
+    @Column(name = "DESCRIPCION", nullable = false, length = 255)
+    private String descripcion;
+
+    @Column(name = "RESOLUCION", nullable = true, length = 500)
+    private String resolucion;
+
+    @Column(name = "FECHA_RESOLUCION", nullable = true)
+    private LocalDateTime fechaResolucion;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", length = 20)
-    private EstadoReclamo estado;
+    @Column(name = "ESTADO", nullable = false, length = 20)
+    private EstadoReclamo estado = EstadoReclamo.PENDIENTE;
 
-    @Column(name = "FECHA_RECLAMO", updatable = false)
-    private LocalDateTime fechaReclamo;
-
-    public Reclamos() {
-    }
-
-    public Reclamos(Entrega entrega,
-                    Persona personaReclama,
-                    String detalleArgumento,
-                    EstadoReclamo estado) {
-        this.entrega = entrega;
-        this.personaReclama = personaReclama;
-        this.detalleArgumento = detalleArgumento;
-        this.estado = estado;
-    }
+    @Column(name = "FECHA_REGISTRO", nullable = false)
+    private LocalDateTime fechaRegistro;
 
     @PrePersist
-    public void registrarFecha() {
-        if (fechaReclamo == null) {
-            fechaReclamo = LocalDateTime.now();
+    protected void asignarValoresAutomaticos() {
+        if (fechaRegistro == null) {
+            fechaRegistro = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
         }
+    }
+
+    public Reclamos() {
     }
 
     public Long getIdReclamo() {
@@ -58,12 +77,28 @@ public class Reclamos {
         this.idReclamo = idReclamo;
     }
 
+    public TipoReclamo getTipoReclamo() {
+        return tipoReclamo;
+    }
+
+    public void setTipoReclamo(TipoReclamo tipoReclamo) {
+        this.tipoReclamo = tipoReclamo;
+    }
+
     public Entrega getEntrega() {
         return entrega;
     }
 
     public void setEntrega(Entrega entrega) {
         this.entrega = entrega;
+    }
+
+    public ObjetosCustodiados getCustodia() {
+        return custodia;
+    }
+
+    public void setCustodia(ObjetosCustodiados custodia) {
+        this.custodia = custodia;
     }
 
     public Persona getPersonaReclama() {
@@ -74,12 +109,52 @@ public class Reclamos {
         this.personaReclama = personaReclama;
     }
 
-    public String getDetalleArgumento() {
-        return detalleArgumento;
+    public Personal getPersonalRegistra() {
+        return personalRegistra;
     }
 
-    public void setDetalleArgumento(String detalleArgumento) {
-        this.detalleArgumento = detalleArgumento;
+    public void setPersonalRegistra(Personal personalRegistra) {
+        this.personalRegistra = personalRegistra;
+    }
+
+    public ReporteHallazgos getHallazgo() {
+        return hallazgo;
+    }
+
+    public void setHallazgo(ReporteHallazgos hallazgo) {
+        this.hallazgo = hallazgo;
+    }
+
+    public String getEvidencia() {
+        return evidencia;
+    }
+
+    public void setEvidencia(String evidencia) {
+        this.evidencia = evidencia;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getResolucion() {
+        return resolucion;
+    }
+
+    public void setResolucion(String resolucion) {
+        this.resolucion = resolucion;
+    }
+
+    public LocalDateTime getFechaResolucion() {
+        return fechaResolucion;
+    }
+
+    public void setFechaResolucion(LocalDateTime fechaResolucion) {
+        this.fechaResolucion = fechaResolucion;
     }
 
     public EstadoReclamo getEstado() {
@@ -90,7 +165,12 @@ public class Reclamos {
         this.estado = estado;
     }
 
-    public LocalDateTime getFechaReclamo() {
-        return fechaReclamo;
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
     }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
 }

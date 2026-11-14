@@ -1,4 +1,3 @@
-
 package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
@@ -11,40 +10,38 @@ public class Estudiante {
     @Column(name = "ID_PERSONA")
     private Long idPersona;
 
-    @OneToOne
     @MapsId
-    @JoinColumn(name = "ID_PERSONA")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONA", nullable = false)
     private Persona persona;
 
-    @Column(name = "CODIGO_UNI", length = 9)
+    @Column(name = "CODIGO_UNI", nullable = false, length = 9, unique = true, columnDefinition = "CHAR(9)")
     private String codigoUni;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_CARRERA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_CARRERA", nullable = false)
     private Carrera carrera;
 
-    @Column(name = "CICLO")
+    @Column(name = "CICLO", nullable = true, columnDefinition = "NUMBER(2)")
     private Integer ciclo;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", length = 20)
+    @Column(name = "ESTADO", nullable = false, length = 20)
     private EstadoEstudiante estado;
 
     public Estudiante() {
     }
 
-    public Estudiante(Persona persona, String codigoUni,
-                      Carrera carrera, Integer ciclo,
-                      EstadoEstudiante estado) {
+    public Estudiante(Persona persona) {
         this.persona = persona;
-        this.codigoUni = codigoUni;
-        this.carrera = carrera;
-        this.ciclo = ciclo;
-        this.estado = estado;
     }
 
     public Long getIdPersona() {
         return idPersona;
+    }
+
+    public void setIdPersona(Long idPersona) {
+        this.idPersona = idPersona;
     }
 
     public Persona getPersona() {
@@ -86,4 +83,5 @@ public class Estudiante {
     public void setEstado(EstadoEstudiante estado) {
         this.estado = estado;
     }
+
 }

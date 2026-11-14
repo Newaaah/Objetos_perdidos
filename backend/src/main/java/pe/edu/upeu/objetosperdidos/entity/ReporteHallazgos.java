@@ -2,94 +2,64 @@ package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
+/** La revision se asocia a PERSONAL mediante ID_PERSONA_REVISOR. Custodia anticipada no equivale a aprobar la publicacion. */
 @Entity
 @Table(name = "REPORTE_HALLAZGOS")
 public class ReporteHallazgos {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_HALLAZGO")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_reporte_hallazgos")
+    @SequenceGenerator(name = "gen_reporte_hallazgos", sequenceName = "SEQ_REPORTE_HALLAZGOS", allocationSize = 1)
+    @Column(name = "ID_HALLAZGO", nullable = false)
     private Long idHallazgo;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONA")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONA", nullable = false)
     private Persona persona;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_CATEGORIA")
-    private Categoria categoria;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_OBJETO", nullable = false, unique = true)
+    private Objeto objeto;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_UBICACION_ENCONTRADO")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_UBICACION_ENCONTRADO", nullable = false)
     private Ubicacion ubicacionEncontrado;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_UBICACION_DESTINO")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_UBICACION_DESTINO", nullable = false)
     private Ubicacion ubicacionDestino;
 
-    @Column(name = "NOMBRE", length = 50)
-    private String nombre;
-
-    @Column(name = "MARCA", length = 100)
-    private String marca;
-
-    @Column(name = "COLOR", length = 50)
-    private String color;
-
-    @Column(name = "DESCRIPCION", length = 255)
-    private String descripcion;
-
-    @Column(name = "IMAGEN_REF", length = 255)
+    @Column(name = "IMAGEN_REF", nullable = false, length = 255)
     private String imagenRef;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", length = 20)
-    private EstadoReporteHallazgos estado;
-
-    @Column(name = "FECHA_REPORTE", updatable = false)
+    @Column(name = "FECHA_REPORTE", nullable = false)
     private LocalDateTime fechaReporte;
 
-    @ManyToOne
-    @JoinColumn(name = "ID_PERSONA_REVISOR")
-    private Persona revisor;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_PERSONA_REVISOR", nullable = true)
+    private Personal personaRevisor;
 
-    @Column(name = "FECHA_REVISION")
+    @Column(name = "FECHA_REVISION", nullable = true)
     private LocalDateTime fechaRevision;
 
-    @Column(name = "OBSERVACION", length = 255)
+    @Column(name = "OBSERVACION", nullable = true, length = 255)
     private String observacion;
 
-    public ReporteHallazgos() {
-    }
-
-    public ReporteHallazgos(Persona persona,
-                            Categoria categoria,
-                            Ubicacion ubicacionEncontrado,
-                            Ubicacion ubicacionDestino,
-                            String nombre,
-                            String marca,
-                            String color,
-                            String descripcion,
-                            String imagenRef,
-                            EstadoReporteHallazgos estado) {
-        this.persona = persona;
-        this.categoria = categoria;
-        this.ubicacionEncontrado = ubicacionEncontrado;
-        this.ubicacionDestino = ubicacionDestino;
-        this.nombre = nombre;
-        this.marca = marca;
-        this.color = color;
-        this.descripcion = descripcion;
-        this.imagenRef = imagenRef;
-        this.estado = estado;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ESTADO", nullable = false, length = 20)
+    private EstadoReporteHallazgo estado = EstadoReporteHallazgo.PENDIENTE;
 
     @PrePersist
-    public void registrarFecha() {
+    protected void asignarValoresAutomaticos() {
         if (fechaReporte == null) {
-            fechaReporte = LocalDateTime.now();
+            fechaReporte = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
         }
+    }
+
+    public ReporteHallazgos() {
     }
 
     public Long getIdHallazgo() {
@@ -108,12 +78,12 @@ public class ReporteHallazgos {
         this.persona = persona;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public Objeto getObjeto() {
+        return objeto;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setObjeto(Objeto objeto) {
+        this.objeto = objeto;
     }
 
     public Ubicacion getUbicacionEncontrado() {
@@ -132,38 +102,6 @@ public class ReporteHallazgos {
         this.ubicacionDestino = ubicacionDestino;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
     public String getImagenRef() {
         return imagenRef;
     }
@@ -172,24 +110,20 @@ public class ReporteHallazgos {
         this.imagenRef = imagenRef;
     }
 
-    public EstadoReporteHallazgos getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoReporteHallazgos estado) {
-        this.estado = estado;
-    }
-
     public LocalDateTime getFechaReporte() {
         return fechaReporte;
     }
 
-    public Persona getRevisor() {
-        return revisor;
+    public void setFechaReporte(LocalDateTime fechaReporte) {
+        this.fechaReporte = fechaReporte;
     }
 
-    public void setRevisor(Persona revisor) {
-        this.revisor = revisor;
+    public Personal getPersonaRevisor() {
+        return personaRevisor;
+    }
+
+    public void setPersonaRevisor(Personal personaRevisor) {
+        this.personaRevisor = personaRevisor;
     }
 
     public LocalDateTime getFechaRevision() {
@@ -207,4 +141,13 @@ public class ReporteHallazgos {
     public void setObservacion(String observacion) {
         this.observacion = observacion;
     }
+
+    public EstadoReporteHallazgo getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoReporteHallazgo estado) {
+        this.estado = estado;
+    }
+
 }

@@ -2,6 +2,7 @@ package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
 
+/** Una persona tiene como maximo una cuenta. PASSWORD almacena solamente el hash. */
 @Entity
 @Table(name = "USUARIO")
 public class Usuario {
@@ -10,35 +11,35 @@ public class Usuario {
     @Column(name = "ID_PERSONA")
     private Long idPersona;
 
-    @OneToOne
     @MapsId
-    @JoinColumn(name = "ID_PERSONA")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERSONA", nullable = false)
     private Persona persona;
 
-    @Column(name = "PASSWORD", length = 255)
+    @Column(name = "PASSWORD", nullable = false, length = 255)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ROL", length = 50)
+    @Column(name = "ROL", nullable = false, length = 50)
     private RolUsuario rol;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", length = 20)
+    @Column(name = "ESTADO", nullable = false, length = 20)
     private EstadoUsuario estado;
 
     public Usuario() {
     }
 
-    public Usuario(Persona persona, String password,
-                   RolUsuario rol, EstadoUsuario estado) {
+    public Usuario(Persona persona) {
         this.persona = persona;
-        this.password = password;
-        this.rol = rol;
-        this.estado = estado;
     }
 
     public Long getIdPersona() {
         return idPersona;
+    }
+
+    public void setIdPersona(Long idPersona) {
+        this.idPersona = idPersona;
     }
 
     public Persona getPersona() {
@@ -72,4 +73,5 @@ public class Usuario {
     public void setEstado(EstadoUsuario estado) {
         this.estado = estado;
     }
+
 }

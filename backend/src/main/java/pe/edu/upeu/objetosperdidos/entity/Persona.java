@@ -3,36 +3,31 @@ package pe.edu.upeu.objetosperdidos.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "PERSONA")
+@Table(name = "PERSONA", uniqueConstraints = @UniqueConstraint(name = "UK_PERSONA_DOCUMENTO", columnNames = {"TIPO_DOCUMENTO", "DOCUMENTO_IDENTIDAD"}))
 public class Persona {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_PERSONA")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_persona")
+    @SequenceGenerator(name = "gen_persona", sequenceName = "SEQ_PERSONA", allocationSize = 1)
+    @Column(name = "ID_PERSONA", nullable = false)
     private Long idPersona;
 
-    @Column(name = "DOCUMENTO_IDENTIDAD", length = 20)
+    @Column(name = "TIPO_DOCUMENTO", nullable = false, length = 50)
+    private String tipoDocumento;
+
+    @Column(name = "DOCUMENTO_IDENTIDAD", nullable = false, length = 20)
     private String documentoIdentidad;
 
-    @Column(name = "NOMBRES", length = 50)
+    @Column(name = "NOMBRES", nullable = false, length = 50)
     private String nombres;
 
-    @Column(name = "APELLIDOS", length = 50)
+    @Column(name = "APELLIDOS", nullable = false, length = 50)
     private String apellidos;
 
-    @Column(name = "TELEFONO", length = 50)
+    @Column(name = "TELEFONO", nullable = true, length = 50)
     private String telefono;
 
     public Persona() {
-    }
-
-    public Persona(Long idPersona, String documentoIdentidad,
-                   String nombres, String apellidos, String telefono) {
-        this.idPersona = idPersona;
-        this.documentoIdentidad = documentoIdentidad;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.telefono = telefono;
     }
 
     public Long getIdPersona() {
@@ -41,6 +36,14 @@ public class Persona {
 
     public void setIdPersona(Long idPersona) {
         this.idPersona = idPersona;
+    }
+
+    public String getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(String tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
     }
 
     public String getDocumentoIdentidad() {
@@ -74,4 +77,5 @@ public class Persona {
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
+
 }

@@ -1,7 +1,7 @@
 package pe.edu.upeu.objetosperdidos.entity;
 
 public enum RolUsuario {
-    ADMIN,
+    ESTUDIANTE,
     PERSONAL,
-    ESTUDIANTE
+    ADMIN
 }

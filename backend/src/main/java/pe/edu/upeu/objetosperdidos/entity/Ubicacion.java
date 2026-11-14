@@ -7,23 +7,18 @@ import jakarta.persistence.*;
 public class Ubicacion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_UBICACION")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_ubicacion")
+    @SequenceGenerator(name = "gen_ubicacion", sequenceName = "SEQ_UBICACION", allocationSize = 1)
+    @Column(name = "ID_UBICACION", nullable = false)
     private Long idUbicacion;
 
-    @Column(name = "NOMBRE", length = 100)
+    @Column(name = "NOMBRE", nullable = false, length = 100, unique = true)
     private String nombre;
 
-    @Column(name = "DETALLE", length = 255)
+    @Column(name = "DETALLE", nullable = true, length = 255)
     private String detalle;
 
     public Ubicacion() {
-    }
-
-    public Ubicacion(Long idUbicacion, String nombre, String detalle) {
-        this.idUbicacion = idUbicacion;
-        this.nombre = nombre;
-        this.detalle = detalle;
     }
 
     public Long getIdUbicacion() {
@@ -49,4 +44,5 @@ public class Ubicacion {
     public void setDetalle(String detalle) {
         this.detalle = detalle;
     }
+
 }

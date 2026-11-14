@@ -7,19 +7,15 @@ import jakarta.persistence.*;
 public class Categoria {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_CATEGORIA")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_categoria")
+    @SequenceGenerator(name = "gen_categoria", sequenceName = "SEQ_CATEGORIA", allocationSize = 1)
+    @Column(name = "ID_CATEGORIA", nullable = false)
     private Long idCategoria;
 
-    @Column(name = "NOMBRE", length = 50)
+    @Column(name = "NOMBRE", nullable = false, length = 50, unique = true)
     private String nombre;
 
     public Categoria() {
-    }
-
-    public Categoria(Long idCategoria, String nombre) {
-        this.idCategoria = idCategoria;
-        this.nombre = nombre;
     }
 
     public Long getIdCategoria() {
@@ -37,4 +33,5 @@ public class Categoria {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
 }
