@@ -3,13 +3,13 @@ spring:
     name: objetos_perdidos
   datasource:
     url: jdbc:oracle:thin:@localhost:1521/XE
-    username: OP_UPEU
-    password: UPEU
+    username: UPEU
+    password: 123
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -24,3 +24,7 @@ server:
 storage:
   location: "images"
 
+security:
+  jwt:
+    secret-key: ${JWT_SECRET:}
+    expiration-time: 120000
