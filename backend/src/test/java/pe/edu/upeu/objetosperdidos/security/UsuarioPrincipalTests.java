@@ -1,30 +1,43 @@
+
 package pe.edu.upeu.objetosperdidos.security;
 
 import org.junit.jupiter.api.Test;
-import pe.edu.upeu.objetosperdidos.entity.EstadoUsuario;
-import pe.edu.upeu.objetosperdidos.entity.Persona;
 import pe.edu.upeu.objetosperdidos.entity.RolUsuario;
-import pe.edu.upeu.objetosperdidos.entity.Usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioPrincipalTests {
+
     @Test
-    void mapsTheExistingRoleWithoutRolePrefixAndDisablesInactiveAccounts() {
-        Persona persona = new Persona();
-        persona.setDocumentoIdentidad("12345678");
-        Usuario usuario = new Usuario();
-        usuario.setPersona(persona);
-        usuario.setRol(RolUsuario.ADMIN);
-        usuario.setEstado(EstadoUsuario.ACTIVO);
+    void verificarRolYEstadoDelUsuario() {
 
-        UsuarioPrincipal principal = new UsuarioPrincipal(usuario);
+        UsuarioPrincipal principal = new UsuarioPrincipal(
+                1L,
+                "DNI|12345678",
+                "hash-de-prueba",
+                RolUsuario.ADMIN,
+                true
+        );
 
-        assertEquals("12345678", principal.getUsername());
-        assertEquals("ADMIN", principal.getAuthorities().iterator().next().getAuthority());
+        assertEquals("DNI|12345678", principal.getUsername());
+
+        assertEquals("hash-de-prueba", principal.getPassword());
+
+        assertTrue(
+                principal.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ADMIN"))
+        );
+
         assertTrue(principal.isEnabled());
 
-        usuario.setEstado(EstadoUsuario.INACTIVO);
-        assertFalse(principal.isEnabled());
+        UsuarioPrincipal inactivo = new UsuarioPrincipal(
+                1L,
+                "DNI|12345678",
+                "hash-de-prueba",
+                RolUsuario.ADMIN,
+                false
+        );
+
+        assertFalse(inactivo.isEnabled());
     }
 }
