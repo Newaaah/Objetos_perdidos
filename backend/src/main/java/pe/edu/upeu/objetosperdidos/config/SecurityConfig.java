@@ -62,13 +62,15 @@ public class SecurityConfig {
                 .requestMatchers(
                         HttpMethod.GET,
                         "/api/v1/categorias", "/api/v1/categorias/**",
-                        "/api/v1/ubicaciones", "/api/v1/ubicaciones/**"
+                        "/api/v1/ubicaciones", "/api/v1/ubicaciones/**",
+                        "/api/v1/areas", "/api/v1/areas/**"
                 ).permitAll()
 
                 // Solo ADMIN modifica catalogos
                 .requestMatchers(
                         "/api/v1/categorias", "/api/v1/categorias/**",
-                        "/api/v1/ubicaciones", "/api/v1/ubicaciones/**"
+                        "/api/v1/ubicaciones", "/api/v1/ubicaciones/**",
+                        "/api/v1/areas", "/api/v1/areas/**"
                 ).hasAuthority("ADMIN")
 
                 // Reportes institucionales
