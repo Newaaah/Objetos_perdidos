@@ -55,29 +55,31 @@ public class SecurityConfig {
                         "/error"
                 ).permitAll()
 
-                // Login, sin cambiar el flujo de autenticacion existente
+                // Login existente
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
 
-                // Lectura publica de catalogos
+                // Lectura publica de catalogos (tambien carreras)
                 .requestMatchers(
                         HttpMethod.GET,
                         "/api/v1/categorias", "/api/v1/categorias/**",
                         "/api/v1/ubicaciones", "/api/v1/ubicaciones/**",
-                        "/api/v1/areas", "/api/v1/areas/**"
+                        "/api/v1/areas", "/api/v1/areas/**",
+                        "/api/v1/carreras", "/api/v1/carreras/**"
                 ).permitAll()
 
-                // Solo ADMIN modifica catalogos
+                // Cambios en catalogos: unicamente ADMIN
                 .requestMatchers(
                         "/api/v1/categorias", "/api/v1/categorias/**",
                         "/api/v1/ubicaciones", "/api/v1/ubicaciones/**",
-                        "/api/v1/areas", "/api/v1/areas/**"
+                        "/api/v1/areas", "/api/v1/areas/**",
+                        "/api/v1/carreras", "/api/v1/carreras/**"
                 ).hasAuthority("ADMIN")
 
-                // Reportes institucionales
+                // Reportes institucionales (sin cambios)
                 .requestMatchers("/api/v1/reportes/**")
                     .hasAnyAuthority("PERSONAL", "ADMIN")
 
-                // Otras rutas permanecen bloqueadas por defecto
+                // Denegar endpoints futuros hasta definir permisos
                 .anyRequest().denyAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(
