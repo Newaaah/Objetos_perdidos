@@ -1,10 +1,12 @@
+
 spring:
   application:
     name: objetos_perdidos
+
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/XE
-    username: UPEU
-    password: 123
+    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
+    username: APP_UPEU
+    password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
@@ -14,6 +16,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
+        default_schema: UPEU_DATOS
         format_sql: true
 
 server:
