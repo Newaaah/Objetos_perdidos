@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.objetosperdidos.entity;
 
 import jakarta.persistence.*;
@@ -5,20 +6,33 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-/** LEIDA: 0=no leida, 1=leida. El servicio crea un aviso por evento relevante, sin duplicaciones. */
+/**
+ * LEIDA: 0=no leida, 1=leida.
+ * El servicio crea un aviso por evento relevante,
+ * sin duplicaciones.
+ */
 @Entity
 @Table(name = "NOTIFICACIONES")
 public class Notificaciones {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_notificaciones")
-    @SequenceGenerator(name = "gen_notificaciones", sequenceName = "SEQ_NOTIFICACIONES", allocationSize = 1)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "gen_notificaciones"
+    )
+    @SequenceGenerator(
+            name = "gen_notificaciones",
+            sequenceName = "SEQ_NOTIFICACIONES",
+            allocationSize = 1
+    )
     @Column(name = "ID_NOTIFICACION", nullable = false)
     private Long idNotificacion;
 
+    // Ahora las notificaciones pertenecen directamente
+    // a PERSONA, no a USUARIO.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ID_PERSONA", nullable = false)
-    private Usuario persona;
+    private Persona persona;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TIPO", nullable = false, length = 40)
@@ -33,7 +47,11 @@ public class Notificaciones {
     @Column(name = "FECHA_CREACION", nullable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "LEIDA", nullable = false, columnDefinition = "NUMBER(1)")
+    @Column(
+            name = "LEIDA",
+            nullable = false,
+            columnDefinition = "NUMBER(1)"
+    )
     private Integer leida = 0;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -51,7 +69,9 @@ public class Notificaciones {
     @PrePersist
     protected void asignarValoresAutomaticos() {
         if (fechaCreacion == null) {
-            fechaCreacion = LocalDateTime.now(ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS);
+            fechaCreacion = LocalDateTime.now(
+                    ZoneId.of("America/Lima")
+            ).truncatedTo(ChronoUnit.SECONDS);
         }
     }
 
@@ -66,11 +86,11 @@ public class Notificaciones {
         this.idNotificacion = idNotificacion;
     }
 
-    public Usuario getPersona() {
+    public Persona getPersona() {
         return persona;
     }
 
-    public void setPersona(Usuario persona) {
+    public void setPersona(Persona persona) {
         this.persona = persona;
     }
 
@@ -118,7 +138,8 @@ public class Notificaciones {
         return reportePerdida;
     }
 
-    public void setReportePerdida(ReportePerdida reportePerdida) {
+    public void setReportePerdida(
+            ReportePerdida reportePerdida) {
         this.reportePerdida = reportePerdida;
     }
 
@@ -126,7 +147,8 @@ public class Notificaciones {
         return hallazgo;
     }
 
-    public void setHallazgo(ReporteHallazgos hallazgo) {
+    public void setHallazgo(
+            ReporteHallazgos hallazgo) {
         this.hallazgo = hallazgo;
     }
 
@@ -134,8 +156,8 @@ public class Notificaciones {
         return custodia;
     }
 
-    public void setCustodia(ObjetosCustodiados custodia) {
+    public void setCustodia(
+            ObjetosCustodiados custodia) {
         this.custodia = custodia;
     }
-
 }

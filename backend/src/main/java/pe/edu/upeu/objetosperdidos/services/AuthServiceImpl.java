@@ -1,27 +1,18 @@
+
 package pe.edu.upeu.objetosperdidos.services;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pe.edu.upeu.objetosperdidos.dto.AuthResponse;
 import pe.edu.upeu.objetosperdidos.dto.LoginRequest;
 
-import pe.edu.upeu.objetosperdidos.entity.Estudiante;
-import pe.edu.upeu.objetosperdidos.entity.EstadoEstudiante;
-import pe.edu.upeu.objetosperdidos.entity.EstadoPersonal;
-import pe.edu.upeu.objetosperdidos.entity.EstadoUsuario;
-import pe.edu.upeu.objetosperdidos.entity.Persona;
-import pe.edu.upeu.objetosperdidos.entity.RolUsuario;
-import pe.edu.upeu.objetosperdidos.entity.Usuario;
-
-import pe.edu.upeu.objetosperdidos.repository.EstudianteRepository;
-import pe.edu.upeu.objetosperdidos.repository.PersonalRepository;
-import pe.edu.upeu.objetosperdidos.repository.UsuarioRepository;
+import pe.edu.upeu.objetosperdidos.entity.*;
+import pe.edu.upeu.objetosperdidos.repository.*;
 
 import pe.edu.upeu.objetosperdidos.security.IdentificadorLogin;
 import pe.edu.upeu.objetosperdidos.security.JwtService;
@@ -64,26 +55,25 @@ public class AuthServiceImpl implements IAuthService {
             throw credencialesInvalidas();
         }
 
-        // Un codigo universitario identifica al estudiante.
         if (IdentificadorLogin.esCodigoUniversitario(ingreso)) {
-            return loginEstudiantePorCodigo(ingreso);
+            return loginEstudiantePorCodigo(
+                    ingreso,
+                    request.password()
+            );
         }
 
-        // Un DNI puede corresponder a cualquier rol.
         return loginPorDni(ingreso, request.password());
     }
 
-    private AuthResponse loginEstudiantePorCodigo(String codigo) {
+    private AuthResponse loginEstudiantePorCodigo(
+            String codigo,
+            String password) {
 
         Estudiante estudiante = estudianteRepository
                 .findByCodigoUni(codigo)
                 .orElseThrow(this::credencialesInvalidas);
 
-        Usuario usuario = usuarioRepository
-                .findById(estudiante.getIdPersona())
-                .orElseThrow(this::credencialesInvalidas);
-
-        return autenticarEstudiante(usuario);
+        return autenticarEstudiante(estudiante, password);
     }
 
     private AuthResponse loginPorDni(
@@ -95,64 +85,111 @@ public class AuthServiceImpl implements IAuthService {
                         "DNI",
                         dni
                 )
-                .orElseThrow(this::credencialesInvalidas);
+                .orElse(null);
 
-        if (usuario.getEstado() != EstadoUsuario.ACTIVO) {
+        if (usuario != null) {
+
+            if (usuario.getRol() == RolUsuario.ESTUDIANTE) {
+
+                Estudiante estudiante = estudianteRepository
+                        .findById(usuario.getIdPersona())
+                        .orElseThrow(this::credencialesInvalidas);
+
+                return autenticarEstudiante(estudiante, password);
+            }
+
+            if (usuario.getRol() == RolUsuario.PERSONAL
+                    || usuario.getRol() == RolUsuario.ADMIN) {
+
+                return autenticarPersonal(usuario, dni, password);
+            }
+
             throw credencialesInvalidas();
         }
 
-        // El estudiante no necesita contrasena.
-        if (usuario.getRol() == RolUsuario.ESTUDIANTE) {
-            return autenticarEstudiante(usuario);
-        }
+        // Estudiante que aun no tiene cuenta en USUARIO.
+        Estudiante estudiante = estudianteRepository
+                .findByPersonaTipoDocumentoAndPersonaDocumentoIdentidad(
+                        "DNI",
+                        dni
+                )
+                .orElseThrow(this::credencialesInvalidas);
 
-        // PERSONAL y ADMIN siempre necesitan contrasena.
-        if (usuario.getRol() == RolUsuario.PERSONAL
-                || usuario.getRol() == RolUsuario.ADMIN) {
-
-            return autenticarPersonal(usuario, dni, password);
-        }
-
-        throw credencialesInvalidas();
+        return autenticarEstudiante(estudiante, password);
     }
 
-    private AuthResponse autenticarEstudiante(Usuario usuario) {
+    private AuthResponse autenticarEstudiante(
+            Estudiante estudiante,
+            String password) {
 
-        Estudiante estudiante = estudianteRepository
-                .findById(usuario.getIdPersona())
-                .orElseThrow(this::credencialesInvalidas);
-
-        if (usuario.getEstado() != EstadoUsuario.ACTIVO
-                || usuario.getRol() != RolUsuario.ESTUDIANTE
-                || estudiante.getEstado() != EstadoEstudiante.ACTIVO) {
-
+        if (estudiante.getEstado() != EstadoEstudiante.ACTIVO) {
             throw credencialesInvalidas();
         }
 
-        // Impedir acceso sin contrasena si tambien es
-        // trabajador activo, incluso ante un rol mal asignado.
-        boolean trabajadorActivo = personalRepository
-                .findById(usuario.getIdPersona())
-                .map(personal ->
-                        personal.getEstado() == EstadoPersonal.ACTIVO
-                )
-                .orElse(false);
+        Long idPersona = estudiante.getIdPersona();
 
-        if (trabajadorActivo) {
+        // Evitar acceso estudiantil a personas registradas
+        // como personal, incluso si su registro esta inactivo.
+        if (personalRepository.existsById(idPersona)) {
             throw credencialesInvalidas();
         }
 
-        Persona persona = usuario.getPersona();
+        Usuario usuario = usuarioRepository
+                .findById(idPersona)
+                .orElse(null);
+
+        if (usuario != null) {
+
+            if (usuario.getEstado() != EstadoUsuario.ACTIVO
+                    || usuario.getRol() != RolUsuario.ESTUDIANTE) {
+
+                throw credencialesInvalidas();
+            }
+        }
+
+        Persona persona = estudiante.getPersona();
 
         String identificador = IdentificadorLogin.construir(
                 persona.getTipoDocumento(),
                 persona.getDocumentoIdentidad()
         );
 
+        String hash = usuario == null
+                ? null
+                : usuario.getPassword();
+
+        // Si el estudiante configuro una contrasena,
+        // esta pasa a ser obligatoria.
+        if (hash != null && !hash.isBlank()) {
+
+            if (password == null || password.isBlank()) {
+                throw credencialesInvalidas();
+            }
+
+            UsuarioPrincipal principal = autenticarConPassword(
+                    identificador,
+                    password
+            );
+
+            if (!principal.isEnabled()
+                    || principal.rol() != RolUsuario.ESTUDIANTE
+                    || !idPersona.equals(principal.idPersona())) {
+
+                throw credencialesInvalidas();
+            }
+
+            return generarRespuesta(principal);
+        }
+
+        // Sin contrasena configurada: acceso ligero.
+        if (password != null && !password.isBlank()) {
+            throw credencialesInvalidas();
+        }
+
         UsuarioPrincipal principal = new UsuarioPrincipal(
-                usuario.getIdPersona(),
+                idPersona,
                 identificador,
-                usuario.getPassword(),
+                "",
                 RolUsuario.ESTUDIANTE,
                 true
         );
@@ -164,6 +201,15 @@ public class AuthServiceImpl implements IAuthService {
             Usuario usuario,
             String dni,
             String password) {
+
+        if (usuario.getEstado() != EstadoUsuario.ACTIVO) {
+            throw credencialesInvalidas();
+        }
+
+        if (usuario.getRol() != RolUsuario.PERSONAL
+                && usuario.getRol() != RolUsuario.ADMIN) {
+            throw credencialesInvalidas();
+        }
 
         if (password == null || password.isBlank()) {
             throw credencialesInvalidas();
@@ -185,7 +231,25 @@ public class AuthServiceImpl implements IAuthService {
                 dni
         );
 
-        // Spring Security verifica la contrasena con BCrypt.
+        UsuarioPrincipal principal = autenticarConPassword(
+                identificador,
+                password
+        );
+
+        if (!principal.isEnabled()
+                || !usuario.getIdPersona().equals(principal.idPersona())
+                || principal.rol() != usuario.getRol()) {
+
+            throw credencialesInvalidas();
+        }
+
+        return generarRespuesta(principal);
+    }
+
+    private UsuarioPrincipal autenticarConPassword(
+            String identificador,
+            String password) {
+
         Authentication authentication = authenticationManager
                 .authenticate(
                         new UsernamePasswordAuthenticationToken(
@@ -200,14 +264,7 @@ public class AuthServiceImpl implements IAuthService {
             throw credencialesInvalidas();
         }
 
-        if (!principal.isEnabled()
-                || (principal.rol() != RolUsuario.PERSONAL
-                && principal.rol() != RolUsuario.ADMIN)) {
-
-            throw credencialesInvalidas();
-        }
-
-        return generarRespuesta(principal);
+        return principal;
     }
 
     private AuthResponse generarRespuesta(
@@ -224,6 +281,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     private BadCredentialsException credencialesInvalidas() {
+
         return new BadCredentialsException(
                 "Credenciales invalidas o cuenta no habilitada"
         );
