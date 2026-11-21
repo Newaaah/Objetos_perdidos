@@ -2,6 +2,10 @@
 package pe.edu.upeu.objetosperdidos.repository;
 
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +18,24 @@ import pe.edu.upeu.objetosperdidos.entity.TipoReclamo;
 @Repository
 public interface ReclamosRepository
         extends JpaRepository<Reclamos, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Reclamos c WHERE c.idReclamo = :id")
+    Optional<Reclamos> bloquearPorId(@Param("id") Long id);
+
+    boolean existsByTipoReclamoAndPersonaReclamaIdPersonaAndEntregaIdEntregaAndEstadoIn(
+            TipoReclamo tipo, Long idPersona, Long idEntrega, List<EstadoReclamo> estados);
+
+    List<Reclamos> findByTipoReclamoAndPersonaReclamaIdPersonaOrderByFechaRegistroDescIdReclamoDesc(
+            TipoReclamo tipo, Long idPersona);
+
+    List<Reclamos> findByTipoReclamoAndEstadoOrderByFechaRegistroAscIdReclamoAsc(
+            TipoReclamo tipo, EstadoReclamo estado);
+
+    List<Reclamos> findByTipoReclamoAndEstadoOrderByFechaRegistroDescIdReclamoDesc(
+            TipoReclamo tipo, EstadoReclamo estado);
+
+    List<Reclamos> findByTipoReclamoOrderByFechaRegistroDescIdReclamoDesc(TipoReclamo tipo);
 
     List<Reclamos> findByPersonaReclamaIdPersona(
             Long idPersona

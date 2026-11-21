@@ -18,7 +18,7 @@ import pe.edu.upeu.objetosperdidos.dto.HallazgoRevisionResultadoDTO;
 import pe.edu.upeu.objetosperdidos.dto.ResolverHallazgoRequest;
 import pe.edu.upeu.objetosperdidos.security.UsuarioPrincipal;
 import pe.edu.upeu.objetosperdidos.services.IRevisionHallazgoService;
-import pe.edu.upeu.objetosperdidos.services.LecturaImagenHallazgoService;
+import pe.edu.upeu.objetosperdidos.services.IFileStorageService;
 
 @RestController
 @RequestMapping("/api/v1/hallazgos/revision")
@@ -26,13 +26,9 @@ import pe.edu.upeu.objetosperdidos.services.LecturaImagenHallazgoService;
 public class RevisionHallazgoController {
 
     private final IRevisionHallazgoService revisiones;
-    private final LecturaImagenHallazgoService imagenes;
 
-    public RevisionHallazgoController(
-            IRevisionHallazgoService revisiones,
-            LecturaImagenHallazgoService imagenes) {
+    public RevisionHallazgoController(IRevisionHallazgoService revisiones) {
         this.revisiones = revisiones;
-        this.imagenes = imagenes;
     }
 
     @Operation(summary = "Listar hallazgos pendientes de revisar")
@@ -44,7 +40,7 @@ public class RevisionHallazgoController {
     @Operation(summary = "Ver imagen privada de un hallazgo")
     @GetMapping("/{idHallazgo}/imagen")
     public ResponseEntity<byte[]> imagen(@PathVariable Long idHallazgo) {
-        LecturaImagenHallazgoService.Imagen imagen = imagenes.leer(idHallazgo);
+        IFileStorageService.Imagen imagen = revisiones.leerImagen(idHallazgo);
         return ResponseEntity.ok()
                 .contentType(imagen.mediaType())
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")

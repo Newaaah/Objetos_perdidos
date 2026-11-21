@@ -29,6 +29,7 @@ public class ReportePerdidaServiceImpl implements IReportePerdidaService {
     private final ObjetoRepository objetos;
     private final ReportePerdidaRepository perdidas;
     private final IReporteEstadisticoService consultas;
+    private final AvisosDeDominioService avisos;
 
     public ReportePerdidaServiceImpl(
             PersonaRepository personas,
@@ -36,13 +37,15 @@ public class ReportePerdidaServiceImpl implements IReportePerdidaService {
             UbicacionRepository ubicaciones,
             ObjetoRepository objetos,
             ReportePerdidaRepository perdidas,
-            IReporteEstadisticoService consultas) {
+            IReporteEstadisticoService consultas,
+            AvisosDeDominioService avisos) {
         this.personas = personas;
         this.categorias = categorias;
         this.ubicaciones = ubicaciones;
         this.objetos = objetos;
         this.perdidas = perdidas;
         this.consultas = consultas;
+        this.avisos = avisos;
     }
 
     @Override
@@ -86,6 +89,8 @@ public class ReportePerdidaServiceImpl implements IReportePerdidaService {
         // El @PrePersist de ReportePerdida asigna fechaReporte;
         // la entidad ya inicializa el estado REPORTADO.
         reporte = perdidas.saveAndFlush(reporte);
+
+        avisos.perdidaRegistrada(reporte);
 
         return new ReportePerdidaCreadoDTO(
                 reporte.getIdReportePerdida(),

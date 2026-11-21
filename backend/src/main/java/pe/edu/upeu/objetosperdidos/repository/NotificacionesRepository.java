@@ -7,7 +7,14 @@ import java.util.List;
 
 @Repository
 public interface NotificacionesRepository extends JpaRepository<Notificaciones, Long> {
-    List<Notificaciones> findByPersonaIdPersonaOrderByFechaCreacionDesc(Long idPersona);
+    List<Notificaciones> findByPersonaIdPersonaOrderByFechaCreacionDescIdNotificacionDesc(Long idPersona);
+    List<Notificaciones> findByPersonaIdPersonaAndLeidaOrderByFechaCreacionDescIdNotificacionDesc(Long idPersona, Integer leida);
+    boolean existsByPersonaIdPersonaAndTipoAndReportePerdidaIdReportePerdida(
+            Long idPersona, pe.edu.upeu.objetosperdidos.entity.TipoNotificacion tipo, Long idReporte);
+    boolean existsByPersonaIdPersonaAndTipoAndHallazgoIdHallazgo(
+            Long idPersona, pe.edu.upeu.objetosperdidos.entity.TipoNotificacion tipo, Long idHallazgo);
+    boolean existsByPersonaIdPersonaAndTipoAndCustodiaIdCustodia(
+            Long idPersona, pe.edu.upeu.objetosperdidos.entity.TipoNotificacion tipo, Long idCustodia);
     List<Notificaciones> findByPersonaIdPersonaAndLeidaOrderByFechaCreacionDesc(Long idPersona, Integer leida);
     long countByPersonaIdPersonaAndLeida(Long idPersona, Integer leida);
 }

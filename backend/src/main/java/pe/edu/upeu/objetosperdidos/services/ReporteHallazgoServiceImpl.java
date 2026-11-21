@@ -3,8 +3,6 @@ package pe.edu.upeu.objetosperdidos.services;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.objetosperdidos.dto.CrearReporteHallazgoRequest;
 import pe.edu.upeu.objetosperdidos.dto.MiHallazgoDTO;
@@ -31,7 +29,7 @@ public class ReporteHallazgoServiceImpl implements IReporteHallazgoService {
     private final ObjetoRepository objetos;
     private final ReporteHallazgosRepository hallazgos;
     private final IReporteEstadisticoService consultas;
-    private final AlmacenamientoImagenHallazgoService imagenes;
+    private final IFileStorageService imagenes;
 
     public ReporteHallazgoServiceImpl(
             PersonaRepository personas,
@@ -40,7 +38,7 @@ public class ReporteHallazgoServiceImpl implements IReporteHallazgoService {
             ObjetoRepository objetos,
             ReporteHallazgosRepository hallazgos,
             IReporteEstadisticoService consultas,
-            AlmacenamientoImagenHallazgoService imagenes) {
+            IFileStorageService imagenes) {
         this.personas = personas;
         this.categorias = categorias;
         this.ubicaciones = ubicaciones;
@@ -81,19 +79,7 @@ public class ReporteHallazgoServiceImpl implements IReporteHallazgoService {
 
         // El archivo se guarda ANTES del INSERT. Se borra si la transaccion
         // de Oracle falla o es revertida, para no dejar imagenes huerfanas.
-        String imagenRef = imagenes.guardar(imagen);
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            imagenes.eliminarTrasRollback(imagenRef);
-            throw new IllegalStateException("No hay una transaccion activa");
-        }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCompletion(int estado) {
-                if (estado != TransactionSynchronization.STATUS_COMMITTED) {
-                    imagenes.eliminarTrasRollback(imagenRef);
-                }
-            }
-        });
+        String imagenRef = imagenes.storeEnTransaccion(imagen, IFileStorageService.HALLAZGOS);
 
         Objeto objeto = new Objeto();
         objeto.setCategoria(categoria);

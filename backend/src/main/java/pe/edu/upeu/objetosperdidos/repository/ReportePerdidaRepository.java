@@ -1,7 +1,11 @@
 
 package pe.edu.upeu.objetosperdidos.repository;
 
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,6 +18,24 @@ import java.util.List;
 @Repository
 public interface ReportePerdidaRepository
         extends JpaRepository<ReportePerdida, Long> {
+
+    // Evita cambios concurrentes de estado durante la entrega fisica.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM ReportePerdida p WHERE p.idReportePerdida = :idReportePerdida")
+    Optional<ReportePerdida> bloquearParaEntrega(
+            @Param("idReportePerdida") Long idReportePerdida);
+
+    @Query("""
+           SELECT p FROM ReportePerdida p
+           JOIN FETCH p.objeto o
+           JOIN FETCH o.categoria
+           WHERE p.estado = :estado AND o.categoria.idCategoria = :categoria
+           ORDER BY p.idReportePerdida DESC
+           """)
+    List<ReportePerdida> buscarActivasPorCategoria(
+            @Param("estado") EstadoReportePerdida estado,
+            @Param("categoria") Long categoria,
+            Pageable pageable);
 
     List<ReportePerdida> findByPersonaIdPersona(Long idPersona);
 

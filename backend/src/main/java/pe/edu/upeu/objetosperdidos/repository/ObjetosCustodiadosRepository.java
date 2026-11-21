@@ -4,7 +4,9 @@ package pe.edu.upeu.objetosperdidos.repository;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,6 +16,12 @@ import pe.edu.upeu.objetosperdidos.entity.ObjetosCustodiados;
 @Repository
 public interface ObjetosCustodiadosRepository
         extends JpaRepository<ObjetosCustodiados, Long> {
+
+    // Evita dos entregas concurrentes de una misma custodia.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM ObjetosCustodiados c WHERE c.idCustodia = :idCustodia")
+    Optional<ObjetosCustodiados> bloquearParaEntrega(
+            @Param("idCustodia") Long idCustodia);
 
     // Buscar una custodia a partir de un reporte de hallazgo.
     Optional<ObjetosCustodiados> findByHallazgoIdHallazgo(
@@ -129,5 +137,25 @@ public interface ObjetosCustodiadosRepository
         """, nativeQuery = true)
     List<Object[]> listarCustodiasDisponiblesEnUbicacion(
             @Param("idUbicacion") Long idUbicacion
+    );
+
+    /*
+     * CATALOGO PUBLICO:
+     * Custodias que todavia no tienen entrega registrada.
+     * Filtro de categoria opcional (null = todas).
+     */
+    @Query("""
+        SELECT c FROM ObjetosCustodiados c
+        JOIN FETCH c.objeto o
+        JOIN FETCH o.categoria cat
+        LEFT JOIN FETCH c.ubicacionActual u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM Entrega e WHERE e.custodia = c
+        )
+          AND (:idCategoria IS NULL OR cat.idCategoria = :idCategoria)
+        ORDER BY c.fechaRegistro DESC, c.idCustodia DESC
+        """)
+    List<ObjetosCustodiados> listarDisponiblesPublico(
+            @Param("idCategoria") Long idCategoria
     );
 }

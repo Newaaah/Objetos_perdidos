@@ -24,5 +24,5 @@ public interface IRecepcionCustodiaService {
 
     CustodiaRegistradaDTO consultar(Long idCustodia);
 
-    AlmacenamientoImagenCustodiaService.Imagen leerImagen(Long idCustodia);
+    IFileStorageService.Imagen leerImagen(Long idCustodia);
 }

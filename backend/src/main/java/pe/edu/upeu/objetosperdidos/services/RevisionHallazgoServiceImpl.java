@@ -25,12 +25,27 @@ public class RevisionHallazgoServiceImpl implements IRevisionHallazgoService {
 
     private final ReporteHallazgosRepository hallazgos;
     private final PersonalRepository personal;
+    private final AvisosDeDominioService avisos;
+    private final IFileStorageService imagenes;
 
     public RevisionHallazgoServiceImpl(
             ReporteHallazgosRepository hallazgos,
-            PersonalRepository personal) {
+            PersonalRepository personal,
+            AvisosDeDominioService avisos,
+            IFileStorageService imagenes) {
         this.hallazgos = hallazgos;
         this.personal = personal;
+        this.avisos = avisos;
+        this.imagenes = imagenes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public IFileStorageService.Imagen leerImagen(Long idHallazgo) {
+        ReporteHallazgos hallazgo = hallazgos.findById(idHallazgo)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Hallazgo no encontrado con ID: " + idHallazgo));
+        return imagenes.load(hallazgo.getImagenRef());
     }
 
     @Override
@@ -101,6 +116,7 @@ public class RevisionHallazgoServiceImpl implements IRevisionHallazgoService {
                 ZoneId.of("America/Lima")).truncatedTo(ChronoUnit.SECONDS));
         hallazgo.setObservacion(observacion);
         hallazgos.saveAndFlush(hallazgo);
+        avisos.hallazgoRevisado(hallazgo);
 
         // La aprobacion del reporte NO crea un OBJETOS_CUSTODIADOS.
         return new HallazgoRevisionResultadoDTO(

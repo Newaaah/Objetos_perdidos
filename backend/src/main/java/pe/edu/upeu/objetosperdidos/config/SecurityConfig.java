@@ -51,6 +51,9 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
 
+                // Catalogo publico: objetos en custodia y entregados, sin login.
+                .requestMatchers(HttpMethod.GET, "/api/v1/publico/**").permitAll()
+
                 .requestMatchers(HttpMethod.GET,
                         "/api/v1/categorias", "/api/v1/categorias/**",
                         "/api/v1/ubicaciones", "/api/v1/ubicaciones/**",
@@ -97,6 +100,60 @@ public class SecurityConfig {
                         "/api/v1/custodias/recepcion/con-hallazgo",
                         "/api/v1/custodias/recepcion/directa"
                 ).hasAnyAuthority("PERSONAL", "ADMIN")
+
+                // Quien recibio un objeto puede ver solo su propio historial.
+                .requestMatchers(HttpMethod.GET, "/api/v1/entregas/mias")
+                    .hasAuthority("ESTUDIANTE")
+
+                // Entregas: solo PERSONAL y ADMIN.
+                .requestMatchers(HttpMethod.POST, "/api/v1/entregas")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/entregas/custodias/*/estado",
+                        "/api/v1/entregas/*",
+                        "/api/v1/entregas/*/evidencia"
+                ).hasAnyAuthority("PERSONAL", "ADMIN")
+
+                // Sugerencias privadas: solo para el titular del reporte autenticado.
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/coincidencias/sugerencias/mias/*")
+                    .hasAuthority("ESTUDIANTE")
+
+                // Revision formal: datos internos y decision solo PERSONAL/ADMIN.
+                .requestMatchers(HttpMethod.GET, "/api/v1/coincidencias/revision/**")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/coincidencias/revision")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+
+                // Un administrador verificado aprovisiona estudiantes con BCrypt.
+                .requestMatchers(HttpMethod.POST, "/api/v1/admin/estudiantes/*/clave")
+                    .hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/cuenta/clave")
+                    .authenticated()
+
+                // Reclamos privados: estudiante presenta y sigue solo los propios.
+                .requestMatchers(HttpMethod.POST, "/api/v1/reclamos")
+                    .hasAuthority("ESTUDIANTE")
+                .requestMatchers(HttpMethod.GET, "/api/v1/reclamos", "/api/v1/reclamos/pendientes")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/reclamos/mios", "/api/v1/reclamos/*")
+                    .hasAuthority("ESTUDIANTE")
+                // Evidencia: el servicio verifica que sea el dueno o personal activo.
+                .requestMatchers(HttpMethod.GET, "/api/v1/reclamos/*/evidencia")
+                    .authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/reclamos/*/revision")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+
+                // Incidencias de custodias: solo personal autorizado.
+                .requestMatchers("/api/v1/incidencias", "/api/v1/incidencias/**")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+
+                // La bandeja pertenece al sujeto autenticado; el ID no viene del cliente.
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/notificaciones/mias", "/api/v1/notificaciones/no-leidas/conteo")
+                    .authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/notificaciones/*/leida")
+                    .authenticated()
 
                 .requestMatchers("/api/v1/reportes/**")
                     .hasAnyAuthority("PERSONAL", "ADMIN")

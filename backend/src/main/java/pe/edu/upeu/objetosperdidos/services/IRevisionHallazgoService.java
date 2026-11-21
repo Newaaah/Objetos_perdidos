@@ -9,4 +9,6 @@ public interface IRevisionHallazgoService {
     List<HallazgoPendienteRevisionDTO> pendientes();
     HallazgoRevisionResultadoDTO resolver(
             Long idHallazgo, ResolverHallazgoRequest solicitud, Long idPersonaRevisor);
+
+    IFileStorageService.Imagen leerImagen(Long idHallazgo);
 }

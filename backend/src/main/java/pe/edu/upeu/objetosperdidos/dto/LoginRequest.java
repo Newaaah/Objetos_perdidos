@@ -15,7 +15,7 @@ public record LoginRequest(
 
         @Schema(
                 description = "Contraseña obligatoria para PERSONAL y ADMIN. " +
-                        "No requerida para ESTUDIANTE"
+                        "Estudiante: solo si configuro una contraseña"
         )
         String password
 

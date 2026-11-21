@@ -21,6 +21,9 @@ import pe.edu.upeu.objetosperdidos.security.UsuarioPrincipal;
 @Service
 public class AuthServiceImpl implements IAuthService {
 
+    @org.springframework.beans.factory.annotation.Value("${security.student.allow-passwordless:false}")
+    private boolean permitirEstudiantesSinClave;
+
     private final UsuarioRepository usuarioRepository;
     private final EstudianteRepository estudianteRepository;
     private final PersonalRepository personalRepository;
@@ -181,7 +184,11 @@ public class AuthServiceImpl implements IAuthService {
             return generarRespuesta(principal);
         }
 
-        // Sin contrasena configurada: acceso ligero.
+        // NO emitir JWT por DNI/codigo publico sin comprobar un secreto.
+        // La compatibilidad insegura solo existe para una demo local aislada y opt-in.
+        if (!permitirEstudiantesSinClave) {
+            throw credencialesInvalidas();
+        }
         if (password != null && !password.isBlank()) {
             throw credencialesInvalidas();
         }

@@ -3,8 +3,6 @@ package pe.edu.upeu.objetosperdidos.services;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.objetosperdidos.dto.CustodiaRegistradaDTO;
 import pe.edu.upeu.objetosperdidos.dto.PendienteRecepcionCustodiaDTO;
@@ -39,8 +37,8 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
     private final UbicacionRepository ubicaciones;
     private final CategoriaRepository categorias;
     private final ObjetoRepository objetos;
-    private final LecturaImagenHallazgoService imagenesHallazgo;
-    private final AlmacenamientoImagenCustodiaService imagenesCustodia;
+    private final IFileStorageService imagenes;
+    private final AvisosDeDominioService avisos;
 
     public RecepcionCustodiaServiceImpl(
             ReporteHallazgosRepository hallazgos,
@@ -50,8 +48,8 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
             UbicacionRepository ubicaciones,
             CategoriaRepository categorias,
             ObjetoRepository objetos,
-            LecturaImagenHallazgoService imagenesHallazgo,
-            AlmacenamientoImagenCustodiaService imagenesCustodia) {
+            IFileStorageService imagenes,
+            AvisosDeDominioService avisos) {
         this.hallazgos = hallazgos;
         this.custodias = custodias;
         this.personal = personal;
@@ -59,8 +57,8 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
         this.ubicaciones = ubicaciones;
         this.categorias = categorias;
         this.objetos = objetos;
-        this.imagenesHallazgo = imagenesHallazgo;
-        this.imagenesCustodia = imagenesCustodia;
+        this.imagenes = imagenes;
+        this.avisos = avisos;
     }
 
     @Override
@@ -118,7 +116,7 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
         boolean imagenNueva = imagen != null && !imagen.isEmpty();
         if (!imagenNueva) {
             try {
-                imagenesHallazgo.leer(hallazgo.getIdHallazgo());
+                imagenes.load(hallazgo.getImagenRef());
             } catch (ResourceNotFoundException ex) {
                 throw new IllegalArgumentException(
                         "El hallazgo no tiene una fotografia accesible; adjunta una nueva");
@@ -135,7 +133,9 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
         custodia.setPersonaEntrega(entrega);
         custodia.setObservacionRecepcion(observacion);
         custodia.setImagen(refNueva); // sin foto nueva, se consulta la del hallazgo.
-        return aRespuesta(custodias.saveAndFlush(custodia));
+        ObjetosCustodiados guardada = custodias.saveAndFlush(custodia);
+        avisos.custodiaRecibida(guardada);
+        return aRespuesta(guardada);
     }
 
     @Override
@@ -192,7 +192,9 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
         custodia.setPersonaEntrega(entrega);
         custodia.setObservacionRecepcion(observacion);
         custodia.setImagen(referencia);
-        return aRespuesta(custodias.saveAndFlush(custodia));
+        ObjetosCustodiados guardada = custodias.saveAndFlush(custodia);
+        avisos.custodiaRecibida(guardada);
+        return aRespuesta(guardada);
     }
 
     @Override
@@ -207,37 +209,23 @@ public class RecepcionCustodiaServiceImpl implements IRecepcionCustodiaService {
 
     @Override
     @Transactional(readOnly = true)
-    public AlmacenamientoImagenCustodiaService.Imagen leerImagen(Long idCustodia) {
+    public IFileStorageService.Imagen leerImagen(Long idCustodia) {
         validarId(idCustodia, "custodia");
         ObjetosCustodiados c = custodias.findById(idCustodia)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Custodia no encontrada con ID: " + idCustodia));
         if (c.getImagen() != null && !c.getImagen().isBlank()) {
-            return imagenesCustodia.leer(c.getImagen());
+            return imagenes.load(c.getImagen());
         }
         if (c.getHallazgo() != null) {
-            var foto = imagenesHallazgo.leer(c.getHallazgo().getIdHallazgo());
-            return new AlmacenamientoImagenCustodiaService.Imagen(
-                    foto.contenido(), foto.mediaType());
+            return imagenes.load(c.getHallazgo().getImagenRef());
         }
         throw new ResourceNotFoundException("Esta custodia no tiene fotografia disponible");
     }
 
     private String guardarYAsociarLimpieza(MultipartFile imagen) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            throw new IllegalStateException("No hay una transaccion activa");
-        }
-        String referencia = imagenesCustodia.guardar(imagen);
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCompletion(int estado) {
-                        if (estado != TransactionSynchronization.STATUS_COMMITTED) {
-                            imagenesCustodia.eliminarTrasRollback(referencia);
-                        }
-                    }
-                });
-        return referencia;
+        // Se borra sola si la transaccion falla.
+        return imagenes.storeEnTransaccion(imagen, IFileStorageService.CUSTODIAS);
     }
 
     private Personal obtenerPersonal(Long idPersona) {
