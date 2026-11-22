@@ -2,7 +2,7 @@
 
 ![Java](https://img.shields.io/badge/Java-Spring%20Boot%203-6DB33F?logo=springboot&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular-18-DD0031?logo=angular&logoColor=white)
-![Oracle](https://img.shields.io/badge/Oracle-Database-F80000?logo=oracle&logoColor=white)
+![Oracle](https://img.shields.io/badge/Oracle-21c%20XE-F80000?logo=oracle&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
 
 Plataforma web para **reportar, encontrar y recuperar objetos perdidos** dentro del campus de la
@@ -43,7 +43,7 @@ el personal recibe los objetos, los mantiene en custodia y los entrega a su due�
 | Capa | Tecnología |
 |---|---|
 | Backend | Java, Spring Boot 3, Spring Security con JWT, Spring Data JPA |
-| Base de datos | Oracle (tablas, vista `VW_SEGUIMIENTO_RECLAMOS` y procedimiento `SP_RESUMEN_RECLAMOS`) |
+| Base de datos | Oracle 21c XE: 17 tablas, vista `VW_SEGUIMIENTO_RECLAMOS`, procedimiento `SP_RESUMEN_RECLAMOS` |
 | Frontend | Angular 18 (componentes standalone), Bootstrap 5.3, Bootstrap Icons, SweetAlert2 |
 | Documentación de la API | Swagger / OpenAPI |
 
@@ -55,7 +55,7 @@ el personal recibe los objetos, los mantiene en custodia y los entrega a su due�
 objetos_perdidos/
 ├── backend/            API REST en Spring Boot
 ├── frontend/           Aplicación web en Angular
-├── database/oracle/    Scripts de la base de datos (tablas, datos, vista y procedimiento)
+├── database/oracle/    Scripts de la base de datos y guía de instalación
 └── README.md
 ```
 
@@ -97,15 +97,21 @@ Estudiante reporta hallazgo → Personal aprueba → Objeto llega a Garita / Mes
 ### Requisitos
 - JDK 17 o superior
 - Node.js 20 o superior y npm
-- Oracle Database con el esquema del proyecto creado (ver [`database/oracle`](database/oracle))
+- Oracle Database 21c XE (PDB `XEPDB1`) y SQL Developer
 - IntelliJ IDEA (backend) y Visual Studio Code (frontend), recomendados
 
 ### 1. Base de datos
-Ejecutar los scripts de [`database/oracle`](database/oracle) en el orden que indica su README.
+Seguir la guía de [`database/oracle`](database/oracle): se ejecutan los scripts `00` a `05` en orden.
+Se crean dos usuarios: **`UPEU_DATOS`** (dueño de las tablas) y **`APP_UPEU`** (el que usa la aplicación,
+con permisos mínimos).
 
 ### 2. Backend
 1. Abrir la carpeta `backend` en IntelliJ IDEA.
-2. Configurar la conexión a Oracle (usuario y contraseña propios; **no se suben a Git**).
+2. Configurar las **variables de entorno** (las contraseñas **no** están en el código):
+   **Run → Edit Configurations → ObjetosPerdidosApplication → Environment variables**
+   ```
+   DB_PASSWORD=contraseña_de_APP_UPEU;JWT_SECRET=una_clave_larga_y_aleatoria_de_al_menos_32_caracteres
+   ```
 3. Ejecutar `ObjetosPerdidosApplication`.
 4. La API queda en `http://localhost:8082/objetos_perdidos`.
 5. Documentación Swagger: `http://localhost:8082/objetos_perdidos/swagger-ui.html`
@@ -122,15 +128,18 @@ Abrir `http://localhost:4200`. El proxy de Angular (`proxy.config.json`) envía 
 
 ---
 
-## Usuarios de prueba
+## Cuentas de prueba
+
+Se crean con el script opcional [`database/oracle/05_datos_prueba.sql`](database/oracle/05_datos_prueba.sql):
 
 | Rol | Ingreso | Contraseña |
 |---|---|---|
+| Administrador | `70000001` | `UpeuAdmin2026!` |
+| Personal | `70000002` | `UpeuPersonal2026!` |
+| Estudiante | `209900001` | *(vacía)* |
 | Estudiante | `209900002` | *(vacía)* |
-| Estudiante | `209900001` | La habilitada por el administrador |
 
-Las cuentas de **personal** y **administrador** se crean en la base de datos local de cada integrante y
-**no se publican** en este repositorio.
+Son **solo para desarrollo**: cambia las contraseñas desde **Mi cuenta** al ingresar.
 
 ---
 
@@ -139,7 +148,9 @@ Las cuentas de **personal** y **administrador** se crean en la base de datos loc
 - Autenticación con **JWT**; cada petición protegida envía el token en la cabecera `Authorization`.
 - Permisos por rol en el backend (`ESTUDIANTE`, `PERSONAL`, `ADMIN`) y rutas protegidas con *guards* en el frontend.
 - Las fotos de revisión, entrega y evidencia **no son públicas**: solo las ve el personal autorizado.
-- Contraseñas guardadas con **BCrypt**.
+- Contraseñas guardadas con **BCrypt**; credenciales de la base y del JWT por **variables de entorno**.
+- En Oracle, la aplicación usa un usuario con **mínimo privilegio** (`APP_UPEU`): no puede borrar
+  reportes, custodias ni entregas.
 
 ---
 
