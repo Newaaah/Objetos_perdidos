@@ -8,9 +8,14 @@ import { PersonaResumen } from '../interfaces/persona.interface';
 })
 export class PersonaService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/v1/personas';
 
+  // Buscar por codigo universitario o DNI (solo PERSONAL y ADMIN)
   buscar(ingreso: string): Observable<PersonaResumen> {
-    return this.http.get<PersonaResumen>(`${this.apiUrl}/buscar`, { params: { ingreso } });
+    return this.http.get<PersonaResumen>('/api/v1/personas/buscar', { params: { ingreso } });
+  }
+
+  // Mis propios datos (cualquier usuario conectado; el backend usa el token)
+  miPerfil(): Observable<PersonaResumen> {
+    return this.http.get<PersonaResumen>('/api/v1/cuenta/perfil');
   }
 }

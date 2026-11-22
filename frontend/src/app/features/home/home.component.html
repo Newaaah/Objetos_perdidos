@@ -1,39 +1,147 @@
-<div class="container mt-4 mb-5">
-    <h2 class="text-upeu-primary mb-1">Objetos en custodia</h2>
-    <p class="text-muted mb-4">Si reconoces alguno, acércate con tu DNI al lugar indicado.</p>
+<!-- ===== BANNER ===== -->
+<section class="banner">
+  <div class="banner-velo"></div>
+  <div class="container banner-contenido">
+    <span class="banner-etiqueta"><i class="bi bi-geo-alt-fill"></i> Campus UPeU · Tarapoto</span>
+    <h1>¿Perdiste algo?<br><span>Búscalo aquí.</span></h1>
+    <p>Estos objetos están en custodia de la universidad, esperando a su dueño.</p>
 
-    <div class="row">
-        @for (obj of objetos; track obj.idCustodia) {
-        <div class="col-md-4 col-lg-3 mb-4">
-            <div class="card h-100 shadow-sm">
-                @if (obj.imagenUrl) {
-                <img [src]="obj.imagenUrl" class="card-img-top" alt="{{obj.nombre}}"
-                    style="height: 200px; object-fit: cover;" (error)="obj.imagenUrl = undefined">
-                } @else {
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="bi bi-image fs-1 text-muted"></i>
-                </div>
-                }
-                <div class="card-body d-flex flex-column">
-                    <span class="badge bg-success align-self-start mb-2">En custodia</span>
-                    <h5 class="card-title">{{obj.nombre}}</h5>
-                    <p class="card-text text-muted small mb-3">
-                        <i class="bi bi-tag"></i> {{obj.categoria}} <br>
-                        <i class="bi bi-palette"></i> {{obj.color || 'Sin color'}} <br>
-                        <i class="bi bi-geo-alt"></i> {{obj.ubicacionActual || 'Garita'}} <br>
-                        <i class="bi bi-calendar"></i> {{obj.fechaRegistro | date:'dd/MM/yyyy'}}
-                    </p>
-                    <button class="btn btn-upeu w-100 mt-auto">
-                        <i class="bi bi-eye"></i> Ver detalles
-                    </button>
-                </div>
-            </div>
-        </div>
-        } @empty {
-        <div class="col-12 text-center text-muted py-5">
-            <i class="bi bi-inbox fs-1 d-block"></i>
-            No hay objetos en custodia por ahora.
-        </div>
-        }
+    <div class="banner-datos">
+      <div class="dato">
+        <strong>{{ objetos.length }}</strong>
+        <small>objetos en custodia</small>
+      </div>
+      <div class="dato">
+        <strong>{{ categorias.length }}</strong>
+        <small>categorías</small>
+      </div>
     </div>
+
+    @if (esEstudiante) {
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <a class="btn btn-upeu" routerLink="/reportar-perdida"><i class="bi bi-search"></i> Reportar pérdida</a>
+        <a class="btn btn-banner" routerLink="/reportar-hallazgo"><i class="bi bi-hand-thumbs-up"></i> Encontré algo</a>
+      </div>
+    }
+  </div>
+</section>
+
+<div class="container pagina pt-4">
+
+  <!-- ===== BUSCADOR Y FILTROS ===== -->
+  <div class="buscador shadow-sm">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Busca por nombre, marca o color..." [(ngModel)]="busqueda">
+    @if (busqueda) {
+      <button class="btn-limpiar" (click)="busqueda = ''" title="Limpiar"><i class="bi bi-x-lg"></i></button>
+    }
+  </div>
+
+  <div class="filtros">
+    <button class="chip" [class.activo]="!categoria" (click)="categoria = ''">
+      Todas <span>{{ objetos.length }}</span>
+    </button>
+    @for (c of categorias; track c) {
+      <button class="chip" [class.activo]="categoria === c" (click)="categoria = c">
+        {{ c }} <span>{{ contar(c) }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- ===== RESULTADOS ===== -->
+  @if (cargando) {
+    <div class="row g-4">
+      @for (n of [1, 2, 3, 4]; track n) {
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="esqueleto"></div>
+        </div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="vacio-caja">
+      <i class="bi bi-wifi-off"></i>
+      <p>No se pudo cargar el catálogo.</p>
+      <button class="btn btn-primario" (click)="loadingObjetos()"><i class="bi bi-arrow-clockwise"></i> Reintentar</button>
+    </div>
+  } @else {
+    <p class="text-muted small mb-3">
+      {{ filtrados.length }} {{ filtrados.length === 1 ? 'objeto' : 'objetos' }}
+      @if (categoria || busqueda) {
+        · <a href="javascript:void(0)" (click)="limpiarFiltros()">quitar filtros</a>
+      }
+    </p>
+
+    <div class="row g-4">
+      @for (o of filtrados; track o.idCustodia) {
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card h-100 objeto" (click)="abrir(o)">
+            <div class="objeto-foto">
+              @if (o.imagenUrl) {
+                <img [src]="o.imagenUrl" [alt]="o.nombre" class="card-img-top" (error)="o.imagenUrl = undefined">
+              } @else {
+                <div class="sin-foto"><i class="bi bi-image"></i></div>
+              }
+              <span class="objeto-categoria">{{ o.categoria }}</span>
+              @if (diasEnCustodia(o) <= 2) {
+                <span class="objeto-nuevo">Nuevo</span>
+              }
+            </div>
+            <div class="card-body">
+              <h6 class="mb-1">{{ o.nombre }}</h6>
+              @if (o.marca || o.color) {
+                <small class="text-muted d-block">{{ o.marca }}{{ o.marca && o.color ? ' · ' : '' }}{{ o.color }}</small>
+              }
+              <div class="objeto-pie">
+                <small><i class="bi bi-geo-alt"></i> {{ o.ubicacionActual || 'Por confirmar' }}</small>
+                <small><i class="bi bi-calendar3"></i> {{ o.fechaRegistro | date:'dd/MM' }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="vacio-caja">
+            <i class="bi bi-inbox"></i>
+            @if (objetos.length === 0) {
+              <p>No hay objetos en custodia por ahora.</p>
+            } @else {
+              <p>Ningún objeto coincide con tu búsqueda.</p>
+              <button class="btn btn-outline-primario" (click)="limpiarFiltros()">Quitar filtros</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>
+
+<!-- ===== VENTANA DE DETALLE ===== -->
+@if (seleccionado) {
+  <div class="fondo-modal" (click)="cerrar()">
+    <div class="ventana" (click)="$event.stopPropagation()">
+      <button class="cerrar" (click)="cerrar()" title="Cerrar"><i class="bi bi-x-lg"></i></button>
+      <div class="ventana-foto">
+        @if (seleccionado.imagenUrl) {
+          <img [src]="seleccionado.imagenUrl" [alt]="seleccionado.nombre">
+        } @else {
+          <div class="sin-foto"><i class="bi bi-image"></i></div>
+        }
+      </div>
+      <div class="p-4">
+        <span class="badge bg-upeu-soft text-upeu-primary mb-2">{{ seleccionado.categoria }}</span>
+        <h4 class="mb-3">{{ seleccionado.nombre }}</h4>
+        <ul class="ventana-datos">
+          <li><span>Marca</span><strong>{{ seleccionado.marca || '—' }}</strong></li>
+          <li><span>Color</span><strong>{{ seleccionado.color || '—' }}</strong></li>
+          <li><span>En custodia desde</span><strong>{{ seleccionado.fechaRegistro | date:'dd/MM/yyyy' }}</strong></li>
+          <li><span>Dónde recogerlo</span><strong>{{ seleccionado.ubicacionActual || 'Por confirmar' }}</strong></li>
+        </ul>
+        <div class="alert alert-info small mb-0">
+          <i class="bi bi-shield-check"></i>
+          ¿Es tuyo? Acércate a <strong>{{ seleccionado.ubicacionActual || 'la Garita' }}</strong> con tu DNI.
+          El personal verificará que te pertenece antes de entregártelo.
+        </div>
+      </div>
+    </div>
+  </div>
+}

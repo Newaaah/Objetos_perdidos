@@ -39,6 +39,14 @@ public class PersonaServiceImpl implements IPersonaService {
         return convertir(p, estudiantes.findById(p.getIdPersona()).orElse(null));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PersonaResumenDTO perfil(Long idPersona) {
+        Persona p = personas.findById(idPersona)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe la persona"));
+        return convertir(p, estudiantes.findById(idPersona).orElse(null));
+    }
+
     private static PersonaResumenDTO convertir(Persona p, Estudiante e) {
         return new PersonaResumenDTO(
                 p.getIdPersona(),

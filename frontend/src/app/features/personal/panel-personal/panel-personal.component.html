@@ -1,26 +1,76 @@
 <div class="container pagina">
-  <div class="encabezado-pagina">
-    <div class="icono"><i class="bi bi-person-badge"></i></div>
-    <div>
-      <h1>Panel del personal</h1>
-      <p>Gestiona la recepción, custodia y entrega de objetos en la UPeU.</p>
+  <!-- ENCABEZADO -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-person-badge"></i></div>
+      <div>
+        <h1>{{ saludo }} 👋</h1>
+        <p>Esto es lo que hay por atender hoy en la custodia de objetos.</p>
+      </div>
+    </div>
+    <button class="btn btn-outline-primario" (click)="cargarContadores()" [disabled]="cargando">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar
+    </button>
+  </div>
+
+  <!-- INDICADORES -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <a class="indicador azul" routerLink="/hallazgos">
+        <i class="bi bi-clipboard-check"></i>
+        <div>
+          <strong>{{ cargando ? '…' : (c.hallazgos ?? '—') }}</strong>
+          <small>Hallazgos por revisar</small>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="indicador verde" routerLink="/custodias">
+        <i class="bi bi-box-arrow-in-down"></i>
+        <div>
+          <strong>{{ cargando ? '…' : (c.recepcion ?? '—') }}</strong>
+          <small>Por recibir</small>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="indicador amarillo" routerLink="/entregas">
+        <i class="bi bi-box-seam"></i>
+        <div>
+          <strong>{{ cargando ? '…' : (c.custodia ?? '—') }}</strong>
+          <small>En custodia</small>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="indicador rojo" routerLink="/reclamos">
+        <i class="bi bi-flag"></i>
+        <div>
+          <strong>{{ cargando ? '…' : (c.reclamos ?? '—') }}</strong>
+          <small>Reclamos pendientes</small>
+        </div>
+      </a>
     </div>
   </div>
 
+  <!-- MODULOS -->
+  <h5 class="seccion">Módulos</h5>
   <div class="row g-4">
     @for (m of modulos; track m.titulo) {
       <div class="col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h5 class="text-upeu-primary mb-3"><i class="bi {{ m.icono }} me-1"></i> {{ m.titulo }}</h5>
-            <p class="small text-muted flex-grow-1">{{ m.descripcion }}</p>
-            @if (m.ruta) {
-              <a class="btn btn-upeu w-100" [routerLink]="m.ruta">Abrir</a>
-            } @else {
-              <button class="btn btn-upeu w-100" disabled>Próximamente</button>
-            }
+        <a class="card h-100 modulo" [routerLink]="m.ruta">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="modulo-icono {{ m.color }}"><i class="bi {{ m.icono }}"></i></span>
+              @if (valor(m.clave); as n) {
+                <span class="globo">{{ n }}</span>
+              }
+            </div>
+            <h6>{{ m.titulo }}</h6>
+            <p>{{ m.descripcion }}</p>
+            <span class="ir">Abrir <i class="bi bi-arrow-right"></i></span>
           </div>
-        </div>
+        </a>
       </div>
     }
   </div>

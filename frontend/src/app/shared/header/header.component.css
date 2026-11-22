@@ -43,3 +43,7 @@
 .usuario i {
   font-size: 1.4rem;
 }
+
+.menu-usuario {
+  min-width: 240px;
+}

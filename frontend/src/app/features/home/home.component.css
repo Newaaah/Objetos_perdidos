@@ -1,0 +1,350 @@
+/* ===== BANNER ===== */
+.banner {
+  position: relative;
+  color: #fff;
+  background: url('/img/upeu-campus.jpg') center 70% / cover no-repeat;
+  overflow: hidden;
+}
+
+.banner-velo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(0, 38, 72, .95) 0%, rgba(0, 58, 108, .80) 50%, rgba(0, 58, 108, .35) 100%);
+}
+
+.banner-contenido {
+  position: relative;
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+  animation: subirHome .7s ease both;
+}
+
+.banner-etiqueta {
+  display: inline-block;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .25);
+  margin-bottom: 1rem;
+}
+
+.banner-etiqueta i {
+  color: var(--color-acento, #FDB913);
+}
+
+.banner h1 {
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.banner h1 span {
+  color: var(--color-acento, #FDB913);
+}
+
+.banner p {
+  opacity: .88;
+  max-width: 480px;
+}
+
+.banner-datos {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dato {
+  padding: .7rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .2);
+  backdrop-filter: blur(6px);
+}
+
+.dato strong {
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-acento, #FDB913);
+}
+
+.dato small {
+  opacity: .85;
+}
+
+.btn-banner {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .5);
+}
+
+.btn-banner:hover {
+  color: var(--color-primario, #003A6C);
+  background: #fff;
+}
+
+/* ===== BUSCADOR ===== */
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 0 1.1rem;
+  margin-top: -2.2rem;
+  position: relative;
+  z-index: 2;
+  border: 2px solid transparent;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.buscador:focus-within {
+  border-color: var(--color-primario, #003A6C);
+  box-shadow: 0 0 0 4px rgba(0, 58, 108, .12) !important;
+}
+
+.buscador > i {
+  color: #98a2b3;
+  font-size: 1.1rem;
+}
+
+.buscador input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 1rem 0;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.btn-limpiar {
+  border: none;
+  background: #f1f3f6;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: #667085;
+}
+
+/* ===== FILTROS ===== */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1.25rem 0 1rem;
+}
+
+.chip {
+  border: 1px solid #e3e8ef;
+  background: #fff;
+  border-radius: 999px;
+  padding: .4rem .9rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #344054;
+  transition: all .2s ease;
+}
+
+.chip span {
+  margin-left: .25rem;
+  font-size: .75rem;
+  padding: .05rem .45rem;
+  border-radius: 999px;
+  background: #f1f3f6;
+  color: #667085;
+}
+
+.chip:hover {
+  border-color: var(--color-primario, #003A6C);
+  color: var(--color-primario, #003A6C);
+}
+
+.chip.activo {
+  background: var(--color-primario, #003A6C);
+  border-color: var(--color-primario, #003A6C);
+  color: #fff;
+}
+
+.chip.activo span {
+  background: var(--color-acento, #FDB913);
+  color: var(--color-primario, #003A6C);
+}
+
+/* ===== TARJETAS ===== */
+.objeto {
+  cursor: pointer;
+}
+
+.objeto-foto {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  background: #f1f3f6;
+}
+
+.objeto-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sin-foto {
+  height: 100%;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: #c0c7d2;
+  font-size: 2.5rem;
+}
+
+.objeto-categoria {
+  position: absolute;
+  left: .7rem;
+  bottom: .7rem;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  background: rgba(0, 38, 72, .85);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.objeto-nuevo {
+  position: absolute;
+  right: .7rem;
+  top: .7rem;
+  font-size: .7rem;
+  font-weight: 700;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  background: var(--color-acento, #FDB913);
+  color: var(--color-primario, #003A6C);
+}
+
+.objeto h6 {
+  font-weight: 700;
+}
+
+.objeto-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: .75rem;
+  padding-top: .6rem;
+  border-top: 1px dashed #e3e8ef;
+  color: #667085;
+}
+
+/* ===== CARGANDO / VACIO ===== */
+.esqueleto {
+  height: 290px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #eef1f5 25%, #f7f9fb 50%, #eef1f5 75%);
+  background-size: 200% 100%;
+  animation: brilloCarga 1.2s ease-in-out infinite;
+}
+
+.vacio-caja {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #667085;
+}
+
+.vacio-caja i {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: .5rem;
+  color: #c0c7d2;
+}
+
+/* ===== VENTANA DE DETALLE ===== */
+.fondo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 20, 40, .55);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  animation: aparecerHome .2s ease both;
+}
+
+.ventana {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, .3);
+  animation: subirHome .3s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.ventana-foto {
+  height: 260px;
+  background: #f1f3f6;
+}
+
+.ventana-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cerrar {
+  position: absolute;
+  top: .8rem;
+  right: .8rem;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+
+.ventana-datos {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.ventana-datos li {
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem 0;
+  border-bottom: 1px solid #eef1f5;
+  font-size: .92rem;
+}
+
+.ventana-datos span {
+  color: #667085;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes subirHome {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes aparecerHome {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes brilloCarga {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@media (max-width: 576px) {
+  .banner-contenido {
+    padding-top: 2.5rem;
+    padding-bottom: 3rem;
+  }
+}
