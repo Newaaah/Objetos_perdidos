@@ -1,0 +1,21 @@
+.pestana {
+  color: var(--color-primario);
+  border: 1px solid var(--color-primario);
+}
+
+.pestana.active {
+  background: var(--color-primario);
+  color: #fff;
+}
+
+/* La lista puede ser larga (muchas aulas): se desplaza por dentro */
+.lista {
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.lista thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

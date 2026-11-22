@@ -1,0 +1,140 @@
+<div class="container pagina">
+  <div class="encabezado-pagina">
+    <div class="icono"><i class="bi bi-hand-thumbs-up"></i></div>
+    <div>
+      <h1>Reportar hallazgo</h1>
+      <p>¿Encontraste algo? Regístralo y llévalo a un punto de recepción.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card shadow">
+        <div class="card-header bg-upeu-primary text-white">
+          <h5 class="m-0">Datos del objeto encontrado</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="guardar(archivo)">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Categoría *</label>
+                <select class="form-select" formControlName="idCategoria" [class.is-invalid]="invalido('idCategoria')">
+                  <option [ngValue]="null" disabled>Selecciona...</option>
+                  @for (c of categorias; track c.idCategoria) {
+                    <option [ngValue]="c.idCategoria">{{ c.nombre }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Elige una categoría.</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">¿Qué encontraste? *</label>
+                <input type="text" class="form-control" formControlName="nombre" maxlength="100"
+                  placeholder="Ej.: Mochila negra" [class.is-invalid]="invalido('nombre')">
+                <div class="invalid-feedback">Escribe el nombre del objeto.</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Marca</label>
+                <input type="text" class="form-control" formControlName="marca" maxlength="100" placeholder="Opcional">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Color</label>
+                <input type="text" class="form-control" formControlName="color" maxlength="50" placeholder="Opcional">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">¿Dónde lo encontraste? *</label>
+                <select class="form-select" formControlName="idUbicacionEncontrado" [class.is-invalid]="invalido('idUbicacionEncontrado')">
+                  <option [ngValue]="null" disabled>Selecciona...</option>
+                  @for (u of ubicaciones; track u.idUbicacion) {
+                    <option [ngValue]="u.idUbicacion">{{ u.nombre }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Indica dónde lo encontraste.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">¿Dónde lo vas a dejar? *</label>
+                <select class="form-select" formControlName="idUbicacionDestino" [class.is-invalid]="invalido('idUbicacionDestino')">
+                  <option [ngValue]="null" disabled>Selecciona...</option>
+                  @for (u of destinos; track u.idUbicacion) {
+                    <option [ngValue]="u.idUbicacion">{{ u.nombre }}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">Elige un punto de recepción.</div>
+              </div>
+
+              <div class="col-12 mb-3">
+                <label class="form-label">Descripción *</label>
+                <textarea class="form-control" rows="3" formControlName="descripcion" maxlength="255"
+                  placeholder="Dónde exactamente, a qué hora, en qué estado..."
+                  [class.is-invalid]="invalido('descripcion')"></textarea>
+                <div class="d-flex justify-content-between">
+                  <div class="invalid-feedback d-block">
+                    @if (invalido('descripcion')) { Describe el objeto. }
+                  </div>
+                  <small class="text-muted">{{ form.value.descripcion?.length || 0 }}/255</small>
+                </div>
+              </div>
+
+              <div class="col-12 mb-4">
+                <label class="form-label">Foto del objeto *</label>
+                <input #archivo type="file" class="form-control" accept="image/jpeg,image/png,image/webp"
+                  (change)="seleccionarImagen($event)">
+                <div class="form-text">JPG, PNG o WebP. Máximo 5 MB.</div>
+
+                @if (preview) {
+                  <div class="position-relative d-inline-block mt-3">
+                    <img [src]="preview" alt="Vista previa" class="rounded border" style="max-height: 180px;">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                      (click)="quitarImagen(archivo)">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-upeu w-100" [disabled]="guardando">
+              @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+              <i class="bi bi-send"></i> Registrar hallazgo
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow">
+        <div class="card-header bg-upeu-primary text-white">
+          <h5 class="m-0"><i class="bi bi-clock-history"></i> Mis hallazgos</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          @for (h of misHallazgos; track h.idHallazgo) {
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ h.nombreObjeto }}</strong><br>
+                  <small class="text-muted">{{ h.categoria }} · {{ h.fechaReporte | date:'dd/MM/yyyy HH:mm' }}</small><br>
+                  @if (h.ubicacionDestino) {
+                    <small><i class="bi bi-geo-alt"></i> Llevar a: {{ h.ubicacionDestino }}</small>
+                  }
+                </div>
+                <span class="badge {{ claseEstado(h.estado) }}">{{ h.estado }}</span>
+              </div>
+            </li>
+          } @empty {
+            <li class="list-group-item text-center text-muted py-4">
+              Aún no has reportado hallazgos.
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="alert alert-warning mt-3 small">
+        <i class="bi bi-info-circle"></i> Registrar el hallazgo <strong>no</strong> significa que ya está en custodia.
+        El personal lo confirmará cuando lo entregues físicamente.
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,172 @@
+<div class="container pagina">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-exclamation-triangle"></i></div>
+      <div>
+        <h1>Incidencias</h1>
+        <p>Problemas ocurridos con objetos mientras están en custodia.</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <select class="form-select w-auto" [(ngModel)]="filtro" (ngModelChange)="loadingIncidencias()">
+        <option value="PENDIENTE">Pendientes</option>
+        <option value="EN_REVISION">En revisión</option>
+        <option value="RESUELTO">Resueltas</option>
+        <option value="">Todas</option>
+      </select>
+      <button class="btn btn-upeu" (click)="abrirFormulario()">
+        <i class="bi" [class.bi-plus-lg]="!mostrarFormulario" [class.bi-x-lg]="mostrarFormulario"></i>
+        {{ mostrarFormulario ? 'Cancelar' : 'Nueva incidencia' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- NUEVA INCIDENCIA -->
+  @if (mostrarFormulario) {
+    <div class="card shadow mb-4 border-warning">
+      <div class="card-header bg-upeu-primary text-white">
+        <h6 class="m-0">Registrar incidencia</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Objeto en custodia *</label>
+            <select class="form-select" [(ngModel)]="nueva.idCustodia">
+              <option [ngValue]="null" disabled>Selecciona...</option>
+              @for (c of custodias; track c.idCustodia) {
+                <option [ngValue]="c.idCustodia">#{{ c.idCustodia }} · {{ c.nombre }} ({{ c.ubicacionActual || '—' }})</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Foto de evidencia (opcional)</label>
+            <input #archivo type="file" class="form-control" accept="image/jpeg,image/png,image/webp"
+              (change)="seleccionarEvidencia($event)">
+            @if (preview) {
+              <div class="position-relative d-inline-block mt-2">
+                <img [src]="preview" class="rounded border" style="max-height: 110px;" alt="Evidencia">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" (click)="quitarEvidencia()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            }
+          </div>
+          <div class="col-12 mb-3">
+            <label class="form-label">¿Qué pasó? *</label>
+            <textarea class="form-control mb-1" rows="2" maxlength="255" [(ngModel)]="nueva.descripcion"
+              placeholder="Ej.: Al reubicar el objeto se notó que la pantalla tiene una rajadura que no figuraba al recibirlo."></textarea>
+            <div class="d-flex justify-content-between">
+              <small [class.text-danger]="nueva.descripcion.trim().length > 0 && nueva.descripcion.trim().length < 15">
+                Mínimo 15 caracteres.
+              </small>
+              <small class="text-muted">{{ nueva.descripcion.length }}/255</small>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-upeu w-100" (click)="registrar()"
+          [disabled]="registrando || !nueva.idCustodia || nueva.descripcion.trim().length < 15">
+          @if (registrando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="bi bi-send"></i> Registrar incidencia
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="row g-4">
+    <!-- LISTA -->
+    <div class="col-lg-6">
+      <div class="card shadow">
+        @if (cargando) {
+          <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        } @else {
+          <div class="list-group list-group-flush">
+            @for (i of incidencias; track i.idReclamo) {
+              <button class="list-group-item list-group-item-action"
+                [class.active]="seleccionado?.idReclamo === i.idReclamo" (click)="elegir(i)">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div class="text-start">
+                    <strong>Incidencia #{{ i.idReclamo }}</strong>
+                    @if (i.tieneEvidencia) { <i class="bi bi-image ms-1" title="Tiene evidencia"></i> }
+                    <br>
+                    <small>{{ nombreCustodia(i.idCustodia) }}</small><br>
+                    <small class="texto-corto">{{ i.descripcion }}</small>
+                  </div>
+                  <span class="badge {{ claseEstado(i.estado) }}">{{ i.estado }}</span>
+                </div>
+              </button>
+            } @empty {
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-check2-all fs-1 d-block mb-2"></i>
+                No hay incidencias en este estado.
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="col-lg-6">
+      @if (seleccionado) {
+        <div class="card shadow">
+          <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0">Incidencia #{{ seleccionado.idReclamo }}</h6>
+            <button class="btn-close btn-close-white" (click)="cerrarPanel()"></button>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="badge {{ claseEstado(seleccionado.estado) }}">{{ seleccionado.estado }}</span>
+              <small class="text-muted">{{ seleccionado.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+
+            <p class="small mb-2"><strong>Objeto:</strong> {{ nombreCustodia(seleccionado.idCustodia) }}</p>
+            <p class="mb-1"><strong>Descripción:</strong></p>
+            <p class="p-2 bg-light rounded">{{ seleccionado.descripcion }}</p>
+
+            @if (seleccionado.tieneEvidencia) {
+              <p class="mb-1"><strong>Evidencia:</strong></p>
+              @if (foto) {
+                <a [href]="foto" target="_blank" title="Ver en grande">
+                  <img [src]="foto" class="evidencia rounded border mb-3" alt="Evidencia de la incidencia">
+                </a>
+              } @else {
+                <div class="text-muted small mb-3">Cargando evidencia...</div>
+              }
+            }
+
+            @if (abierta(seleccionado)) {
+              @if (seleccionado.estado === 'PENDIENTE') {
+                <button class="btn btn-outline-primario w-100 mb-3" (click)="tomar()" [disabled]="guardando">
+                  <i class="bi bi-hourglass-split"></i> Pasar a revisión
+                </button>
+              }
+              <label class="form-label fw-semibold">Resolución (para cerrar) *</label>
+              <textarea class="form-control mb-1" rows="3" maxlength="500" [(ngModel)]="resolucion"
+                placeholder="Ej.: Se documentó el daño y se dejó constancia en el registro de custodia."></textarea>
+              <div class="d-flex justify-content-between mb-3">
+                <small [class.text-danger]="resolucion.trim().length > 0 && resolucion.trim().length < 10">Mínimo 10 caracteres.</small>
+                <small class="text-muted">{{ resolucion.length }}/500</small>
+              </div>
+              <button class="btn btn-upeu w-100" (click)="resolver()" [disabled]="guardando || resolucion.trim().length < 10">
+                @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-check-circle"></i> Marcar como resuelta
+              </button>
+            } @else {
+              <div class="alert alert-secondary mb-0">
+                <strong>Resolución:</strong> {{ seleccionado.resolucion || '—' }}<br>
+                @if (seleccionado.fechaResolucion) {
+                  <small>Cerrada el {{ seleccionado.fechaResolucion | date:'dd/MM/yyyy HH:mm' }}</small>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="text-center text-muted py-5 border rounded">
+          <i class="bi bi-hand-index fs-1 d-block mb-2"></i>
+          Elige una incidencia para revisarla.
+        </div>
+      }
+    </div>
+  </div>
+</div>

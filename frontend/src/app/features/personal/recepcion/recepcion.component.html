@@ -1,0 +1,204 @@
+<div class="container pagina">
+  <div class="encabezado-pagina">
+    <div class="icono"><i class="bi bi-box-seam"></i></div>
+    <div>
+      <h1>Recepción de objetos</h1>
+      <p>Registra los objetos que llegan físicamente para quedar en custodia.</p>
+    </div>
+  </div>
+
+  <!-- PESTAÑAS -->
+  <div class="btn-group mb-4">
+    <button class="btn" [class.btn-primario]="modo === 'hallazgo'" [class.btn-outline-primario]="modo !== 'hallazgo'"
+      (click)="cambiarModo('hallazgo')">
+      <i class="bi bi-clipboard-check"></i> Con hallazgo aprobado
+      <span class="badge bg-warning text-dark ms-1">{{ pendientes.length }}</span>
+    </button>
+    <button class="btn" [class.btn-primario]="modo === 'directa'" [class.btn-outline-primario]="modo !== 'directa'"
+      (click)="cambiarModo('directa')">
+      <i class="bi bi-plus-square"></i> Recepción directa
+    </button>
+  </div>
+
+  <!-- ========== CON HALLAZGO ========== -->
+  @if (modo === 'hallazgo') {
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="card shadow">
+          <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0">Esperando llegar</h6>
+            <button class="btn btn-sm btn-light" (click)="loadingPendientes()" title="Actualizar">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+          @if (cargando) {
+            <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+          } @else {
+            <div class="list-group list-group-flush">
+              @for (p of pendientes; track p.idHallazgo) {
+                <button class="list-group-item list-group-item-action"
+                  [class.active]="seleccionado?.idHallazgo === p.idHallazgo" (click)="elegir(p)">
+                  <div class="fw-semibold">{{ p.nombreObjeto }}</div>
+                  <small>Hallazgo #{{ p.idHallazgo }} · {{ p.fechaReporte | date:'dd/MM/yyyy' }}</small><br>
+                  <small><i class="bi bi-geo-alt"></i> {{ p.ubicacionDestino || 'Sin destino' }}</small>
+                </button>
+              } @empty {
+                <div class="text-center text-muted py-4">No hay objetos esperando recepción.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        @if (seleccionado) {
+          <div class="card shadow">
+            <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+              <h6 class="m-0">Recibir: {{ seleccionado.nombreObjeto }}</h6>
+              <button class="btn-close btn-close-white" (click)="cancelar()"></button>
+            </div>
+            <div class="card-body">
+              @if (fotoPrevia) {
+                <p class="small text-muted mb-1">Foto del reporte (compárala con el objeto):</p>
+                <img [src]="fotoPrevia" class="foto-previa rounded border mb-3" alt="Foto del reporte">
+              } @else {
+                <div class="alert alert-warning small">
+                  <i class="bi bi-exclamation-triangle"></i> Este hallazgo no tiene foto legible: adjunta una nueva.
+                </div>
+              }
+              <ng-container *ngTemplateOutlet="comun" />
+            </div>
+          </div>
+        } @else {
+          <div class="text-center text-muted py-5 border rounded">
+            <i class="bi bi-hand-index fs-1 d-block mb-2"></i>
+            Elige un objeto de la lista cuando llegue físicamente.
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ========== DIRECTA ========== -->
+  @if (modo === 'directa') {
+    <div class="card shadow" style="max-width: 820px;">
+      <div class="card-header bg-upeu-primary text-white">
+        <h6 class="m-0">Objeto recibido sin reporte previo</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Categoría *</label>
+            <select class="form-select" [(ngModel)]="directa.idCategoria">
+              <option [ngValue]="null" disabled>Selecciona...</option>
+              @for (c of categorias; track c.idCategoria) {
+                <option [ngValue]="c.idCategoria">{{ c.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Nombre del objeto *</label>
+            <input type="text" class="form-control" maxlength="100" [(ngModel)]="directa.nombre">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Marca</label>
+            <input type="text" class="form-control" maxlength="100" [(ngModel)]="directa.marca">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Color</label>
+            <input type="text" class="form-control" maxlength="50" [(ngModel)]="directa.color">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">¿Dónde se encontró?</label>
+            <select class="form-select" [(ngModel)]="directa.idUbicacionEncontrado">
+              <option [ngValue]="null">No se sabe</option>
+              @for (u of ubicaciones; track u.idUbicacion) {
+                <option [ngValue]="u.idUbicacion">{{ u.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 mb-3">
+            <label class="form-label">Descripción *</label>
+            <textarea class="form-control" rows="2" maxlength="255" [(ngModel)]="directa.descripcion"></textarea>
+          </div>
+        </div>
+        <hr>
+        <ng-container *ngTemplateOutlet="comun" />
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ========== PARTE COMUN (se usa en las dos pestañas) ========== -->
+<ng-template #comun>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Queda en custodia en *</label>
+      <select class="form-select" [(ngModel)]="idUbicacionActual">
+        <option [ngValue]="null" disabled>Selecciona...</option>
+        @for (u of puntos; track u.idUbicacion) {
+          <option [ngValue]="u.idUbicacion">{{ u.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <label class="form-label">¿Quién lo trajo? (opcional)</label>
+      @if (!personaEntrega) {
+        <div class="input-group">
+          <input type="text" class="form-control" maxlength="9" placeholder="Código o DNI"
+            [(ngModel)]="codigoEntrega" (keydown.enter)="buscarPersona()">
+          <button class="btn btn-outline-primario" (click)="buscarPersona()"
+            [disabled]="buscandoPersona || codigoEntrega.trim().length < 8">
+            @if (buscandoPersona) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-search"></i> }
+          </button>
+        </div>
+      } @else {
+        <div class="d-flex align-items-center gap-2 p-2 border rounded bg-upeu-soft">
+          <i class="bi bi-person-check-fill text-upeu-primary"></i>
+          <small class="flex-grow-1">
+            <strong>{{ personaEntrega.nombres }} {{ personaEntrega.apellidos }}</strong><br>
+            {{ personaEntrega.codigoUni ? 'Código ' + personaEntrega.codigoUni : 'DNI ' + personaEntrega.documentoIdentidad }}
+          </small>
+          <button class="btn btn-sm btn-light" (click)="quitarPersona()"><i class="bi bi-x-lg"></i></button>
+        </div>
+      }
+    </div>
+
+    <div class="col-12 mb-3">
+      <label class="form-label">Observación de recepción</label>
+      <textarea class="form-control" rows="2" maxlength="255" [(ngModel)]="observacion"
+        placeholder="Estado en que llegó, accesorios, etc."></textarea>
+    </div>
+
+    <div class="col-12 mb-3">
+      <label class="form-label">
+        {{ modo === 'directa' ? 'Foto del objeto *' : 'Foto nueva (opcional si el reporte ya tiene foto)' }}
+      </label>
+      <input #archivo type="file" class="form-control" accept="image/jpeg,image/png,image/webp"
+        (change)="seleccionarImagen($event)">
+      @if (preview) {
+        <div class="position-relative d-inline-block mt-2">
+          <img [src]="preview" class="rounded border" style="max-height: 140px;" alt="Vista previa">
+          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" (click)="quitarImagen()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="col-12 mb-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="confirmo" [(ngModel)]="confirmo">
+        <label class="form-check-label fw-semibold" for="confirmo">
+          Confirmo que recibí el objeto físicamente
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-upeu w-100" (click)="registrar()" [disabled]="guardando || !confirmo">
+    @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+    <i class="bi bi-box-seam"></i> Registrar en custodia
+  </button>
+</ng-template>

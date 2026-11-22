@@ -1,0 +1,45 @@
+.marca {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.marca-texto {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+}
+
+.marca-sub {
+  font-size: .65rem;
+  opacity: .85;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, .85) !important;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: #fff !important;
+}
+
+.nav-link.active {
+  color: #fff !important;
+  font-weight: 700;
+  border-bottom-color: var(--color-acento);
+}
+
+.usuario {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-weight: 500;
+}
+
+.usuario i {
+  font-size: 1.4rem;
+}

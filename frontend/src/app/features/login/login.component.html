@@ -1,0 +1,66 @@
+<div class="login">
+  <!-- Fondo: foto del campus + velo azul -->
+  <div class="fondo"></div>
+  <div class="velo"></div>
+
+  <div class="contenido">
+    <!-- BIENVENIDA -->
+    <section class="bienvenida">
+      <img src="img/upeu-logo.png" alt="Universidad Peruana Unión" class="logo-upeu">
+
+      <h1 class="titulo">
+        Objetos perdidos
+        <span>y encontrados</span>
+      </h1>
+      <p class="lema">Reporta, encuentra y recupera lo tuyo dentro del campus de la UPeU Tarapoto.</p>
+
+      <div class="pasos">
+        <div class="paso" style="--i: 0"><i class="bi bi-search"></i><span>Reporta</span></div>
+        <div class="paso" style="--i: 1"><i class="bi bi-box-seam"></i><span>Encuentra</span></div>
+        <div class="paso" style="--i: 2"><i class="bi bi-hand-thumbs-up"></i><span>Recupera</span></div>
+      </div>
+    </section>
+
+    <!-- TARJETA DE INGRESO -->
+    <section class="tarjeta">
+      <div class="tarjeta-encabezado">
+        <h2>Iniciar sesión</h2>
+        <p>Ingresa con tu código universitario o DNI.</p>
+      </div>
+
+      <form (ngSubmit)="login()">
+        <label class="etiqueta" for="ingreso">Código o DNI</label>
+        <div class="campo">
+          <i class="bi bi-person"></i>
+          <input id="ingreso" name="ingreso" type="text" maxlength="9" autocomplete="username"
+            placeholder="Ej.: 202099999" [(ngModel)]="ingreso" required>
+        </div>
+
+        <label class="etiqueta" for="password">Contraseña</label>
+        <div class="campo">
+          <i class="bi bi-lock"></i>
+          <input id="password" name="password" [type]="verPassword ? 'text' : 'password'"
+            autocomplete="current-password" placeholder="Opcional para estudiantes" [(ngModel)]="password">
+          <button type="button" class="ojo" (click)="verPassword = !verPassword"
+            [attr.aria-label]="verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            <i class="bi" [class.bi-eye]="!verPassword" [class.bi-eye-slash]="verPassword"></i>
+          </button>
+        </div>
+        <p class="ayuda">
+          <i class="bi bi-info-circle"></i>
+          Estudiantes: si no tienes contraseña, déjala vacía. Personal y administración: DNI y contraseña.
+        </p>
+
+        <button type="submit" class="boton" [disabled]="isLoading || !ingreso.trim()">
+          @if (isLoading) {
+            <span class="spinner-border spinner-border-sm me-2"></span> Ingresando...
+          } @else {
+            Ingresar <i class="bi bi-arrow-right ms-1"></i>
+          }
+        </button>
+      </form>
+
+      <p class="pie">Universidad Peruana Unión · Filial Tarapoto</p>
+    </section>
+  </div>
+</div>

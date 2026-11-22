@@ -1,0 +1,83 @@
+<div class="container pagina">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="encabezado-pagina">
+            <div class="icono"><i class="bi bi-clipboard-check"></i></div>
+            <div>
+                <h1>Revisión de hallazgos</h1>
+                <p>Aprueba o rechaza los objetos que reportaron los estudiantes.</p>
+            </div>
+        </div>
+        <button class="btn btn-outline-primario" (click)="loadingPendientes()" [disabled]="cargando">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar
+        </button>
+    </div>
+
+    @if (cargando) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+    </div>
+    } @else {
+    @for (h of pendientes; track h.idHallazgo) {
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0">
+            <!-- FOTO -->
+            <div class="col-md-4">
+                @if (fotos[h.idHallazgo]) {
+                <a [href]="fotos[h.idHallazgo]" target="_blank" title="Ver en grande">
+                    <img [src]="fotos[h.idHallazgo]" class="foto rounded-start" [alt]="h.nombreObjeto">
+                </a>
+                } @else {
+                <div class="foto d-flex align-items-center justify-content-center bg-light rounded-start">
+                    <i class="bi bi-image fs-1 text-muted"></i>
+                </div>
+                }
+            </div>
+
+            <!-- DATOS Y DECISION -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h5 class="mb-1">{{ h.nombreObjeto }}</h5>
+                        <span class="badge bg-warning text-dark">{{ h.estado }}</span>
+                    </div>
+                    <p class="text-muted small mb-2">
+                        Hallazgo #{{ h.idHallazgo }} · Reportado el {{ h.fechaReporte | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+
+                    <div class="row small mb-2">
+                        <div class="col-sm-6"><strong>Categoría:</strong> {{ h.categoria }}</div>
+                        <div class="col-sm-6"><strong>Marca / color:</strong> {{ h.marca || '—' }} / {{ h.color || '—'
+                            }}</div>
+                        <div class="col-sm-6"><strong>Encontrado en:</strong> {{ h.ubicacionEncontrado || '—' }}</div>
+                        <div class="col-sm-6"><strong>Lo llevará a:</strong> {{ h.ubicacionDestino || '—' }}</div>
+                    </div>
+                    <p class="mb-3"><strong>Descripción:</strong> {{ h.descripcion }}</p>
+
+                    <textarea class="form-control mb-2" rows="2" maxlength="255"
+                        placeholder="Observación (obligatoria si rechazas)"
+                        [(ngModel)]="observaciones[h.idHallazgo]"></textarea>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-danger" (click)="resolver(h, 'RECHAZADO')"
+                            [disabled]="procesando === h.idHallazgo">
+                            <i class="bi bi-x-circle"></i> Rechazar
+                        </button>
+                        <button class="btn btn-upeu flex-grow-1" (click)="resolver(h, 'APROBADO')"
+                            [disabled]="procesando === h.idHallazgo">
+                            @if (procesando === h.idHallazgo) { <span
+                                class="spinner-border spinner-border-sm me-1"></span> }
+                            <i class="bi bi-check-circle"></i> Aprobar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    } @empty {
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-check2-all fs-1 d-block mb-2"></i>
+        No hay hallazgos pendientes de revisión.
+    </div>
+    }
+    }
+</div>

@@ -1,0 +1,44 @@
+<div class="container pagina" style="max-width: 640px;">
+  <div class="encabezado-pagina">
+    <div class="icono"><i class="bi bi-shield-lock"></i></div>
+    <div>
+      <h1>Mi cuenta</h1>
+      <p>Cambia tu contraseña de acceso.</p>
+    </div>
+  </div>
+
+  @if (authService.getRol() === 'ESTUDIANTE') {
+    <div class="alert alert-info small">
+      <i class="bi bi-info-circle me-1"></i>
+      Si ingresas solo con tu código o DNI, todavía no tienes contraseña.
+      Pídele al administrador que te la habilite y luego podrás cambiarla aquí.
+    </div>
+  }
+
+  <div class="card shadow">
+    <div class="card-header bg-upeu-primary text-white">
+      <h5 class="m-0">Cambiar contraseña</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="mb-3">
+          <label class="form-label">Contraseña actual</label>
+          <input type="password" formControlName="claveActual" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nueva contraseña</label>
+          <input type="password" formControlName="nuevaClave" class="form-control">
+          <div class="form-text">Mínimo 12 caracteres.</div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Confirmar nueva contraseña</label>
+          <input type="password" formControlName="confirmar" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-upeu w-100" [disabled]="form.invalid || guardando">
+          @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar contraseña
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

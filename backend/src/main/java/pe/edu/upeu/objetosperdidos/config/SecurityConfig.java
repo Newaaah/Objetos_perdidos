@@ -155,7 +155,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/notificaciones/*/leida")
                     .authenticated()
 
-                .requestMatchers("/api/v1/reportes/**")
+                    // Busqueda de personas por DNI o codigo (recepcion, entrega y claves)
+                    .requestMatchers(HttpMethod.GET, "/api/v1/personas/buscar")
+                    .hasAnyAuthority("PERSONAL", "ADMIN")
+                    .requestMatchers("/api/v1/reportes/**")
                     .hasAnyAuthority("PERSONAL", "ADMIN")
 
                 .anyRequest().denyAll()

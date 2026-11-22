@@ -1,0 +1,26 @@
+.campana-menu {
+    width: 340px;
+}
+
+.lista {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.no-leida {
+    background: #eef4fb;
+    border-left: 3px solid var(--color-acento);
+}
+
+.punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-acento);
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.contador {
+    font-size: 0.65rem;
+}

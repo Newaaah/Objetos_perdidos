@@ -1,0 +1,43 @@
+<div class="dropdown">
+  <button class="btn btn-link position-relative text-white px-2" type="button"
+    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notificaciones">
+    <i class="bi bi-bell fs-5"></i>
+    @if (noLeidas > 0) {
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger contador">
+        {{ noLeidas > 9 ? '9+' : noLeidas }}
+      </span>
+    }
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end shadow p-0 campana-menu">
+    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+      <strong>Notificaciones</strong>
+      @if (noLeidas > 0) {
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" (click)="marcarTodas($event)">
+          Marcar todas como leídas
+        </button>
+      }
+    </div>
+
+    <div class="lista">
+      @for (n of notificaciones; track n.idNotificacion) {
+        <button class="dropdown-item d-flex gap-2 py-2 text-wrap" [class.no-leida]="!n.leida" (click)="abrir(n)">
+          <i class="bi {{ icono(n.tipo) }} fs-5 text-upeu-primary"></i>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between gap-2">
+              <span [class.fw-semibold]="!n.leida">{{ n.titulo }}</span>
+              @if (!n.leida) { <span class="punto"></span> }
+            </div>
+            <small class="text-muted d-block">{{ n.mensaje }}</small>
+            <small class="text-muted">{{ n.fechaCreacion | date:'dd/MM HH:mm' }}</small>
+          </div>
+        </button>
+      } @empty {
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-bell-slash fs-3 d-block mb-1"></i>
+          No tienes notificaciones.
+        </div>
+      }
+    </div>
+  </div>
+</div>

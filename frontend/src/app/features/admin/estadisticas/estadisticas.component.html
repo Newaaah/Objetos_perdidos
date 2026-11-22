@@ -1,0 +1,212 @@
+<div class="container pagina">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-bar-chart"></i></div>
+      <div>
+        <h1>Estadísticas</h1>
+        <p>Reportes generados desde Oracle (consultas, vista y procedimiento almacenado).</p>
+      </div>
+    </div>
+    <button class="btn btn-outline-primario" (click)="cargar()" [disabled]="cargando">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar
+    </button>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  } @else {
+
+    <!-- ===== INDICADORES ===== -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm kpi">
+          <div class="card-body">
+            <small class="text-muted">Pérdidas reportadas</small>
+            <div class="valor">{{ total(perdidas) }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm kpi">
+          <div class="card-body">
+            <small class="text-muted">Hallazgos reportados</small>
+            <div class="valor">{{ total(hallazgos) }}</div>
+          </div>
+        </div>
+      </div>
+      @for (c of custodias; track c.estado) {
+        <div class="col-6 col-lg-3">
+          <div class="card shadow-sm kpi">
+            <div class="card-body">
+              <small class="text-muted">Custodias: {{ c.estado }}</small>
+              <div class="valor">{{ c.total }}</div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ===== CONTEOS POR ESTADO ===== -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-4">
+        <ng-container *ngTemplateOutlet="barras; context: { titulo: 'Pérdidas por estado', icono: 'bi-search', lista: perdidas }" />
+      </div>
+      <div class="col-lg-4">
+        <ng-container *ngTemplateOutlet="barras; context: { titulo: 'Hallazgos por estado', icono: 'bi-hand-thumbs-up', lista: hallazgos }" />
+      </div>
+      <div class="col-lg-4">
+        <ng-container *ngTemplateOutlet="barras; context: { titulo: 'Reclamos por estado', icono: 'bi-flag', lista: reclamos }" />
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <!-- ===== POR MES ===== -->
+      <div class="col-lg-7">
+        <div class="card shadow h-100">
+          <div class="card-header bg-upeu-primary text-white">
+            <h6 class="m-0"><i class="bi bi-calendar3"></i> Pérdidas y entregas por mes</h6>
+          </div>
+          <div class="card-body">
+            @if (meses.length > 0) {
+              <div class="d-flex gap-3 small mb-3">
+                <span><span class="leyenda bg-perdida"></span> Pérdidas</span>
+                <span><span class="leyenda bg-entrega"></span> Entregas</span>
+              </div>
+              <div class="grafico-meses">
+                @for (m of meses; track m.periodo) {
+                  <div class="mes">
+                    <div class="columnas">
+                      <div class="columna bg-perdida" [style.height.%]="(m.perdidas / maxMes) * 100" [title]="m.perdidas + ' pérdidas'">
+                        <span>{{ m.perdidas }}</span>
+                      </div>
+                      <div class="columna bg-entrega" [style.height.%]="(m.entregas / maxMes) * 100" [title]="m.entregas + ' entregas'">
+                        <span>{{ m.entregas }}</span>
+                      </div>
+                    </div>
+                    <small class="text-muted">{{ m.periodo }}</small>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center text-muted py-4">Sin datos.</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RESUMEN (PROCEDIMIENTO) ===== -->
+      <div class="col-lg-5">
+        <div class="card shadow h-100">
+          <div class="card-header bg-upeu-primary text-white">
+            <h6 class="m-0"><i class="bi bi-gear"></i> Resumen de reclamos</h6>
+          </div>
+          <div class="card-body">
+            <small class="text-muted d-block mb-3">Procedimiento Oracle <code>SP_RESUMEN_RECLAMOS</code></small>
+            @if (resumen) {
+              <div class="row text-center g-2">
+                <div class="col-4"><div class="p-3 border rounded"><div class="valor">{{ resumen.total }}</div><small>Total</small></div></div>
+                <div class="col-4"><div class="p-3 border rounded"><div class="valor text-warning">{{ resumen.sinRevisar }}</div><small>Sin revisar</small></div></div>
+                <div class="col-4"><div class="p-3 border rounded"><div class="valor text-success">{{ resumen.revisados }}</div><small>Revisados</small></div></div>
+              </div>
+              @if (resumen.total > 0) {
+                <div class="progress mt-3" style="height: 10px;">
+                  <div class="progress-bar bg-success" [style.width.%]="(resumen.revisados / resumen.total) * 100"></div>
+                </div>
+                <small class="text-muted">{{ (resumen.revisados / resumen.total) * 100 | number:'1.0-0' }}% revisados</small>
+              }
+            } @else {
+              <div class="text-center text-muted py-4">No se pudo ejecutar el procedimiento.</div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ENTREGAS POR CATEGORIA ===== -->
+    <div class="card shadow mb-4">
+      <div class="card-header bg-upeu-primary text-white">
+        <h6 class="m-0"><i class="bi bi-pie-chart"></i> Porcentaje de custodias entregadas por categoría</h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>Categoría</th><th class="text-center">Custodias</th><th class="text-center">Entregadas</th><th style="width: 40%;">Porcentaje</th></tr>
+          </thead>
+          <tbody>
+            @for (c of categorias; track c.idCategoria) {
+              <tr>
+                <td class="fw-semibold">{{ c.categoria }}</td>
+                <td class="text-center">{{ c.totalCustodias }}</td>
+                <td class="text-center">{{ c.totalEntregadas }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height: 10px;">
+                      <div class="progress-bar bg-entrega" [style.width.%]="c.porcentaje"></div>
+                    </div>
+                    <small class="text-nowrap">{{ c.porcentaje | number:'1.0-1' }}%</small>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="text-center text-muted py-3">Sin datos.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== SEGUIMIENTO (VISTA) ===== -->
+    <div class="card shadow">
+      <div class="card-header bg-upeu-primary text-white">
+        <h6 class="m-0"><i class="bi bi-list-columns"></i> Seguimiento de reclamos</h6>
+      </div>
+      <div class="px-3 pt-2"><small class="text-muted">Vista Oracle <code>VW_SEGUIMIENTO_RECLAMOS</code></small></div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>#</th><th>Categoría</th><th>Descripción</th><th>Estado</th><th>Situación</th><th>Solicitado</th><th>Resuelto</th></tr>
+          </thead>
+          <tbody>
+            @for (s of seguimiento; track s.idReclamacion) {
+              <tr>
+                <td>{{ s.idReclamacion }}</td>
+                <td>{{ s.categoria }}</td>
+                <td><small>{{ s.descripcion }}</small></td>
+                <td><span class="badge {{ colorEstado(s.estadoReclamacion) }}">{{ s.estadoReclamacion }}</span></td>
+                <td><small>{{ s.situacionRevision }}</small></td>
+                <td><small>{{ s.fechaSolicitud | date:'dd/MM/yyyy' }}</small></td>
+                <td><small>{{ s.fechaResolucion ? (s.fechaResolucion | date:'dd/MM/yyyy') : '—' }}</small></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="text-center text-muted py-3">Sin datos.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ===== PLANTILLA: barras horizontales por estado ===== -->
+<ng-template #barras let-titulo="titulo" let-icono="icono" let-lista="lista">
+  <div class="card shadow h-100">
+    <div class="card-header bg-upeu-primary text-white d-flex justify-content-between">
+      <h6 class="m-0"><i class="bi {{ icono }}"></i> {{ titulo }}</h6>
+      <span class="badge bg-light text-dark">{{ total(lista) }}</span>
+    </div>
+    <div class="card-body">
+      @for (x of lista; track x.estado) {
+        <div class="mb-3">
+          <div class="d-flex justify-content-between small">
+            <span>{{ x.estado }}</span><strong>{{ x.total }}</strong>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar {{ colorEstado(x.estado) }}" [style.width.%]="ancho(x.total, lista)"></div>
+          </div>
+        </div>
+      } @empty {
+        <div class="text-center text-muted py-3">Sin datos.</div>
+      }
+    </div>
+  </div>
+</ng-template>

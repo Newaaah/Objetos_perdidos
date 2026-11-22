@@ -1,0 +1,57 @@
+<div class="container pagina" style="max-width: 640px;">
+  <div class="encabezado-pagina">
+    <div class="icono"><i class="bi bi-key"></i></div>
+    <div>
+      <h1>Claves de estudiantes</h1>
+      <p>Habilita o restablece la contraseña de un estudiante.</p>
+    </div>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-upeu-primary text-white">
+      <h5 class="m-0">Habilitar contraseña</h5>
+    </div>
+    <div class="card-body">
+
+      <label class="form-label">Código universitario o DNI del estudiante</label>
+      @if (!estudiante) {
+        <div class="input-group mb-2">
+          <input type="text" class="form-control" placeholder="Ej.: 202099999" maxlength="9"
+            [(ngModel)]="codigo" (keydown.enter)="buscar()">
+          <button class="btn btn-primario" (click)="buscar()" [disabled]="buscando || codigo.trim().length < 8">
+            @if (buscando) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-search"></i> Buscar }
+          </button>
+        </div>
+      } @else {
+        <div class="d-flex align-items-center gap-3 p-3 border rounded bg-upeu-soft mb-4">
+          <i class="bi bi-person-check-fill fs-2 text-upeu-primary"></i>
+          <div class="flex-grow-1">
+            <strong>{{ estudiante.nombres }} {{ estudiante.apellidos }}</strong><br>
+            <small>Código {{ estudiante.codigoUni }} · DNI {{ estudiante.documentoIdentidad }}</small>
+            @if (estudiante.carrera) { <br><small class="text-muted">{{ estudiante.carrera }}</small> }
+          </div>
+          <button class="btn btn-sm btn-light" (click)="cambiarEstudiante()">Cambiar</button>
+        </div>
+
+        <!-- PASO 2: la nueva contraseña -->
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nueva contraseña</label>
+              <input type="password" formControlName="nuevaClave" class="form-control">
+              <div class="form-text">Mínimo 12 caracteres.</div>
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label">Confirmar</label>
+              <input type="password" formControlName="confirmar" class="form-control">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-upeu w-100" [disabled]="form.invalid || guardando">
+            @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            Habilitar contraseña
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+</div>

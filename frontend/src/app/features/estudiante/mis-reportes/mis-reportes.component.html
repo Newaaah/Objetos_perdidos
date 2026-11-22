@@ -1,0 +1,113 @@
+<div class="container pagina">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-list-check"></i></div>
+      <div>
+        <h1>Mis reportes</h1>
+        <p>Los objetos que reportaste como perdidos.</p>
+      </div>
+    </div>
+    <a class="btn btn-upeu" routerLink="/reportar-perdida">
+      <i class="bi bi-plus-lg"></i> Reportar pérdida
+    </a>
+  </div>
+
+  @if (cargando) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+  } @else {
+  <div class="card shadow">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Objeto</th>
+              <th>Categoría</th>
+              <th>Dónde</th>
+              <th>Perdido el</th>
+              <th>Reportado el</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of reportes; track r.idReportePerdida) {
+            <tr [class.table-active]="seleccionado?.idReportePerdida === r.idReportePerdida">
+              <td class="text-muted">{{ r.idReportePerdida }}</td>
+              <td class="fw-semibold">{{ r.nombreObjeto }}</td>
+              <td>{{ r.categoria }}</td>
+              <td>{{ r.ubicacionPerdida || '—' }}</td>
+              <td>{{ r.fechaPerdida ? (r.fechaPerdida | date:'dd/MM/yyyy') : '—' }}</td>
+              <td>{{ r.fechaReporte | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge {{ claseEstado(r.estado) }}">{{ r.estado }}</span></td>
+              <td class="text-end">
+                @if (r.estado === 'REPORTADO') {
+                <button class="btn btn-sm btn-outline-primario" (click)="verSugerencias(r)">
+                  <i class="bi bi-stars"></i> Sugerencias
+                </button>
+                }
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="8" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                Aún no has reportado ninguna pérdida.
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL DE SUGERENCIAS -->
+  @if (seleccionado) {
+  <div class="card shadow mt-4">
+    <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="m-0"><i class="bi bi-stars"></i> Posibles coincidencias: {{ seleccionado.nombreObjeto }}</h5>
+      <button class="btn-close btn-close-white" (click)="cerrarSugerencias()"></button>
+    </div>
+    <div class="card-body">
+      @if (buscandoSugerencias) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+      </div>
+      } @else if (resultado) {
+      @if (resultado.aviso) {
+      <div class="alert alert-info"><i class="bi bi-info-circle"></i> {{ resultado.aviso }}</div>
+      }
+
+      @for (s of resultado.sugerencias; track s.origen + s.idReferencia) {
+      <div class="d-flex align-items-center gap-3 p-3 border rounded mb-2">
+        <i class="bi bi-box-seam fs-3 text-upeu-primary"></i>
+        <div class="flex-grow-1">
+          <strong>{{ textoOrigen(s.origen) }}</strong> · Ref. #{{ s.idReferencia }}<br>
+          <small class="text-muted">Categoría: {{ s.categoria }}</small>
+        </div>
+        <span class="badge {{ claseNivel(s.nivelCoincidencia) }}">{{ s.nivelCoincidencia }}</span>
+      </div>
+      } @empty {
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-search fs-1 d-block mb-2"></i>
+        Por ahora no hay objetos parecidos. Te avisaremos si aparece alguno.
+      </div>
+      }
+
+      @if (resultado.sugerencias.length > 0) {
+      <p class="small text-muted mt-3 mb-0">
+        <i class="bi bi-shield-lock"></i> Por seguridad no mostramos fotos ni detalles.
+        Acércate a la <strong>Garita</strong> con tu DNI, el N° de tu reporte (#{{ seleccionado.idReportePerdida }})
+        y la referencia para verificar si es tuyo.
+      </p>
+      }
+      }
+    </div>
+  </div>
+  }
+  }
+</div>

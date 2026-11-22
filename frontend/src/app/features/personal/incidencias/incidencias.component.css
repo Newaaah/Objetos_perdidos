@@ -1,0 +1,14 @@
+.evidencia {
+  max-height: 220px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Descripcion cortada a 2 lineas en la lista */
+.texto-corto {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

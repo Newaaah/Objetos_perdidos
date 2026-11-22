@@ -1,0 +1,140 @@
+<div class="container pagina">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-flag"></i></div>
+      <div>
+        <h1>Reclamos</h1>
+        <p>Estudiantes que creen que su objeto se entregó a otra persona.</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <select class="form-select w-auto" [(ngModel)]="filtro" (ngModelChange)="loadingReclamos()">
+        <option value="PENDIENTE">Pendientes</option>
+        <option value="EN_REVISION">En revisión</option>
+        <option value="APROBADO">Aprobados</option>
+        <option value="RECHAZADO">Rechazados</option>
+        <option value="">Todos</option>
+      </select>
+      <button class="btn btn-outline-primario" (click)="loadingReclamos()" title="Actualizar">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- LISTA -->
+    <div class="col-lg-6">
+      <div class="card shadow">
+        @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+        } @else {
+        <div class="list-group list-group-flush">
+          @for (r of reclamos; track r.idReclamo) {
+          <button class="list-group-item list-group-item-action"
+            [class.active]="seleccionado?.idReclamo === r.idReclamo" (click)="elegir(r)">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div class="text-start">
+                <strong>Reclamo #{{ r.idReclamo }}</strong>
+                @if (r.idEntrega) { <small> · Entrega #{{ r.idEntrega }}</small> }
+                @if (r.tieneEvidencia) { <i class="bi bi-image ms-1" title="Tiene evidencia"></i> }
+                <br>
+                <small class="texto-corto">{{ r.descripcion }}</small><br>
+                <small>{{ r.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small>
+              </div>
+              <span class="badge {{ claseEstado(r.estado) }}">{{ r.estado }}</span>
+            </div>
+          </button>
+          } @empty {
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-check2-all fs-1 d-block mb-2"></i>
+            No hay reclamos en este estado.
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="col-lg-6">
+      @if (seleccionado) {
+      <div class="card shadow">
+        <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+          <h6 class="m-0">Reclamo #{{ seleccionado.idReclamo }}</h6>
+          <button class="btn-close btn-close-white" (click)="cerrarPanel()"></button>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="badge {{ claseEstado(seleccionado.estado) }}">{{ seleccionado.estado }}</span>
+            <small class="text-muted">{{ seleccionado.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+
+          <div class="row small mb-3">
+            <div class="col-6"><strong>Entrega:</strong> {{ seleccionado.idEntrega ? '#' + seleccionado.idEntrega : '—'
+              }}</div>
+            <div class="col-6"><strong>Custodia:</strong> {{ seleccionado.idCustodia ? '#' + seleccionado.idCustodia :
+              '—' }}</div>
+          </div>
+
+          <p class="mb-1"><strong>Lo que dice el estudiante:</strong></p>
+          <p class="p-2 bg-light rounded">{{ seleccionado.descripcion }}</p>
+
+          @if (seleccionado.tieneEvidencia) {
+          <p class="mb-1"><strong>Evidencia:</strong></p>
+          @if (foto) {
+          <a [href]="foto" target="_blank" title="Ver en grande">
+            <img [src]="foto" class="evidencia rounded border mb-3" alt="Evidencia del reclamo">
+          </a>
+          } @else {
+          <div class="text-muted small mb-3">Cargando evidencia...</div>
+          }
+          }
+
+          @if (abierto(seleccionado)) {
+          @if (seleccionado.estado === 'PENDIENTE') {
+          <button class="btn btn-outline-primario w-100 mb-3" (click)="tomar()" [disabled]="guardando">
+            <i class="bi bi-hourglass-split"></i> Pasar a revisión
+          </button>
+          }
+
+          <label class="form-label fw-semibold">Resolución (para cerrar) *</label>
+          <textarea class="form-control mb-1" rows="3" maxlength="500" [(ngModel)]="resolucion"
+            placeholder="Ej.: Se verificó con la evidencia que el objeto le pertenece; se coordinará la devolución."></textarea>
+          <div class="d-flex justify-content-between mb-3">
+            <small [class.text-danger]="resolucion.trim().length > 0 && resolucion.trim().length < 10">Mínimo 10
+              caracteres.</small>
+            <small class="text-muted">{{ resolucion.length }}/500</small>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-danger flex-grow-1" (click)="cerrar('RECHAZADO')"
+              [disabled]="guardando || resolucion.trim().length < 10">
+              <i class="bi bi-x-circle"></i> Rechazar
+            </button>
+            <button class="btn btn-upeu flex-grow-1" (click)="cerrar('APROBADO')"
+              [disabled]="guardando || resolucion.trim().length < 10">
+              @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+              <i class="bi bi-check-circle"></i> Aprobar
+            </button>
+          </div>
+          } @else {
+          <div class="alert alert-secondary mb-0">
+            <strong>Resolución:</strong> {{ seleccionado.resolucion || '—' }}<br>
+            @if (seleccionado.fechaResolucion) {
+            <small>Cerrado el {{ seleccionado.fechaResolucion | date:'dd/MM/yyyy HH:mm' }}</small>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      } @else {
+      <div class="text-center text-muted py-5 border rounded">
+        <i class="bi bi-hand-index fs-1 d-block mb-2"></i>
+        Elige un reclamo para revisarlo.
+      </div>
+      }
+    </div>
+  </div>
+</div>

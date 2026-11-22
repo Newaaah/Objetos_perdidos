@@ -1,0 +1,79 @@
+<div class="container pagina" style="max-width: 760px;">
+  <div class="encabezado-pagina">
+    <div class="icono"><i class="bi bi-search"></i></div>
+    <div>
+      <h1>Reportar pérdida</h1>
+      <p>Cuéntanos qué perdiste; te avisaremos si aparece algo parecido.</p>
+    </div>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-upeu-primary text-white">
+      <h5 class="m-0">Datos del objeto</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Categoría *</label>
+            <select class="form-select" formControlName="idCategoria" [class.is-invalid]="invalido('idCategoria')">
+              <option [ngValue]="null" disabled>Selecciona...</option>
+              @for (c of categorias; track c.idCategoria) {
+                <option [ngValue]="c.idCategoria">{{ c.nombre }}</option>
+              }
+            </select>
+            <div class="invalid-feedback">Elige una categoría.</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">¿Qué perdiste? *</label>
+            <input type="text" class="form-control" formControlName="nombre" maxlength="100"
+              placeholder="Ej.: Audífonos inalámbricos" [class.is-invalid]="invalido('nombre')">
+            <div class="invalid-feedback">Escribe el nombre del objeto.</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Marca</label>
+            <input type="text" class="form-control" formControlName="marca" maxlength="100" placeholder="Opcional">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Color</label>
+            <input type="text" class="form-control" formControlName="color" maxlength="50" placeholder="Opcional">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">¿Dónde crees que lo perdiste?</label>
+            <select class="form-select" formControlName="idUbicacionPerdida">
+              <option [ngValue]="null">No estoy seguro</option>
+              @for (u of ubicaciones; track u.idUbicacion) {
+                <option [ngValue]="u.idUbicacion">{{ u.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">¿Cuándo?</label>
+            <input type="date" class="form-control" formControlName="fechaPerdida" [max]="hoy">
+          </div>
+
+          <div class="col-12 mb-4">
+            <label class="form-label">Descripción *</label>
+            <textarea class="form-control" rows="3" formControlName="descripcion" maxlength="255"
+              placeholder="Detalles que ayuden a reconocerlo: stickers, rayones, contenido..."
+              [class.is-invalid]="invalido('descripcion')"></textarea>
+            <div class="d-flex justify-content-between">
+              <div class="invalid-feedback d-block">
+                @if (invalido('descripcion')) { Describe el objeto. }
+              </div>
+              <small class="text-muted">{{ form.value.descripcion?.length || 0 }}/255</small>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-upeu w-100" [disabled]="guardando">
+          @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="bi bi-send"></i> Registrar reporte
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<div class="container pagina">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-box-arrow-right"></i></div>
+      <div>
+        <h1>Objetos entregados</h1>
+        <p>Si ves tu objeto aquí y no lo recibiste tú, presenta un reclamo.</p>
+      </div>
+    </div>
+    <select class="form-select w-auto" [(ngModel)]="dias" (ngModelChange)="loadingEntregados()">
+      <option [ngValue]="30">Últimos 30 días</option>
+      <option [ngValue]="90">Últimos 90 días</option>
+      <option [ngValue]="365">Último año</option>
+    </select>
+  </div>
+
+  <!-- FORMULARIO DE RECLAMO -->
+  @if (seleccionado) {
+  <div class="card shadow mb-4 border-warning">
+    <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="m-0"><i class="bi bi-exclamation-triangle"></i> Reclamar: {{ seleccionado.nombre }}</h5>
+      <button class="btn-close btn-close-white" (click)="cerrarReclamo()"></button>
+    </div>
+    <div class="card-body">
+      <p class="small text-muted">
+        Entregado el {{ seleccionado.fechaEntrega | date:'dd/MM/yyyy HH:mm' }} · {{ seleccionado.categoria }}
+      </p>
+
+      <label class="form-label">¿Por qué crees que es tuyo? *</label>
+      <textarea class="form-control mb-1" rows="3" maxlength="255" [(ngModel)]="descripcion"
+        placeholder="Ej.: Es mi mochila, tiene un llavero rojo y mi carné dentro del bolsillo pequeño."></textarea>
+      <div class="d-flex justify-content-between mb-3">
+        <small [class.text-danger]="descripcion.trim().length > 0 && descripcion.trim().length < 15">
+          Mínimo 15 caracteres.
+        </small>
+        <small class="text-muted">{{ descripcion.length }}/255</small>
+      </div>
+
+      <label class="form-label">Foto de evidencia (opcional)</label>
+      <input #archivo type="file" class="form-control" accept="image/jpeg,image/png,image/webp"
+        (change)="seleccionarEvidencia($event)">
+      <div class="form-text">Por ejemplo, una foto tuya con el objeto o su factura. JPG, PNG o WebP, máx. 5 MB.</div>
+      @if (preview) {
+      <div class="position-relative d-inline-block mt-3">
+        <img [src]="preview" alt="Evidencia" class="rounded border" style="max-height: 150px;">
+        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+          (click)="quitarEvidencia(archivo)">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      }
+
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-light" (click)="cerrarReclamo()">Cancelar</button>
+        <button class="btn btn-upeu flex-grow-1" (click)="enviar()"
+          [disabled]="enviando || descripcion.trim().length < 15">
+          @if (enviando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="bi bi-send"></i> Enviar reclamo
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- LISTA DE ENTREGADOS -->
+  @if (cargando) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+  } @else {
+  <div class="row g-4">
+    @for (o of objetos; track o.idEntrega) {
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+      <div class="card h-100 shadow-sm">
+        @if (o.imagenUrl) {
+        <img [src]="o.imagenUrl" class="card-img-top" [alt]="o.nombre" style="height: 160px; object-fit: cover;"
+          (error)="o.imagenUrl = undefined">
+        } @else {
+        <div class="d-flex align-items-center justify-content-center bg-light" style="height: 160px;">
+          <i class="bi bi-image fs-1 text-muted"></i>
+        </div>
+        }
+        <div class="card-body d-flex flex-column">
+          <span class="badge bg-secondary align-self-start mb-2">Entregado</span>
+          <h6 class="card-title mb-1">{{ o.nombre }}</h6>
+          <small class="text-muted">{{ o.categoria }}</small>
+          @if (o.marca || o.color) {
+          <small class="text-muted">{{ o.marca }}{{ o.marca && o.color ? ' · ' : '' }}{{ o.color }}</small>
+          }
+          <small class="mt-1"><i class="bi bi-calendar-check"></i> {{ o.fechaEntrega | date:'dd/MM/yyyy' }}</small>
+
+          <div class="mt-auto pt-3">
+            @if (loRecibi(o.idEntrega)) {
+            <span class="badge bg-success w-100 py-2"><i class="bi bi-check-circle"></i> Lo recibiste tú</span>
+            } @else if (yaReclamado(o.idEntrega)) {
+            <span class="badge bg-info text-dark w-100 py-2">Reclamo enviado</span>
+            } @else {
+            <button class="btn btn-sm btn-outline-primario w-100" (click)="abrirReclamo(o)">
+              <i class="bi bi-exclamation-triangle"></i> Es mío, reclamar
+            </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    } @empty {
+    <div class="col-12 text-center text-muted py-5">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      No hay objetos entregados en este periodo.
+    </div>
+    }
+  </div>
+  }
+</div>

@@ -14,3 +14,5 @@
 
 # Archivos temporales
 *.log
+# Fotos subidas al usar la app (no son codigo)
+backend/images/
