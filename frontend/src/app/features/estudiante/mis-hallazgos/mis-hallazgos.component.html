@@ -1,0 +1,126 @@
+<div [class.container]="!embebido" [class.pagina]="!embebido">
+
+  @if (!embebido) {
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="encabezado-pagina">
+        <div class="icono"><i class="bi bi-hand-thumbs-up"></i></div>
+        <div>
+          <h1>Mis hallazgos</h1>
+          <p>Los objetos que encontraste y reportaste.</p>
+        </div>
+      </div>
+      <a class="btn btn-upeu" routerLink="/reportar-hallazgo">
+        <i class="bi bi-plus-lg"></i> Reportar hallazgo
+      </a>
+    </div>
+  }
+
+  @if (cargando) {
+    <!-- ESQUELETO DE CARGA -->
+    @for (n of [1, 2, 3]; track n) {
+      <div class="esqueleto">
+        <div class="esq esq-icono"></div>
+        <div class="flex-grow-1">
+          <div class="esq esq-linea" style="width: 40%;"></div>
+          <div class="esq esq-linea" style="width: 20%;"></div>
+          <div class="esq esq-linea mt-3" style="width: 85%;"></div>
+        </div>
+      </div>
+    }
+
+  } @else if (hallazgos.length === 0) {
+    <!-- SIN HALLAZGOS -->
+    <div class="vacio">
+      <div class="vacio-icono"><i class="bi bi-hand-thumbs-up"></i></div>
+      <h5>Aún no has reportado objetos encontrados</h5>
+      <p>Si encuentras algo en el campus, repórtalo y ayuda a que vuelva con su dueño.</p>
+      <a class="btn btn-upeu" routerLink="/reportar-hallazgo">
+        <i class="bi bi-plus-lg"></i> Reportar hallazgo
+      </a>
+    </div>
+
+  } @else {
+    <!-- CONTADORES -->
+    <div class="resumen">
+      <div class="resumen-item t-azul" style="animation-delay: 0s;">
+        <i class="bi bi-hand-thumbs-up"></i>
+        <div><strong>{{ hallazgos.length }}</strong><small>Total</small></div>
+      </div>
+      <div class="resumen-item t-amarillo" style="animation-delay: .08s;">
+        <i class="bi bi-hourglass-split"></i>
+        <div><strong>{{ contar('PENDIENTE') }}</strong><small>En revisión</small></div>
+      </div>
+      <div class="resumen-item t-verde" style="animation-delay: .16s;">
+        <i class="bi bi-patch-check"></i>
+        <div><strong>{{ contar('APROBADO') }}</strong><small>Aprobados</small></div>
+      </div>
+      <div class="resumen-item t-rojo" style="animation-delay: .24s;">
+        <i class="bi bi-x-octagon"></i>
+        <div><strong>{{ contar('RECHAZADO') }}</strong><small>Rechazados</small></div>
+      </div>
+    </div>
+
+    @if (embebido) {
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="subtitulo">Objetos que encontraste</span>
+        <a class="btn btn-sm btn-outline-primario" routerLink="/reportar-hallazgo">
+          <i class="bi bi-plus-lg"></i> Reportar hallazgo
+        </a>
+      </div>
+    }
+
+    <!-- TARJETAS -->
+    @for (h of hallazgos; track h.idHallazgo; let i = $index) {
+      <div class="hallazgo {{ claseEstado(h.estado) }}" [style.animation-delay.s]="i * 0.1">
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="hallazgo-icono"><i class="bi {{ iconoCategoria(h.categoria) }}"></i></div>
+          <div class="flex-grow-1 min-w-0">
+            <h6 class="hallazgo-titulo">{{ h.nombreObjeto }}</h6>
+            <span class="hallazgo-categoria"><i class="bi bi-tag"></i> {{ h.categoria }}</span>
+          </div>
+          <span class="estado" [class.vivo]="h.estado === 'PENDIENTE'">
+            <span class="punto"></span> {{ textoEstado(h.estado) }}
+          </span>
+        </div>
+
+        <!-- DATOS -->
+        <div class="datos">
+          <div class="dato">
+            <i class="bi bi-send"></i>
+            <div><small>Reportado el</small><span>{{ h.fechaReporte | date:'dd/MM/yyyy HH:mm' }}</span></div>
+          </div>
+          <div class="dato">
+            <i class="bi bi-geo-alt"></i>
+            <div><small>Lugar de entrega</small><span>{{ h.ubicacionDestino || 'Por definir' }}</span></div>
+          </div>
+        </div>
+
+        <!-- MENSAJE SEGUN ESTADO -->
+        @switch (h.estado) {
+          @case ('PENDIENTE') {
+            <div class="mensaje">
+              <span class="puntitos"><span></span><span></span><span></span></span>
+              El personal está revisando tu reporte
+            </div>
+          }
+          @case ('APROBADO') {
+            <div class="mensaje destacado">
+              <i class="bi bi-heart-fill"></i>
+              ¡Gracias por tu honestidad! Lleva el objeto a <strong>{{ h.ubicacionDestino || 'Garita' }}</strong>.
+            </div>
+          }
+          @case ('RECHAZADO') {
+            <div class="mensaje destacado">
+              <i class="bi bi-info-circle-fill"></i>
+              Tu reporte no fue aprobado. Si tienes dudas, acércate a Garita.
+            </div>
+          }
+          @default {
+            <div class="mensaje"><i class="bi bi-slash-circle"></i> Este reporte fue cancelado.</div>
+          }
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,5 +1,7 @@
 /* ===== PERFIL ===== */
 .perfil {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -15,6 +17,19 @@
   animation: subirCuenta .5s ease both;
 }
 
+/* brillo que cruza la tarjeta al entrar */
+.perfil::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .18), transparent);
+  transform: skewX(-20deg);
+  animation: reflejo 1.6s ease .4s both;
+}
+
 .perfil-avatar {
   width: 76px;
   height: 76px;
@@ -25,6 +40,7 @@
   background: var(--color-acento, #FDB913);
   color: var(--color-primario, #003A6C);
   box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+  animation: flotarAvatar 4s ease-in-out infinite;
 }
 
 .perfil-etiqueta {
@@ -51,9 +67,85 @@
   border: 1px solid rgba(255, 255, 255, .3);
 }
 
+/* Datos extra del perfil (codigo, carrera) */
+.perfil-dato {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .8rem;
+  opacity: .9;
+}
+
 /* Color del avatar segun el rol */
-.perfil.admin .perfil-avatar    { background: #fde68a; }
-.perfil.personal .perfil-avatar { background: #bbf7d0; color: #14532d; }
+.perfil.admin .perfil-avatar {
+  background: #fde68a;
+}
+
+.perfil.personal .perfil-avatar {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+/* ===== PESTAÑAS ===== */
+.pestanas {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: .35rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .07);
+  animation: subirCuenta .5s ease .1s both;
+}
+
+.pestanas button {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: .7rem .5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #64748b;
+  transition: color .3s ease;
+}
+
+.pestanas button i {
+  margin-right: .35rem;
+}
+
+.pestanas button:hover {
+  color: var(--color-primario, #003A6C);
+}
+
+.pestanas button.activa {
+  color: #fff;
+}
+
+/* fondo azul que se desliza entre las pestañas */
+.pestana-fondo {
+  position: absolute;
+  top: .35rem;
+  bottom: .35rem;
+  left: .35rem;
+  width: calc((100% - .7rem) / 4);
+  border-radius: 12px;
+  background: linear-gradient(120deg, var(--color-primario, #003A6C), #0b5aa0);
+  box-shadow: 0 6px 16px rgba(0, 58, 108, .3);
+  transition: transform .45s cubic-bezier(.65, 0, .35, 1);
+}
+
+.panel-pestana {
+  animation: aparecer .45s ease both;
+}
+
+/* ===== TARJETA CONTRASEÑA ===== */
+.tarjeta-clave {
+  border: none;
+  border-radius: 18px;
+  overflow: hidden;
+}
 
 /* ===== CAMPOS CON OJO ===== */
 .campo {
@@ -94,9 +186,17 @@
   transition: background .3s ease;
 }
 
-.segmento.debil  { background: #ef4444; }
-.segmento.media  { background: #f59e0b; }
-.segmento.fuerte { background: #22c55e; }
+.segmento.debil {
+  background: #ef4444;
+}
+
+.segmento.media {
+  background: #f59e0b;
+}
+
+.segmento.fuerte {
+  background: #22c55e;
+}
 
 .nivel {
   font-size: .8rem;
@@ -105,9 +205,20 @@
   border-radius: 999px;
 }
 
-.nivel.debil  { background: #fee2e2; color: #b91c1c; }
-.nivel.media  { background: #fef3c7; color: #92400e; }
-.nivel.fuerte { background: #dcfce7; color: #166534; }
+.nivel.debil {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.nivel.media {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nivel.fuerte {
+  background: #dcfce7;
+  color: #166534;
+}
 
 /* ===== REQUISITOS ===== */
 .requisitos {
@@ -130,21 +241,67 @@
   font-weight: 600;
 }
 
+/* ===== ANIMACIONES ===== */
 @keyframes subirCuenta {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reflejo {
+  from {
+    left: -60%;
+  }
+
+  to {
+    left: 130%;
+  }
+}
+
+@keyframes flotarAvatar {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pestanas button {
+    font-size: .78rem;
+    padding: .6rem .25rem;
+  }
+
+  .pestanas button i {
+    display: block;
+    margin: 0 auto .15rem;
+  }
 }
 
 @media (max-width: 576px) {
   .requisitos {
     grid-template-columns: 1fr;
   }
-}
-/* Datos extra del perfil (codigo, carrera) */
-.perfil-dato {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  font-size: .8rem;
-  opacity: .9;
 }

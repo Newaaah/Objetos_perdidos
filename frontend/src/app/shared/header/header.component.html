@@ -16,7 +16,6 @@
         <li class="nav-item"><a class="nav-link" routerLink="/home" routerLinkActive="active">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" routerLink="/reportar-perdida" routerLinkActive="active">Reportar pérdida</a></li>
         <li class="nav-item"><a class="nav-link" routerLink="/reportar-hallazgo" routerLinkActive="active">Reportar hallazgo</a></li>
-        <li class="nav-item"><a class="nav-link" routerLink="/mis-reportes" routerLinkActive="active">Mis reportes</a></li>
         <li class="nav-item"><a class="nav-link" routerLink="/entregados" routerLinkActive="active">Objetos entregados</a></li>
         }
 
@@ -36,21 +35,21 @@
         <li class="nav-item"><a class="nav-link" routerLink="/home" routerLinkActive="active">Objetos</a></li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Gestión</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" routerLink="/hallazgos">Revisión de hallazgos</a></li>
-            <li><a class="dropdown-item" routerLink="/custodias">Custodias</a></li>
-            <li><a class="dropdown-item" routerLink="/entregas">Entregas</a></li>
-            <li><a class="dropdown-item" routerLink="/coincidencias">Coincidencias</a></li>
-            <li><a class="dropdown-item" routerLink="/reclamos">Reclamos</a></li>
-            <li><a class="dropdown-item" routerLink="/incidencias">Incidencias</a></li>
+          <ul class="dropdown-menu menu-animado">
+            <li><a class="dropdown-item" routerLink="/hallazgos"><span class="item-icono"><i class="bi bi-clipboard-check"></i></span> Revisión de hallazgos</a></li>
+            <li><a class="dropdown-item" routerLink="/custodias"><span class="item-icono"><i class="bi bi-box-seam"></i></span> Custodias</a></li>
+            <li><a class="dropdown-item" routerLink="/entregas"><span class="item-icono"><i class="bi bi-check2-circle"></i></span> Entregas</a></li>
+            <li><a class="dropdown-item" routerLink="/coincidencias"><span class="item-icono"><i class="bi bi-link-45deg"></i></span> Coincidencias</a></li>
+            <li><a class="dropdown-item" routerLink="/reclamos"><span class="item-icono"><i class="bi bi-chat-left-text"></i></span> Reclamos</a></li>
+            <li><a class="dropdown-item" routerLink="/incidencias"><span class="item-icono"><i class="bi bi-exclamation-triangle"></i></span> Incidencias</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Administración</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" routerLink="/catalogos">Catálogos</a></li>
-            <li><a class="dropdown-item" routerLink="/estadisticas">Estadísticas</a></li>
-            <li><a class="dropdown-item" routerLink="/claves">Claves de estudiantes</a></li>
+          <ul class="dropdown-menu menu-animado">
+            <li><a class="dropdown-item" routerLink="/catalogos"><span class="item-icono"><i class="bi bi-tags"></i></span> Catálogos</a></li>
+            <li><a class="dropdown-item" routerLink="/estadisticas"><span class="item-icono"><i class="bi bi-bar-chart"></i></span> Estadísticas</a></li>
+            <li><a class="dropdown-item" routerLink="/claves"><span class="item-icono"><i class="bi bi-key"></i></span> Claves de estudiantes</a></li>
           </ul>
         </li>
         }
@@ -64,18 +63,27 @@
           <i class="bi bi-person-circle"></i>
           <span>{{ primerNombre }}</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end menu-usuario">
-          <li class="px-3 pt-2 pb-1">
-            <div class="fw-bold text-dark">{{ nombreCompleto }}</div>
-            <small class="text-muted">{{ identificador }} · {{ etiquetaRol }}</small>
+        <ul class="dropdown-menu dropdown-menu-end menu-usuario menu-animado">
+          <li>
+            <div class="menu-cabecera">
+              <div class="menu-avatar"><i class="bi bi-person-fill"></i></div>
+              <div class="min-w-0">
+                <div class="menu-nombre">{{ nombreCompleto }}</div>
+                <small>{{ identificador }} · {{ etiquetaRol }}</small>
+              </div>
+            </div>
+          </li>
+          <li>
+            <a class="dropdown-item" routerLink="/mi-cuenta">
+              <span class="item-icono"><i class="bi bi-person-gear"></i></span> Mi cuenta
+            </a>
           </li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" routerLink="/mi-cuenta"><i class="bi bi-shield-lock me-2"></i>Mi cuenta</a></li>
-          @if (rol === 'ESTUDIANTE') {
-          <li><a class="dropdown-item" routerLink="/mis-reclamos"><i class="bi bi-chat-left-text me-2"></i>Mis reclamos</a></li>
-          }
-          <li><hr class="dropdown-divider"></li>
-          <li><button class="dropdown-item text-danger" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</button></li>
+          <li>
+            <button class="dropdown-item salir" (click)="logout()">
+              <span class="item-icono"><i class="bi bi-box-arrow-right"></i></span> Cerrar sesión
+            </button>
+          </li>
         </ul>
       </div>
     </div>

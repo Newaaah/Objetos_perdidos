@@ -45,6 +45,12 @@ public class ReporteEstadisticoServiceImpl implements IReporteEstadisticoService
         return estados(perdidas.reportePerdidasPorEstado());
     }
 
+    // NUEVO: "estado" lleva el nombre de la zona del campus
+    @Override
+    public List<ConteoEstadoDTO> perdidasPorUbicacion() {
+        return estados(perdidas.reportePerdidasPorZona());
+    }
+
     @Override
     public List<ConteoEstadoDTO> hallazgosPorEstado() {
         return estados(hallazgos.reporteHallazgosPorEstado());
@@ -58,9 +64,9 @@ public class ReporteEstadisticoServiceImpl implements IReporteEstadisticoService
     @Override
     public List<PorcentajeEntregasCategoriaDTO> entregasPorCategoria() {
         return custodias.reportePorcentajeEntregasPorCategoria().stream()
-            .map(f -> new PorcentajeEntregasCategoriaDTO(
-                num(f[0]), txt(f[1]), number(f[2]), number(f[3]), decimal(f[4])))
-            .toList();
+                .map(f -> new PorcentajeEntregasCategoriaDTO(
+                        num(f[0]), txt(f[1]), number(f[2]), number(f[3]), decimal(f[4])))
+                .toList();
     }
 
     @Override
@@ -86,52 +92,52 @@ public class ReporteEstadisticoServiceImpl implements IReporteEstadisticoService
     @Override
     public List<SeguimientoReclamoDTO> seguimientoDesdeVista() {
         return reclamos.consultarVistaSeguimientoReclamos().stream()
-            .map(f -> new SeguimientoReclamoDTO(
-                num(f[0]), num(f[1]), txt(f[2]), txt(f[3]), txt(f[4]),
-                fechaHora(f[5]), fechaHora(f[6]), txt(f[7])))
-            .toList();
+                .map(f -> new SeguimientoReclamoDTO(
+                        num(f[0]), num(f[1]), txt(f[2]), txt(f[3]), txt(f[4]),
+                        fechaHora(f[5]), fechaHora(f[6]), txt(f[7])))
+                .toList();
     }
 
     @Override
     public List<PendienteRecepcionDTO> pendientesDeRecepcion(Long idUbicacion) {
         return hallazgos.listarPendientesRecepcion(idUbicacion).stream()
-            .map(f -> new PendienteRecepcionDTO(num(f[0]), txt(f[1]), txt(f[2]), fechaHora(f[3])))
-            .toList();
+                .map(f -> new PendienteRecepcionDTO(num(f[0]), txt(f[1]), txt(f[2]), fechaHora(f[3])))
+                .toList();
     }
 
     @Override
     public List<CustodiaDisponibleDTO> custodiasDisponibles(Long idUbicacion) {
         return custodias.listarCustodiasDisponiblesEnUbicacion(idUbicacion).stream()
-            .map(f -> new CustodiaDisponibleDTO(num(f[0]), txt(f[1]), txt(f[2]), txt(f[3]), fechaHora(f[4])))
-            .toList();
+                .map(f -> new CustodiaDisponibleDTO(num(f[0]), txt(f[1]), txt(f[2]), txt(f[3]), fechaHora(f[4])))
+                .toList();
     }
 
     @Override
     public ResumenEstudianteDTO resumenEstudiante(Long idPersona) {
         return new ResumenEstudianteDTO(
-            perdidas.countByPersonaIdPersona(idPersona),
-            perdidas.countByPersonaIdPersonaAndEstado(idPersona, EstadoReportePerdida.REPORTADO),
-            perdidas.countByPersonaIdPersonaAndEstado(idPersona, EstadoReportePerdida.RECUPERADO),
-            hallazgos.countByPersonaIdPersona(idPersona),
-            hallazgos.countByPersonaIdPersonaAndEstado(idPersona, EstadoReporteHallazgo.APROBADO),
-            reclamos.countByPersonaReclamaIdPersonaAndTipoReclamo(idPersona, TipoReclamo.RECLAMO)
+                perdidas.countByPersonaIdPersona(idPersona),
+                perdidas.countByPersonaIdPersonaAndEstado(idPersona, EstadoReportePerdida.REPORTADO),
+                perdidas.countByPersonaIdPersonaAndEstado(idPersona, EstadoReportePerdida.RECUPERADO),
+                hallazgos.countByPersonaIdPersona(idPersona),
+                hallazgos.countByPersonaIdPersonaAndEstado(idPersona, EstadoReporteHallazgo.APROBADO),
+                reclamos.countByPersonaReclamaIdPersonaAndTipoReclamo(idPersona, TipoReclamo.RECLAMO)
         );
     }
 
     @Override
     public List<MiPerdidaDTO> misPerdidas(Long idPersona) {
         return perdidas.listarPerdidasDePersona(idPersona).stream()
-            .map(f -> new MiPerdidaDTO(num(f[0]), num(f[1]), txt(f[2]), txt(f[3]),
-                txt(f[4]), fecha(f[5]), fechaHora(f[6]), txt(f[7])))
-            .toList();
+                .map(f -> new MiPerdidaDTO(num(f[0]), num(f[1]), txt(f[2]), txt(f[3]),
+                        txt(f[4]), fecha(f[5]), fechaHora(f[6]), txt(f[7])))
+                .toList();
     }
 
     @Override
     public List<MiHallazgoDTO> misHallazgos(Long idPersona) {
         return hallazgos.listarHallazgosDePersona(idPersona).stream()
-            .map(f -> new MiHallazgoDTO(num(f[0]), num(f[1]), txt(f[2]), txt(f[3]),
-                txt(f[4]), fechaHora(f[5]), txt(f[6])))
-            .toList();
+                .map(f -> new MiHallazgoDTO(num(f[0]), num(f[1]), txt(f[2]), txt(f[3]),
+                        txt(f[4]), fechaHora(f[5]), txt(f[6])))
+                .toList();
     }
 
     private List<ConteoEstadoDTO> estados(List<Object[]> filas) {

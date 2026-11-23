@@ -1,4 +1,4 @@
-<div class="container pagina" style="max-width: 820px;">
+<div class="container pagina" style="max-width: 960px;">
 
   <!-- PERFIL -->
   <div class="perfil {{ rol | lowercase }}">
@@ -9,102 +9,132 @@
       <div class="d-flex flex-wrap gap-2 align-items-center">
         <span class="perfil-rol"><i class="bi {{ iconoRol }}"></i> {{ etiquetaRol }}</span>
         @if (identificador) {
-          <span class="perfil-dato"><i class="bi bi-person-vcard"></i> {{ identificador }}</span>
+        <span class="perfil-dato"><i class="bi bi-person-vcard"></i> {{ identificador }}</span>
         }
-        @if (perfil?.carrera) {
-          <span class="perfil-dato"><i class="bi bi-mortarboard"></i> {{ perfil?.carrera }}</span>
+        @if (perfil?.carrera; as carrera) {
+        <span class="perfil-dato"><i class="bi bi-mortarboard"></i> {{ carrera }}</span>
         }
       </div>
     </div>
-    @if (esEstudiante) {
-      <a class="btn btn-light" routerLink="/mis-reclamos">
-        <i class="bi bi-chat-left-text"></i> Mis reclamos
-      </a>
-    }
   </div>
 
-  <!-- CAMBIAR CONTRASEÑA -->
-  <div class="card shadow">
-    <div class="card-header bg-upeu-primary text-white">
-      <h6 class="m-0"><i class="bi bi-shield-lock"></i> Cambiar contraseña</h6>
-    </div>
-    <div class="card-body p-4">
+  <!-- PESTAÑAS (solo estudiante) -->
+  @if (esEstudiante) {
+  <div class="pestanas">
+    <span class="pestana-fondo" [style.transform]="'translateX(' + indicePestana * 100 + '%)'"></span>
+    <button type="button" [class.activa]="pestana === 'reportes'" (click)="pestana = 'reportes'">
+      <i class="bi bi-list-check"></i> Mis reportes
+    </button>
+    <button type="button" [class.activa]="pestana === 'hallazgos'" (click)="pestana = 'hallazgos'">
+      <i class="bi bi-hand-thumbs-up"></i> Mis hallazgos
+    </button>
+    <button type="button" [class.activa]="pestana === 'reclamos'" (click)="pestana = 'reclamos'">
+      <i class="bi bi-chat-left-text"></i> Mis reclamos
+    </button>
+    <button type="button" [class.activa]="pestana === 'clave'" (click)="pestana = 'clave'">
+      <i class="bi bi-shield-lock"></i> Contraseña
+    </button>
+  </div>
+  }
 
-      @if (esEstudiante) {
+  @if (esEstudiante && pestana === 'reportes') {
+  <div class="panel-pestana">
+    <app-mis-reportes [embebido]="true"></app-mis-reportes>
+  </div>
+  } @else if (esEstudiante && pestana === 'hallazgos') {
+  <div class="panel-pestana">
+    <app-mis-hallazgos [embebido]="true"></app-mis-hallazgos>
+  </div>
+  } @else if (esEstudiante && pestana === 'reclamos') {
+  <div class="panel-pestana">
+    <app-mis-reclamos [embebido]="true"></app-mis-reclamos>
+  </div>
+  } @else {
+  <!-- CAMBIAR CONTRASEÑA -->
+  <div class="panel-pestana">
+    <div class="card shadow tarjeta-clave">
+      <div class="card-header bg-upeu-primary text-white">
+        <h6 class="m-0"><i class="bi bi-shield-lock"></i> Cambiar contraseña</h6>
+      </div>
+      <div class="card-body p-4">
+
+        @if (esEstudiante) {
         <div class="alert alert-info small">
           <i class="bi bi-info-circle"></i>
           Si ingresas <strong>solo con tu código</strong>, aún no tienes contraseña. Pídele al administrador que
           te habilite una; después podrás cambiarla aquí.
         </div>
-      }
+        }
 
-      <form [formGroup]="form" (ngSubmit)="guardar()">
-        <!-- Actual -->
-        <label class="form-label">Contraseña actual</label>
-        <div class="campo mb-3">
-          <input [type]="ver.actual ? 'text' : 'password'" class="form-control" formControlName="claveActual"
-            autocomplete="current-password">
-          <button type="button" class="ojo" (click)="ver.actual = !ver.actual">
-            <i class="bi" [class.bi-eye]="!ver.actual" [class.bi-eye-slash]="ver.actual"></i>
-          </button>
-        </div>
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <!-- Actual -->
+          <label class="form-label">Contraseña actual</label>
+          <div class="campo mb-3">
+            <input [type]="ver.actual ? 'text' : 'password'" class="form-control" formControlName="claveActual"
+              autocomplete="current-password">
+            <button type="button" class="ojo" (click)="ver.actual = !ver.actual">
+              <i class="bi" [class.bi-eye]="!ver.actual" [class.bi-eye-slash]="ver.actual"></i>
+            </button>
+          </div>
 
-        <div class="row">
-          <!-- Nueva -->
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Nueva contraseña</label>
-            <div class="campo">
-              <input [type]="ver.nueva ? 'text' : 'password'" class="form-control" formControlName="nuevaClave"
-                autocomplete="new-password">
-              <button type="button" class="ojo" (click)="ver.nueva = !ver.nueva">
-                <i class="bi" [class.bi-eye]="!ver.nueva" [class.bi-eye-slash]="ver.nueva"></i>
-              </button>
+          <div class="row">
+            <!-- Nueva -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nueva contraseña</label>
+              <div class="campo">
+                <input [type]="ver.nueva ? 'text' : 'password'" class="form-control" formControlName="nuevaClave"
+                  autocomplete="new-password">
+                <button type="button" class="ojo" (click)="ver.nueva = !ver.nueva">
+                  <i class="bi" [class.bi-eye]="!ver.nueva" [class.bi-eye-slash]="ver.nueva"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirmar -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Confirmar nueva contraseña</label>
+              <div class="campo">
+                <input [type]="ver.confirmar ? 'text' : 'password'" class="form-control" formControlName="confirmar"
+                  autocomplete="new-password" [class.is-invalid]="noCoinciden">
+                <button type="button" class="ojo" (click)="ver.confirmar = !ver.confirmar">
+                  <i class="bi" [class.bi-eye]="!ver.confirmar" [class.bi-eye-slash]="ver.confirmar"></i>
+                </button>
+              </div>
+              @if (noCoinciden) {
+              <small class="text-danger"><i class="bi bi-x-circle"></i> Las contraseñas no coinciden</small>
+              }
             </div>
           </div>
 
-          <!-- Confirmar -->
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Confirmar nueva contraseña</label>
-            <div class="campo">
-              <input [type]="ver.confirmar ? 'text' : 'password'" class="form-control" formControlName="confirmar"
-                autocomplete="new-password" [class.is-invalid]="noCoinciden">
-              <button type="button" class="ojo" (click)="ver.confirmar = !ver.confirmar">
-                <i class="bi" [class.bi-eye]="!ver.confirmar" [class.bi-eye-slash]="ver.confirmar"></i>
-              </button>
-            </div>
-            @if (noCoinciden) {
-              <small class="text-danger"><i class="bi bi-x-circle"></i> Las contraseñas no coinciden</small>
+          <!-- MEDIDOR -->
+          <div class="medidor mb-2">
+            @for (n of [1, 2, 3, 4]; track n) {
+            <span [class]="'segmento ' + (n <= puntos ? nivel.clase : '')"></span>
             }
           </div>
-        </div>
-
-        <!-- MEDIDOR -->
-        <div class="medidor mb-2">
-          @for (n of [1, 2, 3, 4]; track n) {
-            <span [class]="'segmento ' + (n <= puntos ? nivel.clase : '')"></span>
-          }
-        </div>
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
-          <ul class="requisitos">
-            @for (r of requisitos; track r.texto) {
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+            <ul class="requisitos">
+              @for (r of requisitos; track r.texto) {
               <li [class.ok]="r.ok">
                 <i class="bi" [class.bi-check-circle-fill]="r.ok" [class.bi-circle]="!r.ok"></i> {{ r.texto }}
               </li>
-            }
-          </ul>
-          @if (nivel.texto) {
+              }
+            </ul>
+            @if (nivel.texto) {
             <span class="nivel {{ nivel.clase }}">{{ nivel.texto }}</span>
-          }
-        </div>
+            }
+          </div>
 
-        <button type="submit" class="btn btn-upeu w-100" [disabled]="form.invalid || noCoinciden || guardando">
-          @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
-          <i class="bi bi-check2-circle"></i> Guardar nueva contraseña
-        </button>
-        <small class="text-muted d-block text-center mt-2">
-          Solo es obligatorio el mínimo de 12 caracteres; lo demás la hace más segura.
-        </small>
-      </form>
+          <button type="submit" class="btn btn-upeu w-100" [disabled]="form.invalid || noCoinciden || guardando">
+            @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <i class="bi bi-check2-circle"></i> Guardar nueva contraseña
+          </button>
+          <small class="text-muted d-block text-center mt-2">
+            Solo es obligatorio el mínimo de 12 caracteres; lo demás la hace más segura.
+          </small>
+        </form>
+      </div>
     </div>
   </div>
+  }
 </div>

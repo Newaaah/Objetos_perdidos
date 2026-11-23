@@ -1,4 +1,3 @@
-
 package pe.edu.upeu.objetosperdidos.repository;
 
 import jakarta.persistence.LockModeType;
@@ -58,6 +57,33 @@ public interface ReportePerdidaRepository
             ORDER BY COUNT(*) DESC, P.ESTADO
             """, nativeQuery = true)
     List<Object[]> reportePerdidasPorEstado();
+
+    // NUEVO
+    // Cantidad de reportes de perdida por zona del campus.
+    // Las aulas y SS.HH. se agrupan por pabellon; laboratorios, malocas,
+    // estacionamientos y talleres se agrupan en una sola zona.
+    // Los demas lugares (Auditorio, CRAI, Comedor...) salen con su nombre.
+    @Query(value = """
+            SELECT Z.ZONA, COUNT(*)
+            FROM (
+                SELECT
+                    CASE
+                        WHEN U.ID_UBICACION IS NULL THEN 'Sin indicar'
+                        WHEN UPPER(U.NOMBRE) LIKE 'PABELLON %' THEN 'Pabellon ' || SUBSTR(U.NOMBRE, 10, 1)
+                        WHEN UPPER(U.NOMBRE) LIKE 'LABORATORIO%' OR UPPER(U.NOMBRE) = 'REDES' THEN 'Laboratorios'
+                        WHEN UPPER(U.NOMBRE) LIKE 'MALOCA%' THEN 'Malocas'
+                        WHEN UPPER(U.NOMBRE) LIKE 'ESTACIONAMIENTO%' THEN 'Estacionamientos'
+                        WHEN UPPER(U.NOMBRE) LIKE 'TALLER%' THEN 'Talleres'
+                        ELSE U.NOMBRE
+                    END AS ZONA
+                FROM UPEU_DATOS.REPORTE_PERDIDA P
+                LEFT JOIN UPEU_DATOS.UBICACION U
+                    ON U.ID_UBICACION = P.ID_UBICACION_PERDIDA
+            ) Z
+            GROUP BY Z.ZONA
+            ORDER BY COUNT(*) DESC, Z.ZONA
+            """, nativeQuery = true)
+    List<Object[]> reportePerdidasPorZona();
 
     // Cantidad de reportes de perdida por mes.
     @Query(value = """

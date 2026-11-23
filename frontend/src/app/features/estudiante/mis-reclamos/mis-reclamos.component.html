@@ -1,56 +1,142 @@
-<div class="container pagina">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <div class="encabezado-pagina">
-      <div class="icono"><i class="bi bi-chat-left-text"></i></div>
-      <div>
-        <h1>Mis reclamos</h1>
-        <p>Seguimiento de los reclamos que presentaste.</p>
+<div [class.container]="!embebido" [class.pagina]="!embebido">
+
+  <!-- Titulo (solo cuando es pagina sola) -->
+  @if (!embebido) {
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="encabezado-pagina">
+        <div class="icono"><i class="bi bi-chat-left-text"></i></div>
+        <div>
+          <h1>Mis reclamos</h1>
+          <p>Seguimiento de los reclamos que presentaste.</p>
+        </div>
+      </div>
+      <a class="btn btn-upeu" routerLink="/entregados">
+        <i class="bi bi-box-arrow-right"></i> Ver objetos entregados
+      </a>
+    </div>
+  }
+
+  @if (cargando) {
+    <!-- ESQUELETO DE CARGA -->
+    @for (n of [1, 2, 3]; track n) {
+      <div class="esqueleto">
+        <div class="esq esq-icono"></div>
+        <div class="flex-grow-1">
+          <div class="esq esq-linea" style="width: 45%;"></div>
+          <div class="esq esq-linea" style="width: 25%;"></div>
+          <div class="esq esq-linea mt-3" style="width: 90%;"></div>
+        </div>
+      </div>
+    }
+
+  } @else if (reclamos.length === 0) {
+    <!-- SIN RECLAMOS -->
+    <div class="vacio-reclamos">
+      <div class="vacio-icono"><i class="bi bi-chat-square-heart"></i></div>
+      <h5>Aún no has presentado reclamos</h5>
+      <p>Si ves que tu objeto fue entregado a otra persona, puedes reclamarlo desde la lista de objetos entregados.</p>
+      <a class="btn btn-upeu" routerLink="/entregados">
+        <i class="bi bi-search"></i> Revisar objetos entregados
+      </a>
+    </div>
+
+  } @else {
+    <!-- CONTADORES -->
+    <div class="resumen">
+      <div class="resumen-item t-azul" style="animation-delay: 0s;">
+        <i class="bi bi-chat-left-text"></i>
+        <div><strong>{{ reclamos.length }}</strong><small>Total</small></div>
+      </div>
+      <div class="resumen-item t-amarillo" style="animation-delay: .08s;">
+        <i class="bi bi-hourglass-split"></i>
+        <div><strong>{{ enProceso }}</strong><small>En proceso</small></div>
+      </div>
+      <div class="resumen-item t-verde" style="animation-delay: .16s;">
+        <i class="bi bi-patch-check"></i>
+        <div><strong>{{ aprobados }}</strong><small>Aprobados</small></div>
+      </div>
+      <div class="resumen-item t-rojo" style="animation-delay: .24s;">
+        <i class="bi bi-x-octagon"></i>
+        <div><strong>{{ rechazados }}</strong><small>Rechazados</small></div>
       </div>
     </div>
-    <a class="btn btn-upeu" routerLink="/entregados">
-      <i class="bi bi-box-arrow-right"></i> Ver objetos entregados
-    </a>
-  </div>
 
-  <div class="card shadow">
-    <div class="card-body p-0">
-      @if (cargando) {
-        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
-      } @else {
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th>Objeto</th>
-                <th>Mi descripción</th>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Respuesta</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (r of reclamos; track r.idReclamo) {
-                <tr>
-                  <td>{{ r.idReclamo }}</td>
-                  <td class="fw-semibold">{{ nombreReclamo(r) }}</td>
-                  <td><small>{{ r.descripcion }}</small></td>
-                  <td><small>{{ r.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small></td>
-                  <td><span class="badge {{ claseEstado(r.estado) }}">{{ r.estado }}</span></td>
-                  <td><small>{{ r.resolucion || '—' }}</small></td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="6" class="text-center text-muted py-5">
-                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    No has presentado reclamos.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+    <!-- FILTROS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div class="filtros">
+        <button type="button" [class.activo]="filtro === 'todos'" (click)="filtro = 'todos'">Todos</button>
+        <button type="button" [class.activo]="filtro === 'proceso'" (click)="filtro = 'proceso'">En proceso</button>
+        <button type="button" [class.activo]="filtro === 'cerrados'" (click)="filtro = 'cerrados'">Cerrados</button>
+      </div>
+      @if (embebido) {
+        <a class="btn btn-sm btn-outline-primario" routerLink="/entregados">
+          <i class="bi bi-plus-lg"></i> Nuevo reclamo
+        </a>
       }
     </div>
-  </div>
+
+    <!-- TARJETAS -->
+    @for (r of filtrados; track r.idReclamo; let i = $index) {
+      <div class="reclamo {{ claseEstado(r.estado) }}" [style.animation-delay.s]="i * 0.1">
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="reclamo-icono"><i class="bi {{ iconoEstado(r.estado) }}"></i></div>
+          <div class="flex-grow-1 min-w-0">
+            <h6 class="reclamo-titulo">{{ nombreReclamo(r) }}</h6>
+            <span class="reclamo-fecha">
+              <i class="bi bi-calendar3"></i> {{ r.fechaRegistro | date:'dd/MM/yyyy' }}
+              · <i class="bi bi-clock"></i> {{ r.fechaRegistro | date:'HH:mm' }}
+            </span>
+          </div>
+          <span class="estado" [class.vivo]="paso(r) < 3">
+            <span class="punto"></span> {{ textoEstado(r.estado) }}
+          </span>
+        </div>
+
+        <!-- LINEA DE PROGRESO -->
+        <div class="pasos">
+          <div class="pasos-linea">
+            <span [style.width.%]="(paso(r) - 1) * 50" [style.animation-delay.s]="i * 0.1 + 0.3"></span>
+          </div>
+          @for (etapa of etapas(r); track etapa; let j = $index) {
+            <div class="paso" [class.hecho]="paso(r) >= j + 1" [class.actual]="paso(r) === j + 1 && paso(r) < 3">
+              <div class="paso-circulo" [style.animation-delay.s]="i * 0.1 + j * 0.25 + 0.3">
+                @if (paso(r) >= j + 1) {
+                  <i class="bi" [class.bi-check-lg]="!(j === 2 && r.estado === 'RECHAZADO')"
+                     [class.bi-x-lg]="j === 2 && r.estado === 'RECHAZADO'"></i>
+                } @else {
+                  {{ j + 1 }}
+                }
+              </div>
+              <span>{{ etapa }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- MI DESCRIPCION -->
+        <div class="cita">
+          <small><i class="bi bi-quote"></i> Lo que escribiste</small>
+          <p>{{ r.descripcion }}</p>
+        </div>
+
+        <!-- RESPUESTA -->
+        @if (r.resolucion) {
+          <div class="respuesta">
+            <i class="bi bi-person-badge"></i>
+            <div>
+              <small>Respuesta del personal</small>
+              <p>{{ r.resolucion }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="esperando">
+            <span class="puntitos"><span></span><span></span><span></span></span>
+            Esperando respuesta del personal
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="text-center text-muted py-4">No hay reclamos en este filtro.</div>
+    }
+  }
 </div>

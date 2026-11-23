@@ -15,6 +15,11 @@ export class ReporteService {
     return this.http.get<ConteoEstado[]>(`${this.apiUrl}/perdidas/por-estado`);
   }
 
+  // NUEVO: "estado" trae el nombre de la zona del campus
+  perdidasPorUbicacion(): Observable<ConteoEstado[]> {
+    return this.http.get<ConteoEstado[]>(`${this.apiUrl}/perdidas/por-ubicacion`);
+  }
+
   hallazgosPorEstado(): Observable<ConteoEstado[]> {
     return this.http.get<ConteoEstado[]>(`${this.apiUrl}/hallazgos/por-estado`);
   }
@@ -39,12 +44,10 @@ export class ReporteService {
     return this.http.get<ConteoEstado[]>(`${this.apiUrl}/reclamos/por-estado`);
   }
 
-  // Procedimiento almacenado Oracle
   resumenReclamos(): Observable<ResumenReclamos> {
     return this.http.get<ResumenReclamos>(`${this.apiUrl}/reclamos/resumen`);
   }
 
-  // Vista Oracle
   seguimientoReclamos(): Observable<SeguimientoReclamo[]> {
     return this.http.get<SeguimientoReclamo[]>(`${this.apiUrl}/reclamos/seguimiento`);
   }

@@ -28,6 +28,13 @@ public class ReporteEstadisticoController {
         return ResponseEntity.ok(service.perdidasPorEstado());
     }
 
+    // NUEVO
+    @Operation(summary = "Cantidad de pérdidas por zona del campus (aulas agrupadas por pabellón)")
+    @GetMapping("/perdidas/por-ubicacion")
+    public ResponseEntity<List<ConteoEstadoDTO>> perdidasPorUbicacion() {
+        return ResponseEntity.ok(service.perdidasPorUbicacion());
+    }
+
     @Operation(summary = "Reporte 1B: cantidad de hallazgos por estado")
     @GetMapping("/hallazgos/por-estado")
     public ResponseEntity<List<ConteoEstadoDTO>> hallazgosPorEstado() {

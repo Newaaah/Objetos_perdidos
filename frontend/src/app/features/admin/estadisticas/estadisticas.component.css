@@ -1,19 +1,101 @@
-.kpi .valor,
-.valor {
-  font-size: 1.8rem;
+/* ===== INDICADORES (mismo estilo que los paneles) ===== */
+.indicador {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(16, 24, 40, .06);
+  border-left: 4px solid var(--tono);
+  animation: aparecer .5s ease both;
+}
+
+.indicador > i {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  background: var(--fondo);
+  color: var(--tono);
+  flex-shrink: 0;
+}
+
+.indicador strong {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: #1d2939;
+}
+
+.indicador small {
+  color: #667085;
+  font-size: .8rem;
+}
+
+.azul     { --tono: #1d4ed8; --fondo: #dbeafe; }
+.morado   { --tono: #7e22ce; --fondo: #f3e8ff; }
+.amarillo { --tono: #b45309; --fondo: #fef3c7; }
+.verde    { --tono: #15803d; --fondo: #dcfce7; }
+
+/* ===== TORTA GRANDE ===== */
+.dona {
+  width: 100%;
+  max-width: 300px;
+  filter: drop-shadow(0 8px 18px rgba(0, 58, 108, .12));
+}
+
+.porcion {
+  animation: dibujar 1s cubic-bezier(.2, .8, .2, 1) both;
+  transition: stroke-width .2s ease;
+  cursor: pointer;
+}
+
+.porcion:hover {
+  stroke-width: 8.5;
+}
+
+.dona-numero {
+  font-size: 8px;
   font-weight: 700;
-  color: var(--color-primario);
-  line-height: 1.1;
+  fill: var(--color-primario, #003A6C);
+  font-family: "Poppins", sans-serif;
 }
 
-.bg-perdida {
-  background-color: var(--color-acento) !important;
+.dona-texto {
+  font-size: 3px;
+  fill: #667085;
 }
 
-.bg-entrega {
-  background-color: var(--color-primario) !important;
+.leyenda-torta {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
+.leyenda-torta li {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .65rem 0;
+  border-bottom: 1px solid #eef1f5;
+  animation: aparecerLeyenda .5s ease both;
+}
+
+.leyenda-torta li:last-child {
+  border-bottom: none;
+}
+
+.punto {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ===== POR MES ===== */
 .leyenda {
   display: inline-block;
   width: 12px;
@@ -22,14 +104,28 @@
   vertical-align: middle;
 }
 
-/* Grafico de columnas por mes */
+.bg-perdida {
+  background-color: var(--color-acento, #FDB913) !important;
+}
+
+.bg-entrega {
+  background-color: var(--color-primario, #003A6C) !important;
+}
+
 .grafico-meses {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
-  height: 220px;
+  justify-content: space-around;
+  gap: 24px;
+  min-height: 300px;
+  padding: 24px 8px 0;
   overflow-x: auto;
-  padding-top: 20px;
+  /* lineas guia horizontales cada 25% */
+  background-image: repeating-linear-gradient(to top,
+    #eef1f5 0, #eef1f5 1px, transparent 1px, transparent 25%);
+  background-size: 100% calc(100% - 26px);
+  background-repeat: no-repeat;
+  background-position: top 24px left 0;
 }
 
 .mes {
@@ -37,30 +133,112 @@
   flex-direction: column;
   align-items: center;
   height: 100%;
-  min-width: 56px;
+  min-height: 270px;
+  min-width: 80px;
 }
 
 .columnas {
   flex: 1;
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
   justify-content: center;
 }
 
 .columna {
-  width: 20px;
-  min-height: 2px;
-  border-radius: 4px 4px 0 0;
+  width: 34px;
+  min-height: 3px;
+  border-radius: 8px 8px 0 0;
   position: relative;
+  transform-origin: bottom;
+  animation: crecer .7s cubic-bezier(.2, .8, .2, 1) both;
 }
 
 .columna span {
   position: absolute;
-  top: -18px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.7rem;
-  color: #555;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #344054;
+}
+
+.mes-nombre {
+  margin-top: .5rem;
+  font-weight: 600;
+  color: #667085;
+}
+
+/* ===== RESUMEN DE RECLAMOS ===== */
+.resumen-total {
+  text-align: center;
+  padding: .5rem 0;
+}
+
+.resumen-total strong {
+  display: block;
+  font-family: "Poppins", sans-serif;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-primario, #003A6C);
+}
+
+.resumen-total small {
+  color: #667085;
+}
+
+.resumen-caja {
+  padding: .9rem .5rem;
+  border-radius: 14px;
+  background: var(--fondo);
+}
+
+.resumen-caja strong {
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--tono);
+}
+
+.resumen-caja small {
+  color: var(--tono);
+  font-weight: 600;
+}
+
+/* ===== BARRAS: se llenan una tras otra ===== */
+.llenar {
+  animation: llenar .9s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes llenar {
+  from { width: 0; }
+}
+
+@keyframes crecer {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes dibujar {
+  from { stroke-dasharray: 0 100; }
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes aparecerLeyenda {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

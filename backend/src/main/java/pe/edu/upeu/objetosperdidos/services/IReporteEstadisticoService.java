@@ -5,6 +5,7 @@ import pe.edu.upeu.objetosperdidos.dto.*;
 
 public interface IReporteEstadisticoService {
     List<ConteoEstadoDTO> perdidasPorEstado();
+    List<ConteoEstadoDTO> perdidasPorUbicacion();   // NUEVO
     List<ConteoEstadoDTO> hallazgosPorEstado();
     List<ConteoEstadoDTO> custodiasPorSituacion();
     List<PorcentajeEntregasCategoriaDTO> entregasPorCategoria();

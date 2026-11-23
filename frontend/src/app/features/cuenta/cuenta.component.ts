@@ -1,17 +1,23 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AlertService } from '../../core/services/alert.service';
 import { PersonaService } from '../../core/services/persona.service';
 import { PersonaResumen } from '../../core/interfaces/persona.interface';
+import { MisReportesComponent } from '../estudiante/mis-reportes/mis-reportes.component';
+import { MisHallazgosComponent } from '../estudiante/mis-hallazgos/mis-hallazgos.component';
+import { MisReclamosComponent } from '../estudiante/mis-reclamos/mis-reclamos.component';
+
+type Pestana = 'reportes' | 'hallazgos' | 'reclamos' | 'clave';
 
 @Component({
   selector: 'app-cuenta',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, LowerCasePipe],
+  imports: [ReactiveFormsModule, LowerCasePipe, MisReportesComponent, MisHallazgosComponent, MisReclamosComponent],
   templateUrl: './cuenta.component.html',
   styleUrl: './cuenta.component.css'
 })
@@ -20,11 +26,17 @@ export class CuentaComponent implements OnInit {
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
   private personaService = inject(PersonaService);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   rol = this.authService.getRol() || '';
   ingreso = localStorage.getItem('user_name') || '';
   esEstudiante = this.rol === 'ESTUDIANTE';
   perfil: PersonaResumen | null = null;
+
+  // Estudiante abre en "Mis reportes"; personal y admin solo tienen "Contraseña"
+  pestana: Pestana = this.esEstudiante ? 'reportes' : 'clave';
+  private orden: Pestana[] = ['reportes', 'hallazgos', 'reclamos', 'clave'];
 
   ver = { actual: false, nueva: false, confirmar: false };
   guardando = false;
@@ -40,6 +52,20 @@ export class CuentaComponent implements OnInit {
       next: (p) => this.perfil = p,
       error: () => this.perfil = null   // si falla, se muestra el codigo/DNI de siempre
     });
+
+    // /mi-cuenta?tab=reportes | hallazgos | reclamos | clave  (opcional)
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const tab = params.get('tab') as Pestana | null;
+        if (!this.esEstudiante) this.pestana = 'clave';
+        else if (tab && this.orden.includes(tab)) this.pestana = tab;
+      });
+  }
+
+  // Posicion del fondo azul que se desliza entre pestañas
+  get indicePestana(): number {
+    return this.orden.indexOf(this.pestana);
   }
 
   // ===== Datos del perfil =====

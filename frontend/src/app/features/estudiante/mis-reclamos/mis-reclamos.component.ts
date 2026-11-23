@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReclamoService } from '../../../core/services/reclamo.service';
 import { ObjetoService } from '../../../core/services/objeto.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Reclamo } from '../../../core/interfaces/reclamo.interface';
+
+type Filtro = 'todos' | 'proceso' | 'cerrados';
 
 @Component({
   selector: 'app-mis-reclamos',
@@ -18,8 +20,12 @@ export class MisReclamosComponent implements OnInit {
   private objetoService = inject(ObjetoService);
   private alertService = inject(AlertService);
 
+  // true = se muestra dentro de "Mi cuenta" (sin el titulo de pagina)
+  @Input() embebido = false;
+
   reclamos: Reclamo[] = [];
   cargando = true;
+  filtro: Filtro = 'todos';
   private nombres = new Map<number, string>();   // idEntrega -> nombre del objeto
 
   ngOnInit(): void {
@@ -39,6 +45,22 @@ export class MisReclamosComponent implements OnInit {
     });
   }
 
+  // ===== Contadores y filtro (solo visual) =====
+  private abierto(r: Reclamo): boolean {
+    return r.estado === 'PENDIENTE' || r.estado === 'EN_REVISION';
+  }
+
+  get enProceso(): number { return this.reclamos.filter(r => this.abierto(r)).length; }
+  get aprobados(): number { return this.reclamos.filter(r => r.estado === 'APROBADO' || r.estado === 'RESUELTO').length; }
+  get rechazados(): number { return this.reclamos.filter(r => r.estado === 'RECHAZADO').length; }
+
+  get filtrados(): Reclamo[] {
+    if (this.filtro === 'proceso') return this.reclamos.filter(r => this.abierto(r));
+    if (this.filtro === 'cerrados') return this.reclamos.filter(r => !this.abierto(r));
+    return this.reclamos;
+  }
+
+  // ===== Datos de cada tarjeta =====
   nombreReclamo(r: Reclamo): string {
     if (r.idEntrega) return this.nombres.get(r.idEntrega) || `Entrega #${r.idEntrega}`;
     if (r.idCustodia) return `Custodia #${r.idCustodia}`;
@@ -46,14 +68,46 @@ export class MisReclamosComponent implements OnInit {
     return 'Consulta';
   }
 
+  // 1 = enviado, 2 = en revision, 3 = cerrado
+  paso(r: Reclamo): number {
+    return r.estado === 'PENDIENTE' ? 1 : r.estado === 'EN_REVISION' ? 2 : 3;
+  }
+
+  etapas(r: Reclamo): string[] {
+    const final = r.estado === 'RECHAZADO' ? 'Rechazado' : r.estado === 'APROBADO' ? 'Aprobado' : 'Resuelto';
+    return ['Enviado', 'En revisión', final];
+  }
+
   claseEstado(estado: string): string {
     switch (estado) {
-      case 'PENDIENTE': return 'bg-warning text-dark';
-      case 'EN_REVISION': return 'bg-info text-dark';
+      case 'PENDIENTE': return 'e-pendiente';
+      case 'EN_REVISION': return 'e-revision';
       case 'APROBADO':
-      case 'RESUELTO': return 'bg-success';
-      case 'RECHAZADO': return 'bg-danger';
-      default: return 'bg-secondary';
+      case 'RESUELTO': return 'e-aprobado';
+      case 'RECHAZADO': return 'e-rechazado';
+      default: return 'e-pendiente';
+    }
+  }
+
+  iconoEstado(estado: string): string {
+    switch (estado) {
+      case 'PENDIENTE': return 'bi-hourglass-split';
+      case 'EN_REVISION': return 'bi-search';
+      case 'APROBADO':
+      case 'RESUELTO': return 'bi-patch-check-fill';
+      case 'RECHAZADO': return 'bi-x-octagon-fill';
+      default: return 'bi-chat-left-text';
+    }
+  }
+
+  textoEstado(estado: string): string {
+    switch (estado) {
+      case 'PENDIENTE': return 'Pendiente';
+      case 'EN_REVISION': return 'En revisión';
+      case 'APROBADO': return 'Aprobado';
+      case 'RESUELTO': return 'Resuelto';
+      case 'RECHAZADO': return 'Rechazado';
+      default: return estado;
     }
   }
 }

@@ -1,0 +1,363 @@
+/* ===== CONTADORES ===== */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.resumen-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  animation: entrar .45s ease both;
+  transition: transform .25s ease;
+}
+
+.resumen-item:hover { transform: translateY(-3px); }
+
+.resumen-item i {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  background: var(--fondo);
+  color: var(--tono);
+}
+
+.resumen-item strong { display: block; font-size: 1.4rem; line-height: 1; color: #0f172a; }
+.resumen-item small  { color: #64748b; font-size: .75rem; }
+
+.t-azul     { --tono: #003A6C; --fondo: #e0ecf8; }
+.t-amarillo { --tono: #b45309; --fondo: #fef3c7; }
+.t-verde    { --tono: #15803d; --fondo: #dcfce7; }
+.t-rojo     { --tono: #b91c1c; --fondo: #fee2e2; }
+
+/* ===== FILTROS ===== */
+.filtros {
+  display: inline-flex;
+  gap: .25rem;
+  padding: .3rem;
+  background: #eef2f7;
+  border-radius: 999px;
+}
+
+.filtros button {
+  border: none;
+  background: transparent;
+  padding: .4rem 1rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all .25s ease;
+}
+
+.filtros button:hover { color: var(--color-primario, #003A6C); }
+
+.filtros button.activo {
+  background: #fff;
+  color: var(--color-primario, #003A6C);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .12);
+}
+
+/* ===== COLORES POR ESTADO ===== */
+.e-pendiente { --tono: #d97706; --fondo: #fef3c7; }
+.e-revision  { --tono: #0284c7; --fondo: #e0f2fe; }
+.e-aprobado  { --tono: #16a34a; --fondo: #dcfce7; }
+.e-rechazado { --tono: #dc2626; --fondo: #fee2e2; }
+
+/* ===== TARJETA DE RECLAMO ===== */
+.reclamo {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.25rem 1.25rem 1.1rem 1.6rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .07);
+  animation: entrar .5s cubic-bezier(.2, .8, .2, 1) both;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.reclamo::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--tono);
+}
+
+.reclamo:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .12);
+}
+
+.reclamo-icono {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  background: var(--fondo);
+  color: var(--tono);
+}
+
+.min-w-0 { min-width: 0; }
+
+.reclamo-titulo {
+  margin: 0 0 .15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.reclamo-fecha { color: #94a3b8; font-size: .78rem; }
+
+/* Badge de estado */
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--fondo);
+  color: var(--tono);
+}
+
+.estado .punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tono);
+}
+
+.estado.vivo .punto { animation: latido 1.4s ease-in-out infinite; }
+
+/* ===== LINEA DE PROGRESO ===== */
+.pasos {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin: 1.4rem .25rem 1.1rem;
+}
+
+.pasos-linea {
+  position: absolute;
+  top: 14px;
+  left: 40px;
+  right: 40px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pasos-linea span {
+  display: block;
+  height: 100%;
+  background: var(--tono);
+  border-radius: 999px;
+  animation: llenarLinea 1s ease both;
+}
+
+.paso {
+  position: relative;
+  z-index: 1;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  font-size: .75rem;
+  font-weight: 600;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.paso-circulo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .8rem;
+  background: #fff;
+  border: 3px solid #e5e7eb;
+  color: #cbd5e1;
+}
+
+.paso.hecho { color: #0f172a; }
+
+.paso.hecho .paso-circulo {
+  background: var(--tono);
+  border-color: var(--tono);
+  color: #fff;
+  animation: pop .45s ease both;
+}
+
+.paso.actual .paso-circulo { animation: pop .45s ease both, anillo 1.8s ease-out 1s infinite; }
+
+/* ===== DESCRIPCION Y RESPUESTA ===== */
+.cita {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: .7rem .9rem;
+  margin-bottom: .75rem;
+}
+
+.cita small,
+.respuesta small {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #94a3b8;
+  margin-bottom: .15rem;
+}
+
+.cita p,
+.respuesta p { margin: 0; font-size: .88rem; color: #334155; }
+
+.respuesta {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .75rem .9rem;
+  border-radius: 12px;
+  background: var(--fondo);
+  animation: entrar .5s ease .4s both;
+}
+
+.respuesta > i { font-size: 1.3rem; color: var(--tono); }
+.respuesta small { color: var(--tono); }
+
+.esperando {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .82rem;
+  color: #64748b;
+}
+
+.puntitos { display: inline-flex; gap: 3px; }
+
+.puntitos span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tono);
+  animation: saltito 1.2s ease-in-out infinite;
+}
+
+.puntitos span:nth-child(2) { animation-delay: .15s; }
+.puntitos span:nth-child(3) { animation-delay: .3s; }
+
+/* ===== SIN RECLAMOS ===== */
+.vacio-reclamos {
+  text-align: center;
+  background: #fff;
+  border-radius: 22px;
+  padding: 3rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .07);
+  animation: entrar .5s ease both;
+}
+
+.vacio-icono {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.25rem;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 2.8rem;
+  color: var(--color-primario, #003A6C);
+  background: linear-gradient(135deg, #e0ecf8, #fef3c7);
+  animation: flotar 3s ease-in-out infinite;
+}
+
+.vacio-reclamos h5 { font-weight: 700; color: #0f172a; }
+.vacio-reclamos p  { color: #64748b; max-width: 420px; margin: 0 auto 1.25rem; font-size: .9rem; }
+
+/* ===== ESQUELETO DE CARGA ===== */
+.esqueleto {
+  display: flex;
+  gap: 1rem;
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .05);
+}
+
+.esq {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #eef2f7 25%, #f8fafc 50%, #eef2f7 75%);
+  background-size: 200% 100%;
+  animation: brillo 1.3s linear infinite;
+}
+
+.esq-icono { width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; }
+.esq-linea { height: 12px; margin-bottom: .5rem; }
+
+/* ===== ANIMACIONES ===== */
+@keyframes entrar {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes llenarLinea {
+  from { width: 0; }
+}
+
+@keyframes pop {
+  0%   { transform: scale(.4); }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes anillo {
+  0%   { box-shadow: 0 0 0 0 var(--fondo); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@keyframes latido {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: .5; }
+}
+
+@keyframes saltito {
+  0%, 80%, 100% { transform: translateY(0); opacity: .5; }
+  40%           { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes brillo {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .resumen { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+  .paso { width: 64px; font-size: .68rem; }
+  .pasos-linea { left: 32px; right: 32px; }
+}

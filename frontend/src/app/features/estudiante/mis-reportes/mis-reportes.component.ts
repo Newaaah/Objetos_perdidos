@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -19,6 +19,9 @@ export class MisReportesComponent implements OnInit {
   private perdidaService = inject(PerdidaService);
   private coincidenciaService = inject(CoincidenciaService);
   private alertService = inject(AlertService);
+
+  // true = se muestra dentro de "Mi cuenta" (sin el titulo de pagina)
+  @Input() embebido = false;
 
   reportes: MiPerdida[] = [];
   cargando = true;
@@ -66,20 +69,59 @@ export class MisReportesComponent implements OnInit {
     this.resultado = null;
   }
 
+  // Abre o cierra las sugerencias de una tarjeta
+  alternarSugerencias(r: MiPerdida) {
+    if (this.esSeleccionado(r)) this.cerrarSugerencias();
+    else this.verSugerencias(r);
+  }
+
+  esSeleccionado(r: MiPerdida): boolean {
+    return this.seleccionado?.idReportePerdida === r.idReportePerdida;
+  }
+
+  // ===== Contadores (solo visual) =====
+  contar(estado: string): number {
+    return this.reportes.filter(r => r.estado === estado).length;
+  }
+
+  // ===== Estilos =====
   claseEstado(estado: string): string {
     switch (estado) {
-      case 'REPORTADO': return 'bg-warning text-dark';
-      case 'RECUPERADO': return 'bg-success';
-      case 'CANCELADO': return 'bg-secondary';
-      default: return 'bg-light text-dark';
+      case 'REPORTADO': return 'e-buscando';
+      case 'RECUPERADO': return 'e-recuperado';
+      case 'CANCELADO': return 'e-cancelado';
+      default: return 'e-cancelado';
     }
+  }
+
+  textoEstado(estado: string): string {
+    switch (estado) {
+      case 'REPORTADO': return 'Buscando';
+      case 'RECUPERADO': return 'Recuperado';
+      case 'CANCELADO': return 'Cancelado';
+      default: return estado;
+    }
+  }
+
+  iconoCategoria(categoria: string): string {
+    const c = (categoria || '').toLowerCase();
+    if (c.includes('electr') || c.includes('celular') || c.includes('tecno')) return 'bi-phone';
+    if (c.includes('llave')) return 'bi-key';
+    if (c.includes('document') || c.includes('carnet') || c.includes('dni')) return 'bi-person-vcard';
+    if (c.includes('billet') || c.includes('cartera') || c.includes('dinero')) return 'bi-wallet2';
+    if (c.includes('ropa') || c.includes('prenda') || c.includes('vestim')) return 'bi-handbag';
+    if (c.includes('mochila') || c.includes('bolso')) return 'bi-backpack';
+    if (c.includes('libro') || c.includes('cuaderno') || c.includes('util')) return 'bi-journal-bookmark';
+    if (c.includes('lente') || c.includes('accesor') || c.includes('joya') || c.includes('reloj')) return 'bi-smartwatch';
+    if (c.includes('botella') || c.includes('tomatodo')) return 'bi-cup-straw';
+    return 'bi-box-seam';
   }
 
   claseNivel(nivel: string): string {
     const n = (nivel || '').toUpperCase();
-    if (n.includes('ALT')) return 'bg-success';
-    if (n.includes('MED')) return 'bg-warning text-dark';
-    return 'bg-secondary';
+    if (n.includes('ALT')) return 'n-alto';
+    if (n.includes('MED')) return 'n-medio';
+    return 'n-bajo';
   }
 
   textoOrigen(origen: string): string {
