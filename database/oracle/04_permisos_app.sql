@@ -35,9 +35,11 @@ GRANT SELECT, INSERT, UPDATE ON USUARIO TO APP_UPEU;
 
 -- ---------------------------------------------------------------------
 -- Flujo del objeto: se registra, nunca se borra
+-- REPORTE_PERDIDA admite UPDATE solo para cambiar su estado
+-- (REPORTADO -> RECUPERADO al entregar o cuando el dueño lo confirma).
 -- ---------------------------------------------------------------------
 GRANT SELECT, INSERT         ON OBJETO              TO APP_UPEU;
-GRANT SELECT, INSERT         ON REPORTE_PERDIDA     TO APP_UPEU;
+GRANT SELECT, INSERT, UPDATE ON REPORTE_PERDIDA     TO APP_UPEU;
 GRANT SELECT, INSERT, UPDATE ON REPORTE_HALLAZGOS   TO APP_UPEU;
 GRANT SELECT, INSERT         ON OBJETOS_CUSTODIADOS TO APP_UPEU;
 GRANT SELECT, INSERT         ON COINCIDENCIA        TO APP_UPEU;

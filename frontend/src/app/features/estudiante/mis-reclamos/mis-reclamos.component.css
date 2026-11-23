@@ -361,3 +361,27 @@
   .paso { width: 64px; font-size: .68rem; }
   .pasos-linea { left: 32px; right: 32px; }
 }
+
+/* ===== MODO OSCURO: textos legibles ===== */
+:host-context([data-bs-theme="dark"]) .cita,
+:host-context([data-bs-theme="dark"]) .dato {
+  background: #182439;
+}
+
+:host-context([data-bs-theme="dark"]) .cita p,
+:host-context([data-bs-theme="dark"]) .respuesta p {
+  color: #e2e8f0;
+}
+
+:host-context([data-bs-theme="dark"]) .cita small {
+  color: #94a3b8;
+}
+
+:host-context([data-bs-theme="dark"]) .reclamo-titulo,
+:host-context([data-bs-theme="dark"]) .paso.hecho {
+  color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .esperando {
+  color: #94a3b8;
+}

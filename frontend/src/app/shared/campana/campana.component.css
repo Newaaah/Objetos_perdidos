@@ -1,26 +1,422 @@
-.campana-menu {
-    width: 340px;
+/* ===== BOTON DE LA CAMPANA ===== */
+.btn-campana {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin-right: .5rem;
+    border: none;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    color: #fff;
+    background: transparent;
+    transition: background .2s ease;
 }
 
-.lista {
-    max-height: 360px;
-    overflow-y: auto;
+.btn-campana:hover,
+.btn-campana[aria-expanded="true"] {
+    background: rgba(255, 255, 255, .15);
 }
 
-.no-leida {
-    background: #eef4fb;
-    border-left: 3px solid var(--color-acento);
-}
-
-.punto {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-acento);
-    flex-shrink: 0;
-    margin-top: 6px;
+/* la campana se mueve cada cierto tiempo si hay avisos */
+.btn-campana.con-avisos i {
+    color: var(--color-acento, #FDB913);
+    transform-origin: top center;
+    animation: sacudir 3s ease-in-out infinite;
 }
 
 .contador {
-    font-size: 0.65rem;
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: .62rem;
+    font-weight: 700;
+    color: #fff;
+    background: #ef4444;
+    border: 2px solid var(--color-primario, #003A6C);
+    animation: latirContador 2s ease-in-out infinite;
+}
+
+/* ===== MENU ===== */
+.dropdown-menu.campana-menu {
+    width: 370px;
+    padding: .45rem;
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, .2);
+}
+
+.dropdown-menu.campana-menu.show {
+    animation: menuAbrir .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.campana-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    padding: .85rem;
+    margin-bottom: .4rem;
+    border-radius: 14px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(253, 185, 19, .3), transparent 45%),
+        linear-gradient(120deg, #002648, var(--color-primario, #003A6C) 60%, #0b5aa0);
+}
+
+.campana-cabecera small {
+    opacity: .85;
+    font-size: .75rem;
+}
+
+.cabecera-icono {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    background: var(--color-acento, #FDB913);
+    color: var(--color-primario, #003A6C);
+}
+
+.btn-marcar {
+    border: none;
+    border-radius: 999px;
+    padding: .3rem .75rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(255, 255, 255, .15);
+    white-space: nowrap;
+    transition: background .2s ease;
+}
+
+.btn-marcar:hover {
+    background: rgba(255, 255, 255, .3);
+}
+
+/* ===== LISTA ===== */
+.lista {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.lista::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lista::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+/* colores por tipo */
+.t-morado {
+    --tono: #7c3aed;
+    --fondo: #ede9fe;
+}
+
+.t-naranja {
+    --tono: #ea580c;
+    --fondo: #ffedd5;
+}
+
+.t-verde {
+    --tono: #16a34a;
+    --fondo: #dcfce7;
+}
+
+.t-azul {
+    --tono: #0b5aa0;
+    --fondo: #e0ecf8;
+}
+
+.t-gris {
+    --tono: #475569;
+    --fondo: #e2e8f0;
+}
+
+.aviso {
+    width: 100%;
+    display: flex;
+    gap: .7rem;
+    text-align: left;
+    padding: .7rem;
+    margin-bottom: .25rem;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    animation: itemEntrar .35s ease both;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.aviso:hover {
+    background: #f1f5f9;
+    transform: translateX(3px);
+}
+
+.aviso.no-leida {
+    background: #f5f9fe;
+}
+
+.aviso.no-leida:hover {
+    background: #eaf2fb;
+}
+
+.aviso-icono {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    background: var(--fondo);
+    color: var(--tono);
+    transition: transform .25s ease;
+}
+
+.aviso:hover .aviso-icono {
+    transform: scale(1.08) rotate(-6deg);
+}
+
+.aviso-titulo {
+    font-size: .86rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.aviso.no-leida .aviso-titulo {
+    font-weight: 700;
+}
+
+.aviso-mensaje {
+    margin: .1rem 0 .25rem;
+    font-size: .8rem;
+    color: #64748b;
+    line-height: 1.35;
+    white-space: normal;
+}
+
+.aviso-tiempo {
+    font-size: .72rem;
+    color: #94a3b8;
+}
+
+.punto {
+    width: 9px;
+    height: 9px;
+    margin-top: 5px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--color-acento, #FDB913);
+    box-shadow: 0 0 0 0 rgba(253, 185, 19, .6);
+    animation: onda 1.8s ease-out infinite;
+}
+
+/* ===== VACIO ===== */
+.vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: .25rem;
+    padding: 1.75rem 1rem;
+    color: #64748b;
+}
+
+.vacio strong {
+    color: #0f172a;
+    font-size: .92rem;
+}
+
+.vacio small {
+    font-size: .78rem;
+}
+
+.vacio-icono {
+    width: 64px;
+    height: 64px;
+    margin-bottom: .5rem;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    font-size: 1.8rem;
+    color: var(--color-primario, #003A6C);
+    background: linear-gradient(135deg, #e0ecf8, #fef3c7);
+}
+
+.vacio-icono i {
+    display: inline-block;
+    transform-origin: top center;
+    animation: balancear 2.4s ease-in-out infinite;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes sacudir {
+
+    0%,
+    70%,
+    100% {
+        transform: rotate(0);
+    }
+
+    74% {
+        transform: rotate(16deg);
+    }
+
+    78% {
+        transform: rotate(-14deg);
+    }
+
+    82% {
+        transform: rotate(10deg);
+    }
+
+    86% {
+        transform: rotate(-6deg);
+    }
+
+    90% {
+        transform: rotate(3deg);
+    }
+}
+
+@keyframes balancear {
+
+    0%,
+    100% {
+        transform: rotate(-10deg);
+    }
+
+    50% {
+        transform: rotate(10deg);
+    }
+}
+
+@keyframes latirContador {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+@keyframes onda {
+    0% {
+        box-shadow: 0 0 0 0 rgba(253, 185, 19, .6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(253, 185, 19, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(253, 185, 19, 0);
+    }
+}
+
+@keyframes menuAbrir {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes itemEntrar {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 576px) {
+    .dropdown-menu.campana-menu {
+        width: 92vw;
+    }
+}
+
+/* =========================================================
+   ANIMACION "BURBUJA DESDE LA CAMPANA" (paso 88)
+   Reemplaza la animacion anterior del panel
+   ========================================================= */
+
+/* El panel nace pequeño desde la campana (arriba a la derecha) y rebota */
+.dropdown-menu.campana-menu.show {
+  transform-origin: top right;
+  animation: burbuja .5s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+/* La cabecera azul hace "pop" un instante despues */
+.dropdown-menu.campana-menu.show .campana-cabecera {
+  animation: popCabecera .45s .12s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+/* Los avisos caen uno por uno */
+.dropdown-menu.campana-menu.show .aviso {
+  animation-name: caerAviso;
+  animation-duration: .45s;
+  animation-timing-function: cubic-bezier(.2, .8, .2, 1);
+  animation-fill-mode: both;
+}
+
+/* Si no hay avisos, la campanita del centro entra girando */
+.dropdown-menu.campana-menu.show .vacio-icono {
+  animation: popCabecera .5s .2s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+/* Al abrir, la campana del header "suena" */
+.btn-campana[aria-expanded="true"] i {
+  animation: timbre .6s ease both !important;
+}
+
+@keyframes burbuja {
+  0%   { opacity: 0; transform: scale(.2); border-radius: 50%; }
+  45%  { opacity: 1; border-radius: 24px; }
+  100% { opacity: 1; transform: scale(1); border-radius: 18px; }
+}
+
+@keyframes popCabecera {
+  0%   { opacity: 0; transform: scale(.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes caerAviso {
+  0%   { opacity: 0; transform: translateY(-14px) scale(.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes timbre {
+  0%   { transform: rotate(0); }
+  20%  { transform: rotate(18deg); }
+  40%  { transform: rotate(-16deg); }
+  60%  { transform: rotate(10deg); }
+  80%  { transform: rotate(-6deg); }
+  100% { transform: rotate(0); }
 }

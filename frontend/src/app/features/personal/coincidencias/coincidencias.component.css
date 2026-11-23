@@ -1,0 +1,577 @@
+/* ===== DUELO: PERDIDO vs HALLADO ===== */
+.duelo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+}
+
+.lado {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .1);
+    border-top: 5px solid var(--tono);
+}
+
+.perdido {
+    --tono: #f59e0b;
+    --fondo: #fef3c7;
+    animation: desdeIzquierda .7s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.hallado {
+    --tono: #16a34a;
+    --fondo: #dcfce7;
+    animation: desdeDerecha .7s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.lado-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .85rem 1.1rem;
+}
+
+.lado-cabecera small {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.etiqueta-lado {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .8rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    background: var(--fondo);
+    color: var(--tono);
+}
+
+.lado-foto {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: #f1f5f9;
+}
+
+.lado-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: zoomFoto 8s ease-in-out infinite alternate;
+}
+
+.lado-foto.vacia {
+    flex-direction: column;
+    text-align: center;
+    color: #94a3b8;
+    background: linear-gradient(135deg, var(--fondo), #f8fafc);
+}
+
+.lado-foto.vacia i {
+    display: block;
+    font-size: 2.6rem;
+    color: var(--tono);
+    animation: flotar 3s ease-in-out infinite;
+}
+
+.lado-foto.vacia small {
+    font-size: .75rem;
+}
+
+.lado-cuerpo {
+    padding: 1rem 1.1rem 1.2rem;
+}
+
+.lado-cuerpo h5 {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: .75rem;
+}
+
+.rasgos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rasgos li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .5rem .65rem;
+    margin-bottom: .3rem;
+    border-radius: 10px;
+    font-size: .86rem;
+    background: #f8fafc;
+    transition: background .3s ease;
+}
+
+.rasgos li>span:first-child {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #94a3b8;
+    padding-top: .1rem;
+}
+
+.rasgos li strong {
+    color: #334155;
+    text-align: right;
+}
+
+.rasgos li.desc {
+    flex-direction: column;
+    gap: .2rem;
+}
+
+.rasgos li.desc p {
+    margin: 0;
+    color: #475569;
+    font-size: .84rem;
+}
+
+/* Los datos que coinciden se pintan de verde */
+.rasgos li.igual {
+    background: #dcfce7;
+    animation: resaltar 1s 1s ease both;
+}
+
+.rasgos li.igual strong {
+    color: #15803d;
+}
+
+.rasgos li.igual i {
+    color: #16a34a;
+}
+
+.chip {
+    padding: .15rem .6rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* ===== CENTRO: ANILLO DE PUNTAJE ===== */
+.centro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    animation: aparecerCentro .6s .45s cubic-bezier(.3, 1.4, .5, 1) both;
+}
+
+.anillo {
+    position: relative;
+    width: 130px;
+    height: 130px;
+}
+
+.anillo svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.anillo-fondo {
+    fill: none;
+    stroke: #e5e7eb;
+    stroke-width: 4;
+}
+
+.anillo-valor {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    animation: llenarAnillo 1.4s .7s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.anillo-texto {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.anillo-texto strong {
+    font-family: "Poppins", sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: #0f172a;
+}
+
+.anillo-texto small {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.vs {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    color: #003A6C;
+    background: #FDB913;
+    box-shadow: 0 6px 16px rgba(253, 185, 19, .45);
+    animation: latirVs 2s 1.2s ease-in-out infinite;
+}
+
+/* ===== TARJETAS DE ABAJO ===== */
+.subir {
+    animation: subir .6s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.barra {
+    animation: llenarBarra 1s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* =========================================================
+   MODO OSCURO
+   ========================================================= */
+:host-context([data-bs-theme="dark"]) .lado {
+    background: #121c30;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+}
+
+:host-context([data-bs-theme="dark"]) .perdido {
+    --fondo: rgba(251, 191, 36, .14);
+    --tono: #fbbf24;
+}
+
+:host-context([data-bs-theme="dark"]) .hallado {
+    --fondo: rgba(74, 222, 128, .14);
+    --tono: #4ade80;
+}
+
+:host-context([data-bs-theme="dark"]) .lado-foto {
+    background: #0f1829;
+}
+
+:host-context([data-bs-theme="dark"]) .lado-foto.vacia {
+    background: linear-gradient(135deg, var(--fondo), #0f1829);
+}
+
+:host-context([data-bs-theme="dark"]) .lado-cuerpo h5,
+:host-context([data-bs-theme="dark"]) .anillo-texto strong {
+    color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .rasgos li {
+    background: #182439;
+}
+
+:host-context([data-bs-theme="dark"]) .rasgos li strong {
+    color: #e2e8f0;
+}
+
+:host-context([data-bs-theme="dark"]) .rasgos li.desc p {
+    color: #cbd5e1;
+}
+
+:host-context([data-bs-theme="dark"]) .rasgos li.igual {
+    background: rgba(74, 222, 128, .14);
+}
+
+:host-context([data-bs-theme="dark"]) .rasgos li.igual strong,
+:host-context([data-bs-theme="dark"]) .rasgos li.igual i {
+    color: #4ade80;
+}
+
+:host-context([data-bs-theme="dark"]) .chip {
+    background: #22304a;
+    color: #e2e8f0;
+}
+
+:host-context([data-bs-theme="dark"]) .anillo-fondo {
+    stroke: #22304a;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes desdeIzquierda {
+    from {
+        opacity: 0;
+        transform: translateX(-80px) rotate(-2deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes desdeDerecha {
+    from {
+        opacity: 0;
+        transform: translateX(80px) rotate(2deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes aparecerCentro {
+    from {
+        opacity: 0;
+        transform: scale(.4);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes llenarAnillo {
+    from {
+        stroke-dasharray: 0 100;
+    }
+}
+
+@keyframes llenarBarra {
+    from {
+        width: 0;
+    }
+}
+
+@keyframes latirVs {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.12);
+    }
+}
+
+@keyframes resaltar {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, .5);
+    }
+
+    100% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+}
+
+@keyframes subir {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomFoto {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.08);
+    }
+}
+
+@keyframes flotar {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ===== CELULAR: uno debajo del otro ===== */
+@media (max-width: 992px) {
+    .duelo {
+        grid-template-columns: 1fr;
+    }
+
+    .centro {
+        flex-direction: row;
+        order: -1;
+    }
+
+    .anillo {
+        width: 100px;
+        height: 100px;
+    }
+}
+/* =========================================================
+   LISTAS PARA ELEGIR LA PAREJA (paso 85)
+   ========================================================= */
+.min-w-0 { min-width: 0; }
+
+.selector { animation: subir .5s cubic-bezier(.2, .8, .2, 1) both; }
+.hallazgos-sel { animation-delay: .08s; }
+
+.lista-sel {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: .4rem;
+}
+
+.opcion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .6rem .7rem;
+  margin-bottom: .3rem;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  text-align: left;
+  animation: entrarOpcion .35s ease both;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.opcion:hover {
+  background: #f1f5f9;
+  transform: translateX(3px);
+}
+
+.opcion small { color: #94a3b8; font-size: .76rem; }
+.opcion strong { color: #0f172a; font-size: .9rem; }
+
+.opcion-icono {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  background: #e0ecf8;
+  color: var(--color-primario, #003A6C);
+  transition: transform .25s ease;
+}
+
+.opcion:hover .opcion-icono { transform: rotate(-8deg) scale(1.08); }
+
+.marca-sel {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  transition: color .2s ease, transform .3s ease;
+}
+
+/* Elegida */
+.opcion.elegida {
+  border-color: var(--color-primario, #003A6C);
+  background: #eef4fb;
+}
+
+.opcion.elegida .marca-sel {
+  color: var(--color-primario, #003A6C);
+  transform: scale(1.2);
+}
+
+.perdidas-sel .opcion.elegida { border-color: #f59e0b; background: #fffbeb; }
+.perdidas-sel .opcion.elegida .marca-sel { color: #f59e0b; }
+.hallazgos-sel .opcion.elegida { border-color: #16a34a; background: #f0fdf4; }
+.hallazgos-sel .opcion.elegida .marca-sel { color: #16a34a; }
+
+/* Sugerida: misma categoria que la perdida elegida */
+.opcion.sugerida .opcion-icono { background: #fef3c7; color: #b45309; }
+
+.chip-sugerida {
+  flex-shrink: 0;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.pista {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  color: #64748b;
+  font-size: .92rem;
+  animation: subir .4s ease both;
+}
+
+.pista i {
+  font-size: 1.3rem;
+  animation: tocar 1.4s ease-in-out infinite;
+}
+
+/* Modo oscuro */
+:host-context([data-bs-theme="dark"]) .opcion:hover { background: #182439; }
+:host-context([data-bs-theme="dark"]) .opcion strong { color: #f1f5f9; }
+:host-context([data-bs-theme="dark"]) .opcion-icono { background: #182439; color: #7cc0ff; }
+:host-context([data-bs-theme="dark"]) .marca-sel { color: #475569; }
+:host-context([data-bs-theme="dark"]) .perdidas-sel .opcion.elegida { background: rgba(251, 191, 36, .1); border-color: #fbbf24; }
+:host-context([data-bs-theme="dark"]) .perdidas-sel .opcion.elegida .marca-sel { color: #fbbf24; }
+:host-context([data-bs-theme="dark"]) .hallazgos-sel .opcion.elegida { background: rgba(74, 222, 128, .1); border-color: #4ade80; }
+:host-context([data-bs-theme="dark"]) .hallazgos-sel .opcion.elegida .marca-sel { color: #4ade80; }
+:host-context([data-bs-theme="dark"]) .opcion.sugerida .opcion-icono,
+:host-context([data-bs-theme="dark"]) .chip-sugerida { background: rgba(251, 191, 36, .14); color: #fbbf24; }
+:host-context([data-bs-theme="dark"]) .pista { border-color: #24314d; color: #94a3b8; }
+
+@keyframes entrarOpcion {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tocar {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.lado-foto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+}
+
+.lado-foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.lado-foto.vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

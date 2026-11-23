@@ -46,17 +46,58 @@
 .e-recuperado { --tono: #16a34a; --fondo: #dcfce7; }
 .e-cancelado  { --tono: #64748b; --fondo: #e2e8f0; }
 
-/* ===== TARJETA ===== */
+/* =========================================================
+   PAR: REPORTE (izquierda) + COINCIDENCIAS (derecha)
+   ========================================================= */
+.par {
+  --suave: cubic-bezier(.65, 0, .35, 1);
+  --ancho-abierto: min(1240px, calc(100vw - 5rem));
+  position: relative;
+  left: 0;
+  width: 100%;
+  margin-left: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  animation: entrar .5s cubic-bezier(.2, .8, .2, 1) both;
+  transition:
+    width .7s var(--suave),
+    left .7s var(--suave),
+    margin-left .7s var(--suave),
+    gap .7s var(--suave);
+}
+
+.par.dividido { gap: 1.5rem; }
+
+/* En pantallas grandes el bloque se ensancha desde el centro */
+@media (min-width: 992px) {
+  .par.dividido {
+    left: 50%;
+    width: var(--ancho-abierto);
+    margin-left: calc(var(--ancho-abierto) / -2);
+  }
+}
+
+/* ===== TARJETA DEL REPORTE ===== */
 .reporte {
   position: relative;
   overflow: hidden;
+  flex: 0 0 100%;
+  min-width: 0;
   background: #fff;
   border-radius: 18px;
   padding: 1.25rem 1.25rem 1.1rem 1.6rem;
-  margin-bottom: 1rem;
   box-shadow: 0 6px 20px rgba(15, 23, 42, .07);
-  animation: entrar .5s cubic-bezier(.2, .8, .2, 1) both;
-  transition: transform .25s ease, box-shadow .25s ease;
+  transition:
+    flex-basis .7s var(--suave),
+    transform .25s ease,
+    box-shadow .4s ease;
+}
+
+/* Al abrir, el reporte se encoge suave y deja espacio a la derecha */
+.par.dividido .reporte {
+  flex-basis: 44%;
 }
 
 .reporte::before {
@@ -74,8 +115,54 @@
 
 .reporte.abierto {
   transform: none;
-  box-shadow: 0 0 0 2px var(--fondo), 0 14px 30px rgba(15, 23, 42, .12);
+  box-shadow: 0 0 0 2px var(--fondo), 0 18px 40px rgba(15, 23, 42, .14);
 }
+
+.reporte.abierto .datos { grid-template-columns: 1fr; }
+
+/* ===== TARJETA DE COINCIDENCIAS =====
+   El rectangulo ocupa el espacio que deja el reporte:
+   crece de pequeño a grande junto con el encogimiento. */
+.panel-coincidencia {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, .16);
+  transform-origin: left center;
+  animation: nacerPanel .7s var(--suave) both;
+}
+
+/* El contenido espera a que el rectangulo tenga tamaño y luego aparece */
+.panel-coincidencia > * {
+  min-width: 380px;
+  animation: contenidoEntrar .45s .55s ease both;
+}
+
+.panel-titulo {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.panel-titulo i {
+  color: #f59e0b;
+  display: inline-block;
+  animation: girarEstrella 2.5s ease-in-out infinite;
+}
+
+.btn-cerrar {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  transition: background .2s ease, transform .3s ease;
+}
+
+.btn-cerrar:hover { background: #e2e8f0; transform: rotate(90deg); }
 
 .reporte-icono {
   width: 50px;
@@ -161,7 +248,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: .5rem;
+  gap: .6rem;
 }
 
 .buscando {
@@ -172,7 +259,6 @@
   color: #64748b;
 }
 
-/* radar que pulsa */
 .radar {
   position: relative;
   width: 10px;
@@ -200,10 +286,10 @@
   transition: all .25s ease;
 }
 
-.btn-sugerencias:hover {
+.btn-sugerencias:hover,
+.btn-sugerencias.activo {
   background: var(--color-primario, #003A6C);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 .mensaje-final {
@@ -216,61 +302,173 @@
 
 .mensaje-final.recuperado { color: #15803d; font-weight: 600; }
 
-/* ===== SUGERENCIAS ===== */
-.sugerencias {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px dashed #e2e8f0;
-  animation: desplegar .4s ease both;
+/* ===== MEJOR COINCIDENCIA ===== */
+.m-alto  { --nivel-tono: #16a34a; --nivel-fondo: #dcfce7; }
+.m-medio { --nivel-tono: #d97706; --nivel-fondo: #fef3c7; }
+.m-bajo  { --nivel-tono: #64748b; --nivel-fondo: #e2e8f0; }
+
+.mejor {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid var(--nivel-tono);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, .12);
 }
 
-.buscando-sugerencias {
+.mejor-foto {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #e0ecf8, #fef3c7);
+}
+
+.mejor-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: zoomFoto 7s ease-in-out infinite alternate;
+}
+
+.cinta-mejor {
+  position: absolute;
+  top: .6rem;
+  left: .6rem;
+  z-index: 1;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #003A6C;
+  background: linear-gradient(90deg, #FDB913, #fde68a, #FDB913);
+  background-size: 200% 100%;
+  box-shadow: 0 4px 12px rgba(253, 185, 19, .45);
+  animation: brilloCinta 2.5s linear infinite;
+}
+
+.foto-vacia {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  text-align: center;
+  padding: 1rem;
+  color: var(--color-primario, #003A6C);
+}
+
+.foto-vacia i {
+  font-size: 3rem;
+  animation: flotar 3s ease-in-out infinite;
+}
+
+.foto-vacia small { color: #64748b; font-size: .75rem; }
+
+.mejor-cuerpo { padding: 1rem 1.1rem 1.1rem; }
+
+.mejor-cuerpo h6 {
+  margin: 0 0 .15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mejor-dato {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: .7rem 0;
+  padding: .5rem .7rem;
+  border-radius: 10px;
+  font-size: .82rem;
+  color: #334155;
+  background: var(--nivel-fondo);
+}
+
+.mejor-dato i { color: var(--nivel-tono); }
+
+.medidor-nivel { margin-bottom: .35rem; }
+.medidor-nivel span { color: #64748b; }
+.nivel-texto { color: var(--nivel-tono); }
+
+.medidor-barra {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.medidor-barra span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--nivel-tono), #FDB913);
+  animation: llenarBarra 1.1s 1s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.pasos-recuperar {
+  margin: .75rem 0 0;
+  padding-left: 1.1rem;
+  font-size: .82rem;
+  color: #334155;
+  animation: desplegar .35s ease both;
+}
+
+.pasos-recuperar li { margin-bottom: .3rem; }
+
+.otras-titulo {
+  display: block;
+  margin: 1rem 0 .5rem;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #94a3b8;
+}
+
+/* ===== BUSCANDO / SIN COINCIDENCIAS ===== */
+.buscando-sugerencias,
+.sin-sugerencias {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: .75rem;
-  padding: 1rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
   color: #64748b;
-  font-size: .9rem;
+  font-size: .88rem;
 }
 
 .lupa {
-  width: 38px;
-  height: 38px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   display: grid;
   place-items: center;
+  font-size: 1.3rem;
   background: #e0ecf8;
   color: var(--color-primario, #003A6C);
   animation: buscar 1.2s ease-in-out infinite;
 }
 
-.aviso {
-  padding: .6rem .8rem;
-  border-radius: 12px;
-  background: #e0f2fe;
-  color: #075985;
-  font-size: .85rem;
-  margin-bottom: .75rem;
-}
-
+/* ===== OTRAS SUGERENCIAS ===== */
 .sugerencia {
   display: flex;
   align-items: center;
   gap: .75rem;
-  padding: .75rem .9rem;
+  padding: .65rem .8rem;
   margin-bottom: .5rem;
   border-radius: 14px;
   background: #f8fafc;
-  animation: entrar .4s ease both;
-  transition: background .2s ease;
+  transition: background .2s ease, transform .2s ease;
 }
 
-.sugerencia:hover { background: #eef4fb; }
+.sugerencia:hover { background: #eef4fb; transform: translateX(3px); }
 
 .sugerencia-icono {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
   border-radius: 12px;
   display: grid;
   place-items: center;
@@ -280,9 +478,9 @@
 }
 
 .nivel {
-  font-size: .72rem;
+  font-size: .7rem;
   font-weight: 700;
-  padding: .25rem .7rem;
+  padding: .25rem .65rem;
   border-radius: 999px;
 }
 
@@ -290,19 +488,9 @@
 .n-medio { background: #fef3c7; color: #b45309; }
 .n-bajo  { background: #e2e8f0; color: #475569; }
 
-.sin-sugerencias {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  justify-content: center;
-  padding: 1rem;
-  color: #64748b;
-  font-size: .88rem;
-}
-
 .nota-seguridad {
-  margin: .75rem 0 0;
-  font-size: .8rem;
+  margin: 1rem 0 0;
+  font-size: .76rem;
   color: #64748b;
 }
 
@@ -353,10 +541,78 @@
 .esq-icono { width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0; }
 .esq-linea { height: 12px; margin-bottom: .5rem; }
 
+/* =========================================================
+   MODO OSCURO
+   ========================================================= */
+:host-context([data-bs-theme="dark"]) .reporte,
+:host-context([data-bs-theme="dark"]) .panel-coincidencia {
+  background: #121c30;
+}
+
+:host-context([data-bs-theme="dark"]) .panel-coincidencia {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .5);
+  border: 1px solid #24314d;
+}
+
+:host-context([data-bs-theme="dark"]) .panel-titulo { color: #f1f5f9; }
+:host-context([data-bs-theme="dark"]) .btn-cerrar { background: #182439; color: #94a3b8; }
+:host-context([data-bs-theme="dark"]) .btn-cerrar:hover { background: #22304a; color: #fff; }
+
+:host-context([data-bs-theme="dark"]) .m-alto  { --nivel-tono: #4ade80; --nivel-fondo: rgba(74, 222, 128, .12); }
+:host-context([data-bs-theme="dark"]) .m-medio { --nivel-tono: #fbbf24; --nivel-fondo: rgba(251, 191, 36, .12); }
+:host-context([data-bs-theme="dark"]) .m-bajo  { --nivel-tono: #94a3b8; --nivel-fondo: rgba(148, 163, 184, .12); }
+
+:host-context([data-bs-theme="dark"]) .mejor {
+  background: #0f1829;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+}
+
+:host-context([data-bs-theme="dark"]) .mejor-foto { background: linear-gradient(135deg, #16223a, #2a2a1a); }
+:host-context([data-bs-theme="dark"]) .foto-vacia { color: #7cc0ff; }
+:host-context([data-bs-theme="dark"]) .foto-vacia small,
+:host-context([data-bs-theme="dark"]) .medidor-nivel span { color: #94a3b8; }
+:host-context([data-bs-theme="dark"]) .mejor-cuerpo h6 { color: #ffffff; }
+:host-context([data-bs-theme="dark"]) .mejor-dato,
+:host-context([data-bs-theme="dark"]) .pasos-recuperar { color: #cbd5e1; }
+:host-context([data-bs-theme="dark"]) .medidor-barra { background: #22304a; }
+:host-context([data-bs-theme="dark"]) .dato > i { color: #7cc0ff; }
+
 /* ===== ANIMACIONES ===== */
 @keyframes entrar {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* El rectangulo nace pequeño y crece suave */
+@keyframes nacerPanel {
+  0%   { opacity: 0; transform: scale(.85); }
+  40%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* El contenido del panel aparece cuando ya tiene tamaño */
+@keyframes contenidoEntrar {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes girarEstrella {
+  0%, 100% { transform: rotate(0) scale(1); }
+  50%      { transform: rotate(20deg) scale(1.2); }
+}
+
+@keyframes zoomFoto {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+
+@keyframes brilloCinta {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@keyframes llenarBarra {
+  from { width: 0; }
 }
 
 @keyframes desplegar {
@@ -391,7 +647,79 @@
   to   { background-position: -200% 0; }
 }
 
-@media (max-width: 768px) {
+/* ===== CELULAR / TABLET: coincidencias debajo ===== */
+@media (max-width: 991.98px) {
   .resumen { grid-template-columns: repeat(2, 1fr); }
   .datos   { grid-template-columns: 1fr; }
+
+  .par.dividido { flex-direction: column; gap: 1rem; }
+  .par.dividido .reporte { flex-basis: auto; width: 100%; }
+
+  .panel-coincidencia {
+    width: 100%;
+    transform-origin: top center;
+  }
+
+  .panel-coincidencia > * { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================
+   CIERRE DEL PANEL (paso 84d)
+   1. el contenido se desvanece
+   2. el rectangulo se encoge hacia el reporte
+   3. luego el reporte vuelve a crecer (transicion de flex-basis)
+   ========================================================= */
+.par.cerrando .panel-coincidencia {
+  pointer-events: none;
+  animation: cerrarPanel .45s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+
+.par.cerrando .panel-coincidencia > * {
+  animation: contenidoSalir .2s ease forwards;
+}
+
+.par.cerrando .reporte {
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .07);
+}
+
+@keyframes cerrarPanel {
+  0%   { opacity: 1; transform: translateX(0) scale(1); }
+  35%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-40px) scale(.82); }
+}
+
+@keyframes contenidoSalir {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+/* =========================================================
+   FOTO DE LA MEJOR COINCIDENCIA (paso 84e)
+   Recuadro 4:3 y foto siempre centrada (sirve para fotos
+   verticales de celular y horizontales)
+   ========================================================= */
+.mejor-foto {
+  display: block;
+  aspect-ratio: 4 / 3;
+}
+
+.mejor-foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.mejor-foto .foto-vacia {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
 }

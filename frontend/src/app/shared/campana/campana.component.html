@@ -1,42 +1,51 @@
 <div class="dropdown">
-  <button class="btn btn-link position-relative text-white px-2" type="button"
-    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notificaciones">
-    <i class="bi bi-bell fs-5"></i>
+  <button class="btn-campana" [class.con-avisos]="noLeidas > 0" type="button" data-bs-toggle="dropdown"
+    data-bs-auto-close="outside" aria-expanded="false" title="Notificaciones">
+    <i class="bi" [class.bi-bell-fill]="noLeidas > 0" [class.bi-bell]="noLeidas === 0"></i>
     @if (noLeidas > 0) {
-      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger contador">
-        {{ noLeidas > 9 ? '9+' : noLeidas }}
-      </span>
+    <span class="contador">{{ noLeidas > 9 ? '9+' : noLeidas }}</span>
     }
   </button>
 
-  <div class="dropdown-menu dropdown-menu-end shadow p-0 campana-menu">
-    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-      <strong>Notificaciones</strong>
+  <div class="dropdown-menu dropdown-menu-end campana-menu">
+
+    <!-- CABECERA -->
+    <div class="campana-cabecera">
+      <div class="d-flex align-items-center gap-2">
+        <div class="cabecera-icono"><i class="bi bi-bell-fill"></i></div>
+        <div>
+          <div class="fw-bold">Notificaciones</div>
+          <small>{{ noLeidas > 0 ? noLeidas + ' sin leer' : 'Estás al día' }}</small>
+        </div>
+      </div>
       @if (noLeidas > 0) {
-        <button class="btn btn-link btn-sm p-0 text-decoration-none" (click)="marcarTodas($event)">
-          Marcar todas como leídas
-        </button>
+      <button class="btn-marcar" (click)="marcarTodas($event)">
+        <i class="bi bi-check2-all"></i> Marcar todas
+      </button>
       }
     </div>
 
+    <!-- LISTA -->
     <div class="lista">
-      @for (n of notificaciones; track n.idNotificacion) {
-        <button class="dropdown-item d-flex gap-2 py-2 text-wrap" [class.no-leida]="!n.leida" (click)="abrir(n)">
-          <i class="bi {{ icono(n.tipo) }} fs-5 text-upeu-primary"></i>
-          <div class="flex-grow-1">
-            <div class="d-flex justify-content-between gap-2">
-              <span [class.fw-semibold]="!n.leida">{{ n.titulo }}</span>
-              @if (!n.leida) { <span class="punto"></span> }
-            </div>
-            <small class="text-muted d-block">{{ n.mensaje }}</small>
-            <small class="text-muted">{{ n.fechaCreacion | date:'dd/MM HH:mm' }}</small>
+      @for (n of notificaciones; track n.idNotificacion; let i = $index) {
+      <button class="aviso {{ color(n.tipo) }}" [class.no-leida]="!n.leida" (click)="abrir(n)"
+        [style.animation-delay.s]="i * 0.05">
+        <div class="aviso-icono"><i class="bi {{ icono(n.tipo) }}"></i></div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <span class="aviso-titulo">{{ n.titulo }}</span>
+            @if (!n.leida) { <span class="punto"></span> }
           </div>
-        </button>
-      } @empty {
-        <div class="text-center text-muted py-4">
-          <i class="bi bi-bell-slash fs-3 d-block mb-1"></i>
-          No tienes notificaciones.
+          <p class="aviso-mensaje">{{ n.mensaje }}</p>
+          <small class="aviso-tiempo"><i class="bi bi-clock"></i> {{ tiempo(n.fechaCreacion) }}</small>
         </div>
+      </button>
+      } @empty {
+      <div class="vacio">
+        <div class="vacio-icono"><i class="bi bi-bell"></i></div>
+        <strong>No tienes notificaciones</strong>
+        <small>Te avisaremos cuando haya novedades de tus objetos.</small>
+      </div>
       }
     </div>
   </div>

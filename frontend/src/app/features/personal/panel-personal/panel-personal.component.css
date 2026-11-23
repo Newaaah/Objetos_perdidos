@@ -132,3 +132,32 @@
     transition: none !important;
   }
 }
+/* =========================================================
+   MODO OSCURO (solo se activa con data-bs-theme="dark")
+   ========================================================= */
+:host-context([data-bs-theme="dark"]) .indicador {
+  background: #121c30;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+:host-context([data-bs-theme="dark"]) .indicador strong { color: #ffffff; }
+:host-context([data-bs-theme="dark"]) .indicador small  { color: #94a3b8; }
+
+/* Titulo "Modulos" */
+:host-context([data-bs-theme="dark"]) .seccion,
+:host-context([data-bs-theme="dark"]) h5 {
+  color: #e2e8f0;
+}
+
+/* Tarjetas de modulos */
+:host-context([data-bs-theme="dark"]) .modulo h6 { color: #ffffff; }
+:host-context([data-bs-theme="dark"]) .modulo p  { color: #94a3b8; }
+:host-context([data-bs-theme="dark"]) .ir        { color: #7cc0ff; }
+
+/* Colores de iconos con fondo traslucido */
+:host-context([data-bs-theme="dark"]) .azul     { --tono: #7cc0ff; --fondo: rgba(124, 192, 255, .14); }
+:host-context([data-bs-theme="dark"]) .verde    { --tono: #4ade80; --fondo: rgba(74, 222, 128, .14); }
+:host-context([data-bs-theme="dark"]) .amarillo { --tono: #fbbf24; --fondo: rgba(251, 191, 36, .14); }
+:host-context([data-bs-theme="dark"]) .morado   { --tono: #c4b5fd; --fondo: rgba(167, 139, 250, .16); }
+:host-context([data-bs-theme="dark"]) .rojo     { --tono: #f87171; --fondo: rgba(248, 113, 113, .14); }
+:host-context([data-bs-theme="dark"]) .naranja  { --tono: #fdba74; --fondo: rgba(251, 146, 60, .16); }

@@ -1,13 +1,105 @@
-.evidencia {
-    max-height: 220px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
+/* ===== LISTA ===== */
 .texto-corto {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ===== DETALLE ===== */
+.detalle-reclamo {
+  animation: entrarDetalle .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.titulo-seccion {
+  display: block;
+  margin-bottom: .4rem;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #64748b;
+}
+
+.datos-reclamo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+}
+
+.dato-reclamo {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem .75rem;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.dato-reclamo > i {
+  font-size: 1.1rem;
+  color: var(--color-primario, #003A6C);
+}
+
+.dato-reclamo small {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.cita-reclamo {
+  padding: .75rem .9rem;
+  border-radius: 12px;
+  border-left: 4px solid #f59e0b;
+  background: #f8fafc;
+  font-size: .92rem;
+}
+
+/* Caja de la foto: la foto va sola, centrada */
+.evidencia-caja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  padding: .75rem;
+  border-radius: 14px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+}
+
+.evidencia {
+  display: block;
+  max-height: 260px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .12);
+  transition: transform .3s ease;
+}
+
+.evidencia:hover { transform: scale(1.03); }
+
+.ver-grande {
+  font-size: .75rem;
+  color: #94a3b8;
+}
+
+/* ===== MODO OSCURO ===== */
+:host-context([data-bs-theme="dark"]) .dato-reclamo,
+:host-context([data-bs-theme="dark"]) .cita-reclamo,
+:host-context([data-bs-theme="dark"]) .evidencia-caja {
+  background: #182439;
+  border-color: #24314d;
+}
+
+:host-context([data-bs-theme="dark"]) .cita-reclamo { border-left-color: #fbbf24; color: #e2e8f0; }
+:host-context([data-bs-theme="dark"]) .dato-reclamo > i { color: #7cc0ff; }
+:host-context([data-bs-theme="dark"]) .titulo-seccion { color: #94a3b8; }
+
+@keyframes entrarDetalle {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
 }

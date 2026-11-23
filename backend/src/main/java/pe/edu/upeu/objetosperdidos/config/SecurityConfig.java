@@ -73,6 +73,10 @@ public class SecurityConfig {
                         .hasAuthority("ESTUDIANTE")
                         .requestMatchers(HttpMethod.GET, "/api/v1/perdidas/mias")
                         .hasAuthority("ESTUDIANTE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/perdidas/*/recuperado")
+                        .hasAuthority("ESTUDIANTE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/perdidas/abiertas")
+                        .hasAnyAuthority("PERSONAL", "ADMIN")
 
                         // Registro de hallazgos con imagen y consulta privada.
                         .requestMatchers(HttpMethod.POST, "/api/v1/hallazgos")

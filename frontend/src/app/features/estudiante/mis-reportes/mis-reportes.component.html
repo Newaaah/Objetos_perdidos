@@ -2,161 +2,240 @@
 
   <!-- Titulo (solo cuando es pagina sola) -->
   @if (!embebido) {
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <div class="encabezado-pagina">
-        <div class="icono"><i class="bi bi-list-check"></i></div>
-        <div>
-          <h1>Mis reportes</h1>
-          <p>Los objetos que reportaste como perdidos.</p>
-        </div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-list-check"></i></div>
+      <div>
+        <h1>Mis reportes</h1>
+        <p>Los objetos que reportaste como perdidos.</p>
       </div>
-      <a class="btn btn-upeu" routerLink="/reportar-perdida">
-        <i class="bi bi-plus-lg"></i> Reportar pérdida
-      </a>
     </div>
+    <a class="btn btn-upeu" routerLink="/reportar-perdida">
+      <i class="bi bi-plus-lg"></i> Reportar pérdida
+    </a>
+  </div>
   }
 
   @if (cargando) {
-    <!-- ESQUELETO DE CARGA -->
-    @for (n of [1, 2, 3]; track n) {
-      <div class="esqueleto">
-        <div class="esq esq-icono"></div>
-        <div class="flex-grow-1">
-          <div class="esq esq-linea" style="width: 40%;"></div>
-          <div class="esq esq-linea" style="width: 20%;"></div>
-          <div class="esq esq-linea mt-3" style="width: 85%;"></div>
-        </div>
-      </div>
-    }
+  <!-- ESQUELETO DE CARGA -->
+  @for (n of [1, 2, 3]; track n) {
+  <div class="esqueleto">
+    <div class="esq esq-icono"></div>
+    <div class="flex-grow-1">
+      <div class="esq esq-linea" style="width: 40%;"></div>
+      <div class="esq esq-linea" style="width: 20%;"></div>
+      <div class="esq esq-linea mt-3" style="width: 85%;"></div>
+    </div>
+  </div>
+  }
 
   } @else if (reportes.length === 0) {
-    <!-- SIN REPORTES -->
-    <div class="vacio-reportes">
-      <div class="vacio-icono"><i class="bi bi-search-heart"></i></div>
-      <h5>Aún no has reportado ninguna pérdida</h5>
-      <p>Si perdiste algo en el campus, repórtalo y te avisaremos cuando aparezca algo parecido.</p>
-      <a class="btn btn-upeu" routerLink="/reportar-perdida">
-        <i class="bi bi-plus-lg"></i> Reportar pérdida
-      </a>
-    </div>
+  <!-- SIN REPORTES -->
+  <div class="vacio-reportes">
+    <div class="vacio-icono"><i class="bi bi-search-heart"></i></div>
+    <h5>Aún no has reportado ninguna pérdida</h5>
+    <p>Si perdiste algo en el campus, repórtalo y te avisaremos cuando aparezca algo parecido.</p>
+    <a class="btn btn-upeu" routerLink="/reportar-perdida">
+      <i class="bi bi-plus-lg"></i> Reportar pérdida
+    </a>
+  </div>
 
   } @else {
-    <!-- CONTADORES -->
-    <div class="resumen">
-      <div class="resumen-item t-azul" style="animation-delay: 0s;">
-        <i class="bi bi-list-check"></i>
-        <div><strong>{{ reportes.length }}</strong><small>Total</small></div>
+  <!-- CONTADORES -->
+  <div class="resumen">
+    <div class="resumen-item t-azul" style="animation-delay: 0s;">
+      <i class="bi bi-list-check"></i>
+      <div><strong>{{ reportes.length }}</strong><small>Total</small></div>
+    </div>
+    <div class="resumen-item t-amarillo" style="animation-delay: .08s;">
+      <i class="bi bi-binoculars"></i>
+      <div><strong>{{ contar('REPORTADO') }}</strong><small>Buscando</small></div>
+    </div>
+    <div class="resumen-item t-verde" style="animation-delay: .16s;">
+      <i class="bi bi-emoji-smile"></i>
+      <div><strong>{{ contar('RECUPERADO') }}</strong><small>Recuperados</small></div>
+    </div>
+    <div class="resumen-item t-gris" style="animation-delay: .24s;">
+      <i class="bi bi-slash-circle"></i>
+      <div><strong>{{ contar('CANCELADO') }}</strong><small>Cancelados</small></div>
+    </div>
+  </div>
+
+  @if (embebido) {
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="subtitulo">Tus objetos reportados</span>
+    <a class="btn btn-sm btn-outline-primario" routerLink="/reportar-perdida">
+      <i class="bi bi-plus-lg"></i> Reportar pérdida
+    </a>
+  </div>
+  }
+
+  <!-- TARJETAS -->
+  @for (r of reportes; track r.idReportePerdida; let i = $index) {
+  <div class="par" [class.dividido]="esSeleccionado(r)" [class.cerrando]="cerrando && esSeleccionado(r)"
+    [style.animation-delay.s]="i * 0.1">
+
+    <!-- ===== IZQUIERDA: MI REPORTE ===== -->
+    <div class="reporte {{ claseEstado(r.estado) }}" [class.abierto]="esSeleccionado(r)">
+      <div class="d-flex align-items-start gap-3">
+        <div class="reporte-icono"><i class="bi {{ iconoCategoria(r.categoria) }}"></i></div>
+        <div class="flex-grow-1 min-w-0">
+          <h6 class="reporte-titulo">{{ r.nombreObjeto }}</h6>
+          <span class="reporte-categoria"><i class="bi bi-tag"></i> {{ r.categoria }}</span>
+        </div>
+        <span class="estado" [class.vivo]="r.estado === 'REPORTADO'">
+          <span class="punto"></span> {{ textoEstado(r.estado) }}
+        </span>
       </div>
-      <div class="resumen-item t-amarillo" style="animation-delay: .08s;">
-        <i class="bi bi-binoculars"></i>
-        <div><strong>{{ contar('REPORTADO') }}</strong><small>Buscando</small></div>
+
+      <!-- DATOS -->
+      <div class="datos">
+        <div class="dato">
+          <i class="bi bi-geo-alt"></i>
+          <div><small>Dónde</small><span>{{ r.ubicacionPerdida || 'Sin indicar' }}</span></div>
+        </div>
+        <div class="dato">
+          <i class="bi bi-calendar-x"></i>
+          <div><small>Perdido el</small><span>{{ r.fechaPerdida ? (r.fechaPerdida | date:'dd/MM/yyyy') : '—' }}</span>
+          </div>
+        </div>
+        <div class="dato">
+          <i class="bi bi-send"></i>
+          <div><small>Reportado el</small><span>{{ r.fechaReporte | date:'dd/MM/yyyy HH:mm' }}</span></div>
+        </div>
       </div>
-      <div class="resumen-item t-verde" style="animation-delay: .16s;">
-        <i class="bi bi-emoji-smile"></i>
-        <div><strong>{{ contar('RECUPERADO') }}</strong><small>Recuperados</small></div>
+
+      <!-- PIE -->
+      @if (r.estado === 'REPORTADO') {
+      <div class="pie">
+        <span class="buscando"><span class="radar"></span> Seguimos buscando tu objeto</span>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-sm btn-success rounded-pill px-3" (click)="marcarRecuperado(r)"
+            [disabled]="recuperando === r.idReportePerdida">
+            @if (recuperando === r.idReportePerdida) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            } @else {
+            <i class="bi bi-emoji-smile"></i>
+            }
+            ¡Ya lo recuperé!
+          </button>
+          <button type="button" class="btn btn-sm btn-sugerencias" [class.activo]="esSeleccionado(r) && !cerrando"
+            (click)="alternarSugerencias(r)">
+            <i class="bi" [class.bi-stars]="!esSeleccionado(r) || cerrando"
+              [class.bi-chevron-left]="esSeleccionado(r) && !cerrando"></i>
+            {{ esSeleccionado(r) && !cerrando ? 'Ocultar coincidencias' : 'Ver coincidencias' }}
+          </button>
+        </div>
       </div>
-      <div class="resumen-item t-gris" style="animation-delay: .24s;">
-        <i class="bi bi-slash-circle"></i>
-        <div><strong>{{ contar('CANCELADO') }}</strong><small>Cancelados</small></div>
-      </div>
+      } @else if (r.estado === 'RECUPERADO') {
+      <div class="mensaje-final recuperado"><i class="bi bi-emoji-smile"></i> ¡Recuperaste este objeto!</div>
+      } @else {
+      <div class="mensaje-final"><i class="bi bi-slash-circle"></i> Este reporte fue cancelado.</div>
+      }
     </div>
 
-    @if (embebido) {
+    <!-- ===== DERECHA: COINCIDENCIAS (crece de pequeño a grande) ===== -->
+    @if (esSeleccionado(r)) {
+    <div class="panel-coincidencia">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <span class="subtitulo">Tus objetos reportados</span>
-        <a class="btn btn-sm btn-outline-primario" routerLink="/reportar-perdida">
-          <i class="bi bi-plus-lg"></i> Reportar pérdida
-        </a>
+        <span class="panel-titulo"><i class="bi bi-stars"></i> Coincidencias</span>
+        <button type="button" class="btn-cerrar" (click)="cerrarSugerencias()" title="Cerrar">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
-    }
 
-    <!-- TARJETAS -->
-    @for (r of reportes; track r.idReportePerdida; let i = $index) {
-      <div class="reporte {{ claseEstado(r.estado) }}" [class.abierto]="esSeleccionado(r)"
-        [style.animation-delay.s]="i * 0.1">
-
-        <div class="d-flex align-items-start gap-3">
-          <div class="reporte-icono"><i class="bi {{ iconoCategoria(r.categoria) }}"></i></div>
-          <div class="flex-grow-1 min-w-0">
-            <h6 class="reporte-titulo">{{ r.nombreObjeto }}</h6>
-            <span class="reporte-categoria"><i class="bi bi-tag"></i> {{ r.categoria }}</span>
+      @if (buscandoSugerencias) {
+      <div class="buscando-sugerencias">
+        <div class="lupa"><i class="bi bi-search"></i></div>
+        Buscando objetos parecidos...
+      </div>
+      } @else if (resultado) {
+      @if (mejor; as m) {
+      <!-- MEJOR COINCIDENCIA -->
+      <div class="mejor {{ claseMejor(m.nivelCoincidencia) }}">
+        <div class="mejor-foto">
+          <span class="cinta-mejor"><i class="bi bi-star-fill"></i> Mejor coincidencia</span>
+          @if (publico(m); as o) {
+          @if (o.imagenUrl && !imagenRota.has(o.idCustodia)) {
+          <img [src]="o.imagenUrl" [alt]="o.nombre" (error)="imagenRota.add(o.idCustodia)">
+          } @else {
+          <div class="foto-vacia">
+            <i class="bi {{ iconoCategoria(m.categoria) }}"></i>
+            <small>Sin foto</small>
           </div>
-          <span class="estado" [class.vivo]="r.estado === 'REPORTADO'">
-            <span class="punto"></span> {{ textoEstado(r.estado) }}
-          </span>
+          }
+          } @else {
+          <div class="foto-vacia">
+            <i class="bi {{ iconoCategoria(m.categoria) }}"></i>
+            <small>La foto se verá cuando llegue a custodia</small>
+          </div>
+          }
         </div>
 
-        <!-- DATOS -->
-        <div class="datos">
-          <div class="dato">
-            <i class="bi bi-geo-alt"></i>
-            <div><small>Dónde</small><span>{{ r.ubicacionPerdida || 'Sin indicar' }}</span></div>
+        <div class="mejor-cuerpo">
+          @if (publico(m); as o) {
+          <h6>{{ o.nombre }}</h6>
+          <small class="text-muted"><i class="bi bi-tag"></i> {{ o.categoria }}</small>
+          <div class="mejor-dato">
+            <i class="bi bi-geo-alt-fill"></i> En custodia en <strong>{{ o.ubicacionActual || 'Garita' }}</strong>
           </div>
-          <div class="dato">
-            <i class="bi bi-calendar-x"></i>
-            <div><small>Perdido el</small><span>{{ r.fechaPerdida ? (r.fechaPerdida | date:'dd/MM/yyyy') : '—' }}</span></div>
+          } @else {
+          <h6>{{ m.categoria }}</h6>
+          <small class="text-muted">{{ textoOrigen(m.origen) }}</small>
+          <div class="mejor-dato">
+            <i class="bi bi-hourglass-split"></i> Aún no llega a un punto de custodia
           </div>
-          <div class="dato">
-            <i class="bi bi-send"></i>
-            <div><small>Reportado el</small><span>{{ r.fechaReporte | date:'dd/MM/yyyy HH:mm' }}</span></div>
+          }
+
+          <div class="medidor-nivel">
+            <div class="d-flex justify-content-between small mb-1">
+              <span>Nivel de coincidencia</span>
+              <strong class="nivel-texto">{{ m.nivelCoincidencia }}</strong>
+            </div>
+            <div class="medidor-barra"><span [style.width.%]="nivelPct(m.nivelCoincidencia)"></span></div>
           </div>
+
+          <button type="button" class="btn btn-sm btn-upeu w-100 mt-3" (click)="verPasos = !verPasos">
+            <i class="bi" [class.bi-signpost-2]="!verPasos" [class.bi-chevron-up]="verPasos"></i>
+            ¿Cómo lo recupero?
+          </button>
+          @if (verPasos) {
+          <ol class="pasos-recuperar">
+            <li>Acércate a <strong>{{ publico(m)?.ubicacionActual || 'Garita' }}</strong> con tu DNI.</li>
+            <li>Indica tu N° de reporte <strong>#{{ r.idReportePerdida }}</strong>.</li>
+          </ol>
+          }
         </div>
-
-        <!-- PIE -->
-        @if (r.estado === 'REPORTADO') {
-          <div class="pie">
-            <span class="buscando"><span class="radar"></span> Seguimos buscando tu objeto</span>
-            <button type="button" class="btn btn-sm btn-sugerencias" (click)="alternarSugerencias(r)">
-              <i class="bi" [class.bi-stars]="!esSeleccionado(r)" [class.bi-chevron-up]="esSeleccionado(r)"></i>
-              {{ esSeleccionado(r) ? 'Ocultar sugerencias' : 'Ver sugerencias' }}
-            </button>
-          </div>
-        } @else if (r.estado === 'RECUPERADO') {
-          <div class="mensaje-final recuperado"><i class="bi bi-emoji-smile"></i> ¡Recuperaste este objeto!</div>
-        } @else {
-          <div class="mensaje-final"><i class="bi bi-slash-circle"></i> Este reporte fue cancelado.</div>
-        }
-
-        <!-- SUGERENCIAS (se despliegan dentro de la tarjeta) -->
-        @if (esSeleccionado(r)) {
-          <div class="sugerencias">
-            @if (buscandoSugerencias) {
-              <div class="buscando-sugerencias">
-                <div class="lupa"><i class="bi bi-search"></i></div>
-                Buscando objetos parecidos...
-              </div>
-            } @else if (resultado) {
-              @if (resultado.aviso) {
-                <div class="aviso"><i class="bi bi-info-circle"></i> {{ resultado.aviso }}</div>
-              }
-
-              @for (s of resultado.sugerencias; track s.origen + s.idReferencia; let j = $index) {
-                <div class="sugerencia" [style.animation-delay.s]="j * 0.08">
-                  <div class="sugerencia-icono"><i class="bi bi-box-seam"></i></div>
-                  <div class="flex-grow-1">
-                    <strong>{{ textoOrigen(s.origen) }}</strong>
-                    <small class="d-block text-muted">Ref. #{{ s.idReferencia }} · {{ s.categoria }}</small>
-                  </div>
-                  <span class="nivel {{ claseNivel(s.nivelCoincidencia) }}">{{ s.nivelCoincidencia }}</span>
-                </div>
-              } @empty {
-                <div class="sin-sugerencias">
-                  <i class="bi bi-hourglass-split"></i>
-                  Por ahora no hay objetos parecidos. Te avisaremos si aparece alguno.
-                </div>
-              }
-
-              @if (resultado.sugerencias.length > 0) {
-                <p class="nota-seguridad">
-                  <i class="bi bi-shield-lock"></i> Por seguridad no mostramos fotos ni detalles.
-                  Acércate a la <strong>Garita</strong> con tu DNI, el N° de tu reporte
-                  (#{{ r.idReportePerdida }}) y la referencia para verificar si es tuyo.
-                </p>
-              }
-            }
-          </div>
-        }
       </div>
+
+      <!-- OTRAS -->
+      @if (otras.length > 0) {
+      <small class="otras-titulo">Otras posibles ({{ otras.length }})</small>
+      @for (s of otras; track s.origen + s.idReferencia) {
+      <div class="sugerencia">
+        <div class="sugerencia-icono"><i class="bi {{ iconoCategoria(s.categoria) }}"></i></div>
+        <div class="flex-grow-1 min-w-0">
+          <strong class="d-block text-truncate">{{ publico(s)?.nombre || s.categoria }}</strong>
+          <small class="text-muted">{{ textoOrigen(s.origen) }}</small>
+        </div>
+        <span class="nivel {{ claseNivel(s.nivelCoincidencia) }}">{{ s.nivelCoincidencia }}</span>
+      </div>
+      }
+      }
+      } @else {
+      <div class="sin-sugerencias">
+        <div class="lupa"><i class="bi bi-hourglass-split"></i></div>
+        Por ahora no hay objetos parecidos.<br>Te avisaremos si aparece alguno.
+      </div>
+      }
+
+      @if (resultado.aviso) {
+      <p class="nota-seguridad"><i class="bi bi-shield-lock"></i> {{ resultado.aviso }}</p>
+      }
+      }
+    </div>
     }
+  </div>
+  }
   }
 </div>

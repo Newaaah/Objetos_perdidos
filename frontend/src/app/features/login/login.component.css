@@ -244,6 +244,76 @@
   margin: 1.5rem 0 0;
 }
 
+/* =========================================================
+   MODO OSCURO (solo se activa con data-bs-theme="dark")
+   ========================================================= */
+:host-context([data-bs-theme="dark"]) .velo {
+  background:
+    linear-gradient(115deg, rgba(5, 12, 26, .95) 0%, rgba(8, 24, 48, .86) 45%, rgba(8, 24, 48, .45) 100%);
+}
+
+:host-context([data-bs-theme="dark"]) .tarjeta {
+  background: rgba(15, 24, 42, .88) !important;
+  border: 1px solid rgba(124, 192, 255, .18) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, .55);
+}
+
+:host-context([data-bs-theme="dark"]) .tarjeta-encabezado h2 {
+  color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .tarjeta-encabezado p {
+  color: #94a3b8;
+}
+
+:host-context([data-bs-theme="dark"]) .etiqueta {
+  color: #cbd5e1;
+}
+
+:host-context([data-bs-theme="dark"]) .campo {
+  background: #0b1424;
+  border-color: #24314d;
+}
+
+:host-context([data-bs-theme="dark"]) .campo:focus-within {
+  background: #0b1424;
+  border-color: #7cc0ff;
+  box-shadow: 0 0 0 4px rgba(124, 192, 255, .15);
+}
+
+:host-context([data-bs-theme="dark"]) .campo > i,
+:host-context([data-bs-theme="dark"]) .ojo {
+  color: #64748b;
+}
+
+:host-context([data-bs-theme="dark"]) .campo:focus-within > i,
+:host-context([data-bs-theme="dark"]) .ojo:hover {
+  color: #7cc0ff;
+}
+
+:host-context([data-bs-theme="dark"]) .campo input {
+  color: #f1f5f9;
+}
+
+:host-context([data-bs-theme="dark"]) .campo input::placeholder {
+  color: #64748b;
+}
+
+/* Evita que el autocompletado del navegador ponga el campo blanco */
+:host-context([data-bs-theme="dark"]) .campo input:-webkit-autofill {
+  -webkit-text-fill-color: #f1f5f9;
+  -webkit-box-shadow: 0 0 0 1000px #0b1424 inset;
+  caret-color: #f1f5f9;
+}
+
+:host-context([data-bs-theme="dark"]) .ayuda {
+  color: #94a3b8;
+}
+
+:host-context([data-bs-theme="dark"]) .pie {
+  color: #64748b;
+}
+
 /* ===== ANIMACIONES ===== */
 @keyframes zoomLento {
   from { transform: scale(1); }

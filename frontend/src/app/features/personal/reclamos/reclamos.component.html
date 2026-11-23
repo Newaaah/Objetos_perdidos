@@ -40,10 +40,12 @@
                 @if (r.idEntrega) { <small> · Entrega #{{ r.idEntrega }}</small> }
                 @if (r.tieneEvidencia) { <i class="bi bi-image ms-1" title="Tiene evidencia"></i> }
                 <br>
-                <small class="texto-corto">{{ r.descripcion }}</small><br>
+                <small class="texto-corto">{{ r.descripcion }}</small>
                 <small>{{ r.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small>
               </div>
-              <span class="badge {{ claseEstado(r.estado) }}">{{ r.estado }}</span>
+              <span class="badge text-capitalize {{ claseEstado(r.estado) }}">
+                {{ r.estado.replace('_', ' ').toLowerCase() }}
+              </span>
             </div>
           </button>
           } @empty {
@@ -60,36 +62,52 @@
     <!-- DETALLE -->
     <div class="col-lg-6">
       @if (seleccionado) {
-      <div class="card shadow">
+      <div class="card shadow detalle-reclamo">
         <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
-          <h6 class="m-0">Reclamo #{{ seleccionado.idReclamo }}</h6>
+          <h6 class="m-0"><i class="bi bi-flag"></i> Reclamo #{{ seleccionado.idReclamo }}</h6>
           <button class="btn-close btn-close-white" (click)="cerrarPanel()"></button>
         </div>
         <div class="card-body">
-          <div class="d-flex justify-content-between mb-2">
-            <span class="badge {{ claseEstado(seleccionado.estado) }}">{{ seleccionado.estado }}</span>
-            <small class="text-muted">{{ seleccionado.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</small>
+
+          <!-- Estado y fecha -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge text-capitalize {{ claseEstado(seleccionado.estado) }}">
+              {{ seleccionado.estado.replace('_', ' ').toLowerCase() }}
+            </span>
+            <small class="text-muted">
+              <i class="bi bi-calendar3"></i> {{ seleccionado.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}
+            </small>
           </div>
 
-          <div class="row small mb-3">
-            <div class="col-6"><strong>Entrega:</strong> {{ seleccionado.idEntrega ? '#' + seleccionado.idEntrega : '—'
-              }}</div>
-            <div class="col-6"><strong>Custodia:</strong> {{ seleccionado.idCustodia ? '#' + seleccionado.idCustodia :
-              '—' }}</div>
+          <!-- Datos -->
+          <div class="datos-reclamo mb-3">
+            <div class="dato-reclamo">
+              <i class="bi bi-box-arrow-right"></i>
+              <div><small>Entrega</small><strong>{{ seleccionado.idEntrega ? '#' + seleccionado.idEntrega : '—' }}</strong></div>
+            </div>
+            <div class="dato-reclamo">
+              <i class="bi bi-box-seam"></i>
+              <div><small>Custodia</small><strong>{{ seleccionado.idCustodia ? '#' + seleccionado.idCustodia : '—' }}</strong></div>
+            </div>
           </div>
 
-          <p class="mb-1"><strong>Lo que dice el estudiante:</strong></p>
-          <p class="p-2 bg-light rounded">{{ seleccionado.descripcion }}</p>
+          <!-- Lo que dice el estudiante -->
+          <span class="titulo-seccion"><i class="bi bi-chat-quote"></i> Lo que dice el estudiante</span>
+          <div class="cita-reclamo mb-3">{{ seleccionado.descripcion }}</div>
 
+          <!-- Evidencia -->
           @if (seleccionado.tieneEvidencia) {
-          <p class="mb-1"><strong>Evidencia:</strong></p>
-          @if (foto) {
-          <a [href]="foto" target="_blank" title="Ver en grande">
-            <img [src]="foto" class="evidencia rounded border mb-3" alt="Evidencia del reclamo">
-          </a>
-          } @else {
-          <div class="text-muted small mb-3">Cargando evidencia...</div>
-          }
+          <span class="titulo-seccion"><i class="bi bi-image"></i> Evidencia</span>
+          <div class="evidencia-caja mb-3">
+            @if (foto) {
+            <a [href]="foto" target="_blank" title="Ver en grande">
+              <img [src]="foto" class="evidencia" alt="Evidencia del reclamo">
+            </a>
+            <small class="ver-grande"><i class="bi bi-arrows-fullscreen"></i> Clic para ver en grande</small>
+            } @else {
+            <div class="text-muted small py-4"><span class="spinner-border spinner-border-sm me-1"></span> Cargando evidencia...</div>
+            }
+          </div>
           }
 
           @if (abierto(seleccionado)) {
@@ -99,8 +117,9 @@
           </button>
           }
 
-          <label class="form-label fw-semibold">Resolución (para cerrar) *</label>
-          <textarea class="form-control mb-1" rows="3" maxlength="500" [(ngModel)]="resolucion"
+          <!-- Resolucion (debajo, en su propia linea) -->
+          <label class="form-label d-block mt-2" for="resolucion">Resolución (para cerrar) *</label>
+          <textarea id="resolucion" class="form-control mb-1" rows="3" maxlength="500" [(ngModel)]="resolucion"
             placeholder="Ej.: Se verificó con la evidencia que el objeto le pertenece; se coordinará la devolución."></textarea>
           <div class="d-flex justify-content-between mb-3">
             <small [class.text-danger]="resolucion.trim().length > 0 && resolucion.trim().length < 10">Mínimo 10

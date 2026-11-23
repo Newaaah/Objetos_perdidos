@@ -55,6 +55,13 @@
         }
       </ul>
 
+      <!-- MODO CLARO / OSCURO -->
+      <button type="button" class="btn-tema" [class.oscuro]="tema.oscuro" (click)="tema.alternar()"
+        [title]="tema.oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        <i class="bi bi-moon-stars-fill luna"></i>
+        <i class="bi bi-sun-fill sol"></i>
+      </button>
+
       <app-campana />
 
       <!-- USUARIO -->

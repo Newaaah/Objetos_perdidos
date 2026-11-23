@@ -1,5 +1,4 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, forkJoin, of, Subscription, switchMap, timer } from 'rxjs';
 import { NotificacionService } from '../../core/services/notificacion.service';
@@ -9,7 +8,7 @@ import { Notificacion } from '../../core/interfaces/notificacion.interface';
 @Component({
   selector: 'app-campana',
   standalone: true,
-  imports: [DatePipe],
+  imports: [],
   templateUrl: './campana.component.html',
   styleUrl: './campana.component.css'
 })
@@ -43,8 +42,8 @@ export class CampanaComponent implements OnInit, OnDestroy {
         next: () => n.leida = true
       });
     }
-    const ruta = this.rutaDe(n);
-    if (ruta) this.router.navigate([ruta]);
+    const tab = this.pestanaDe(n);
+    if (tab) this.router.navigate(['/mi-cuenta'], { queryParams: { tab } });
   }
 
   marcarTodas(event: Event) {
@@ -56,13 +55,16 @@ export class CampanaComponent implements OnInit, OnDestroy {
     });
   }
 
-  private rutaDe(n: Notificacion): string | null {
+  // A que pestaña de "Mi cuenta" lleva cada notificacion (solo estudiante)
+  private pestanaDe(n: Notificacion): string | null {
     if (this.authService.getRol() !== 'ESTUDIANTE') return null;
-    if (n.idReportePerdida) return '/mis-reportes';
-    if (n.idHallazgo) return '/reportar-hallazgo';
+    if ((n.tipo || '').toUpperCase().includes('RECLAMO')) return 'reclamos';
+    if (n.idReportePerdida) return 'reportes';
+    if (n.idHallazgo) return 'hallazgos';
     return null;
   }
 
+  // ===== Diseño =====
   icono(tipo: string): string {
     const t = (tipo || '').toUpperCase();
     if (t.includes('COINCID') || t.includes('SUGER')) return 'bi-stars';
@@ -70,5 +72,28 @@ export class CampanaComponent implements OnInit, OnDestroy {
     if (t.includes('ENTREG')) return 'bi-box-arrow-right';
     if (t.includes('HALLAZGO') || t.includes('CUSTOD')) return 'bi-box-seam';
     return 'bi-bell';
+  }
+
+  color(tipo: string): string {
+    const t = (tipo || '').toUpperCase();
+    if (t.includes('COINCID') || t.includes('SUGER')) return 't-morado';
+    if (t.includes('RECLAMO')) return 't-naranja';
+    if (t.includes('ENTREG')) return 't-verde';
+    if (t.includes('HALLAZGO') || t.includes('CUSTOD')) return 't-azul';
+    return 't-gris';
+  }
+
+  // "hace 5 min", "hace 2 h", "hace 3 días"
+  tiempo(fecha: string | Date): string {
+    const ms = Date.now() - new Date(fecha).getTime();
+    const min = Math.floor(ms / 60000);
+    if (isNaN(min)) return '';
+    if (min < 1) return 'justo ahora';
+    if (min < 60) return `hace ${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `hace ${h} h`;
+    const d = Math.floor(h / 24);
+    if (d < 7) return d === 1 ? 'ayer' : `hace ${d} días`;
+    return new Date(fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
   }
 }

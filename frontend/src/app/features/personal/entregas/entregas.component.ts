@@ -5,9 +5,30 @@ import { finalize } from 'rxjs';
 import { ObjetoService } from '../../../core/services/objeto.service';
 import { EntregaService } from '../../../core/services/entrega.service';
 import { PersonaService } from '../../../core/services/persona.service';
+import { PerdidaService } from '../../../core/services/perdida.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Objeto } from '../../../core/interfaces/objeto.interface';
 import { PersonaResumen } from '../../../core/interfaces/persona.interface';
+import { MiPerdida } from '../../../core/interfaces/perdida.interface';
+
+// Datos nuevos que manda el backend al verificar la custodia
+interface EstadoConConfirmada {
+  disponibleParaEntrega: boolean;
+  nombreObjeto: string;
+  idEntrega?: number;
+  idCoincidenciaConfirmada?: number;
+  idReporteConfirmado?: number;
+  nombreReporteConfirmado?: string;
+  idPersonaReporteConfirmado?: number;
+}
+
+// Coincidencia CONFIRMADA del objeto elegido
+interface Confirmada {
+  idCoincidencia: number;
+  idReporte: number;
+  nombre: string;
+  idPersona: number;
+}
 
 @Component({
   selector: 'app-entregas',
@@ -20,6 +41,7 @@ export class EntregasComponent implements OnInit, OnDestroy {
   private objetoService = inject(ObjetoService);
   private entregaService = inject(EntregaService);
   private personaService = inject(PersonaService);
+  private perdidaService = inject(PerdidaService);
   private alertService = inject(AlertService);
 
   @ViewChild('archivo') archivo?: ElementRef<HTMLInputElement>;
@@ -33,6 +55,14 @@ export class EntregasComponent implements OnInit, OnDestroy {
   codigo = '';
   persona: PersonaResumen | null = null;
   buscandoPersona = false;
+
+  // Reportes de perdida abiertos de la persona que recibe
+  reportesAbiertos: MiPerdida[] = [];
+  cargandoReportes = false;
+
+  // Si el objeto tiene coincidencia CONFIRMADA, se vincula sola
+  confirmada: Confirmada | null = null;
+  idCoincidencia: number | null = null;
 
   idReportePerdida: number | null = null;
   observacion = '';
@@ -51,8 +81,13 @@ export class EntregasComponent implements OnInit, OnDestroy {
       String(o.idCustodia) === f);
   }
 
+  // La persona buscada no es la dueña del reporte confirmado
+  get personaNoCoincide(): boolean {
+    return !!this.confirmada && !!this.persona && this.persona.idPersona !== this.confirmada.idPersona;
+  }
+
   get listo(): boolean {
-    return !!this.seleccionado && !!this.persona && !!this.foto &&
+    return !!this.seleccionado && !!this.persona && !!this.foto && !this.personaNoCoincide &&
       this.observacion.trim().length > 0 && this.confirmoIdentidad && this.confirmoEntrega;
   }
 
@@ -83,7 +118,8 @@ export class EntregasComponent implements OnInit, OnDestroy {
     this.entregaService.estadoCustodia(o.idCustodia)
       .pipe(finalize(() => this.verificando = false))
       .subscribe({
-        next: (estado) => {
+        next: (respuesta) => {
+          const estado = respuesta as unknown as EstadoConConfirmada;
           if (!estado.disponibleParaEntrega) {
             this.alertService.error(`"${estado.nombreObjeto}" ya no está disponible` +
               (estado.idEntrega ? ` (entrega #${estado.idEntrega}).` : '.'));
@@ -92,6 +128,18 @@ export class EntregasComponent implements OnInit, OnDestroy {
           }
           this.limpiar();
           this.seleccionado = o;
+
+          // Coincidencia confirmada: se vincula sola
+          if (estado.idCoincidenciaConfirmada && estado.idReporteConfirmado && estado.idPersonaReporteConfirmado) {
+            this.confirmada = {
+              idCoincidencia: estado.idCoincidenciaConfirmada,
+              idReporte: estado.idReporteConfirmado,
+              nombre: estado.nombreReporteConfirmado || 'Reporte de pérdida',
+              idPersona: estado.idPersonaReporteConfirmado
+            };
+            this.idCoincidencia = this.confirmada.idCoincidencia;
+            this.idReportePerdida = this.confirmada.idReporte;
+          }
         },
         error: () => this.alertService.error('No se pudo verificar el estado de la custodia')
       });
@@ -109,14 +157,39 @@ export class EntregasComponent implements OnInit, OnDestroy {
     this.personaService.buscar(c)
       .pipe(finalize(() => this.buscandoPersona = false))
       .subscribe({
-        next: (p) => this.persona = p,
+        next: (p) => {
+          this.persona = p;
+          // con coincidencia confirmada no hace falta elegir reporte
+          if (!this.confirmada) this.cargarReportes(p.idPersona);
+        },
         error: () => this.alertService.error('No se encontró a nadie con ese código o DNI')
       });
+  }
+
+  // Trae los reportes "en busqueda" de esa persona para vincular uno
+  private cargarReportes(idPersona: number) {
+    this.reportesAbiertos = [];
+    this.idReportePerdida = null;
+    this.cargandoReportes = true;
+    this.perdidaService.abiertas(idPersona)
+      .pipe(finalize(() => this.cargandoReportes = false))
+      .subscribe({
+        next: (data) => this.reportesAbiertos = data,
+        error: () => this.reportesAbiertos = []
+      });
+  }
+
+  // Toca un reporte para vincularlo; si lo vuelve a tocar, se quita
+  elegirReporte(r: MiPerdida) {
+    this.idReportePerdida = this.idReportePerdida === r.idReportePerdida ? null : r.idReportePerdida;
   }
 
   quitarPersona() {
     this.persona = null;
     this.codigo = '';
+    this.reportesAbiertos = [];
+    // si hay coincidencia confirmada, su reporte se mantiene
+    this.idReportePerdida = this.confirmada ? this.confirmada.idReporte : null;
   }
 
   seleccionarFoto(event: Event) {
@@ -159,6 +232,7 @@ export class EntregasComponent implements OnInit, OnDestroy {
     datos.append('observacionVerificacion', this.observacion.trim());
     datos.append('confirmoVerificacionPresencial', 'true');
     datos.append('confirmoEntregaFisica', 'true');
+    if (this.idCoincidencia) datos.append('idCoincidencia', String(this.idCoincidencia));
     if (this.idReportePerdida) datos.append('idReportePerdida', String(this.idReportePerdida));
     datos.append('fotografia', this.foto);
 
@@ -167,7 +241,8 @@ export class EntregasComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.guardando = false))
       .subscribe({
         next: (e) => {
-          this.alertService.success(`Entrega #${e.idEntrega} registrada. El objeto ya no figura en custodia.`, 'Objeto entregado');
+          const extra = this.idReportePerdida ? ' Su reporte de pérdida quedó como Recuperado.' : '';
+          this.alertService.success(`Entrega #${e.idEntrega} registrada. El objeto ya no figura en custodia.${extra}`, 'Objeto entregado');
           this.cancelar();
           this.loadingObjetos();
         },
@@ -177,6 +252,8 @@ export class EntregasComponent implements OnInit, OnDestroy {
   }
 
   private limpiar() {
+    this.confirmada = null;
+    this.idCoincidencia = null;
     this.quitarPersona();
     this.quitarFoto();
     this.idReportePerdida = null;

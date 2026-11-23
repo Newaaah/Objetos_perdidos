@@ -153,6 +153,89 @@ a.indicador:hover {
     --fondo: #fee2e2;
 }
 
+/* =========================================================
+   MODO OSCURO (solo se activa con data-bs-theme="dark")
+   ========================================================= */
+:host-context([data-bs-theme="dark"]) .indicador {
+    background: #121c30;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+:host-context([data-bs-theme="dark"]) .indicador strong {
+    color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .indicador small {
+    color: #94a3b8;
+}
+
+/* Tarjeta de la tasa: deja de ser blanca */
+:host-context([data-bs-theme="dark"]) .tasa {
+    background:
+        radial-gradient(circle at 95% 0%, rgba(34, 197, 94, .12), transparent 45%),
+        linear-gradient(120deg, #121c30 0%, #16223a 100%) !important;
+}
+
+:host-context([data-bs-theme="dark"]) .tasa-numero {
+    color: #7cc0ff;
+}
+
+:host-context([data-bs-theme="dark"]) .tasa h6 {
+    color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .barra-tasa {
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+}
+
+/* Titulo "Administracion" */
+:host-context([data-bs-theme="dark"]) .seccion {
+    color: #e2e8f0;
+}
+
+/* Tarjetas de modulos */
+:host-context([data-bs-theme="dark"]) .modulo h6 {
+    color: #ffffff;
+}
+
+:host-context([data-bs-theme="dark"]) .modulo p {
+    color: #94a3b8;
+}
+
+:host-context([data-bs-theme="dark"]) .modulo .extra {
+    color: #cbd5e1;
+}
+
+:host-context([data-bs-theme="dark"]) .ir {
+    color: #7cc0ff;
+}
+
+/* Colores de iconos con fondo traslucido */
+:host-context([data-bs-theme="dark"]) .azul {
+    --tono: #7cc0ff;
+    --fondo: rgba(124, 192, 255, .14);
+}
+
+:host-context([data-bs-theme="dark"]) .verde {
+    --tono: #4ade80;
+    --fondo: rgba(74, 222, 128, .14);
+}
+
+:host-context([data-bs-theme="dark"]) .amarillo {
+    --tono: #fbbf24;
+    --fondo: rgba(251, 191, 36, .14);
+}
+
+:host-context([data-bs-theme="dark"]) .morado {
+    --tono: #c4b5fd;
+    --fondo: rgba(167, 139, 250, .16);
+}
+
+:host-context([data-bs-theme="dark"]) .rojo {
+    --tono: #f87171;
+    --fondo: rgba(248, 113, 113, .14);
+}
+
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;

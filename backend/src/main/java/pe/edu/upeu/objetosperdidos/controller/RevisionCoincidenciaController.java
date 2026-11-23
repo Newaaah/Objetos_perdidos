@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pe.edu.upeu.objetosperdidos.dto.CandidatosRevisionDTO;
 import pe.edu.upeu.objetosperdidos.dto.CoincidenciaRevisadaDTO;
 import pe.edu.upeu.objetosperdidos.dto.EvaluacionCoincidenciaDTO;
 import pe.edu.upeu.objetosperdidos.dto.RevisarCoincidenciaRequest;
 import pe.edu.upeu.objetosperdidos.security.UsuarioPrincipal;
+import pe.edu.upeu.objetosperdidos.services.CandidatosRevisionService;
 import pe.edu.upeu.objetosperdidos.services.IRevisionCoincidenciaService;
 
 @RestController
@@ -26,9 +28,19 @@ import pe.edu.upeu.objetosperdidos.services.IRevisionCoincidenciaService;
 public class RevisionCoincidenciaController {
 
     private final IRevisionCoincidenciaService servicio;
+    private final CandidatosRevisionService candidatos;   // NUEVO
 
-    public RevisionCoincidenciaController(IRevisionCoincidenciaService servicio) {
+    public RevisionCoincidenciaController(IRevisionCoincidenciaService servicio,
+                                          CandidatosRevisionService candidatos) {
         this.servicio = servicio;
+        this.candidatos = candidatos;
+    }
+
+    // NUEVO
+    @GetMapping("/candidatos")
+    @Operation(summary = "Perdidas en busqueda y hallazgos aprobados para elegir la pareja a evaluar")
+    public ResponseEntity<CandidatosRevisionDTO> candidatos() {
+        return ResponseEntity.ok(candidatos.listar());
     }
 
     @GetMapping("/evaluar")

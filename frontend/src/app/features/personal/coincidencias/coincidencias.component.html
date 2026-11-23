@@ -1,138 +1,268 @@
-<div class="container pagina">
-    <div class="encabezado-pagina">
-        <div class="icono"><i class="bi bi-intersect"></i></div>
-        <div>
-            <h1>Coincidencias</h1>
-            <p>Compara un reporte de pérdida con un hallazgo y registra la decisión.</p>
-        </div>
-    </div>
-
-    <!-- BUSCAR PAREJA -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-                <div class="col-sm-4">
-                    <label class="form-label">N° de reporte de pérdida</label>
-                    <input type="number" class="form-control" min="1" [(ngModel)]="idReportePerdida"
-                        (keydown.enter)="evaluar()">
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-label">N° de hallazgo</label>
-                    <input type="number" class="form-control" min="1" [(ngModel)]="idHallazgo"
-                        (keydown.enter)="evaluar()">
-                </div>
-                <div class="col-sm-4 d-flex gap-2">
-                    <button class="btn btn-primario flex-grow-1" (click)="evaluar()"
-                        [disabled]="evaluando || !idReportePerdida || !idHallazgo">
-                        @if (evaluando) { <span class="spinner-border spinner-border-sm"></span> } @else { <i
-                            class="bi bi-search"></i> Evaluar }
-                    </button>
-                    <button class="btn btn-light" (click)="limpiar()" title="Limpiar"><i
-                            class="bi bi-eraser"></i></button>
-                </div>
+<div class="container pagina" style="max-width: 1080px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="encabezado-pagina">
+            <div class="icono"><i class="bi bi-intersect"></i></div>
+            <div>
+                <h1>Coincidencias</h1>
+                <p>Elige un reporte de pérdida y un hallazgo para compararlos y registrar la decisión.</p>
             </div>
-            <small class="text-muted d-block mt-2">
-                El N° de hallazgo aparece en Revisión de hallazgos y en Recepción; el N° de reporte, en "Mis reportes"
-                del estudiante.
-            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primario btn-sm" (click)="cargarListas()" [disabled]="cargandoListas">
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+            <button class="btn btn-light btn-sm" (click)="limpiar()" title="Limpiar selección">
+                <i class="bi bi-eraser"></i> Limpiar
+            </button>
         </div>
     </div>
 
-    @if (evaluacion) {
-    <!-- AVISOS -->
-    @if (evaluacion.aviso) {
-    <div class="alert alert-info"><i class="bi bi-info-circle"></i> {{ evaluacion.aviso }}</div>
+    <!-- ===== ELEGIR PAREJA ===== -->
+    <div class="row g-4 mb-4">
+        <!-- PERDIDAS -->
+        <div class="col-md-6">
+            <div class="card shadow h-100 selector perdidas-sel">
+                <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0"><i class="bi bi-search"></i> 1. Reporte de pérdida</h6>
+                    <span class="badge bg-light">{{ perdidas.length }}</span>
+                </div>
+                <div class="p-2 border-bottom">
+                    <input type="text" class="form-control form-control-sm"
+                        placeholder="Buscar por objeto, categoría o lugar" [(ngModel)]="filtroPerdida">
+                </div>
+                @if (cargandoListas) {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+                } @else {
+                <div class="lista-sel">
+                    @for (p of perdidasFiltradas; track p.idReportePerdida; let i = $index) {
+                    <button type="button" class="opcion"
+                        [class.elegida]="perdidaSel?.idReportePerdida === p.idReportePerdida" (click)="elegirPerdida(p)"
+                        [style.animation-delay.s]="i * 0.03">
+                        <span class="opcion-icono"><i class="bi {{ iconoCategoria(p.categoria) }}"></i></span>
+                        <span class="flex-grow-1 text-start min-w-0">
+                            <strong class="d-block text-truncate">{{ p.nombreObjeto }}</strong>
+                            <small>{{ p.categoria }} · {{ p.ubicacionPerdida || 'Sin lugar' }} · {{ p.fechaReporte |
+                                date:'dd/MM' }}</small>
+                        </span>
+                        <i class="bi marca-sel"
+                            [class.bi-check-circle-fill]="perdidaSel?.idReportePerdida === p.idReportePerdida"
+                            [class.bi-circle]="perdidaSel?.idReportePerdida !== p.idReportePerdida"></i>
+                    </button>
+                    } @empty {
+                    <div class="text-center text-muted py-4">No hay reportes de pérdida en búsqueda.</div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- HALLAZGOS -->
+        <div class="col-md-6">
+            <div class="card shadow h-100 selector hallazgos-sel">
+                <div class="card-header bg-upeu-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0"><i class="bi bi-hand-thumbs-up"></i> 2. Hallazgo</h6>
+                    <span class="badge bg-light">{{ hallazgos.length }}</span>
+                </div>
+                <div class="p-2 border-bottom">
+                    <input type="text" class="form-control form-control-sm"
+                        placeholder="Buscar por objeto, categoría o lugar" [(ngModel)]="filtroHallazgo">
+                </div>
+                @if (cargandoListas) {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+                } @else {
+                <div class="lista-sel">
+                    @for (h of hallazgosFiltrados; track h.idHallazgo; let i = $index) {
+                    <button type="button" class="opcion" [class.elegida]="hallazgoSel?.idHallazgo === h.idHallazgo"
+                        [class.sugerida]="mismaCategoria(h)" (click)="elegirHallazgo(h)"
+                        [style.animation-delay.s]="i * 0.03">
+                        <span class="opcion-icono"><i class="bi {{ iconoCategoria(h.categoria) }}"></i></span>
+                        <span class="flex-grow-1 text-start min-w-0">
+                            <strong class="d-block text-truncate">{{ h.nombreObjeto }}</strong>
+                            <small>{{ h.categoria }} · {{ h.ubicacionDestino || '—' }} · {{ h.fechaReporte |
+                                date:'dd/MM' }}</small>
+                        </span>
+                        @if (mismaCategoria(h)) {
+                        <span class="chip-sugerida"><i class="bi bi-stars"></i> Misma categoría</span>
+                        }
+                        <i class="bi marca-sel" [class.bi-check-circle-fill]="hallazgoSel?.idHallazgo === h.idHallazgo"
+                            [class.bi-circle]="hallazgoSel?.idHallazgo !== h.idHallazgo"></i>
+                    </button>
+                    } @empty {
+                    <div class="text-center text-muted py-4">No hay hallazgos aprobados pendientes.</div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicacion mientras falta elegir -->
+    @if (!evaluacion && !evaluando) {
+    <div class="pista">
+        <i class="bi bi-hand-index"></i>
+        @if (!perdidaSel && !hallazgoSel) { Elige un reporte de pérdida y un hallazgo para compararlos. }
+        @else if (!perdidaSel) { Ahora elige el reporte de pérdida. }
+        @else { Ahora elige el hallazgo. Los de la misma categoría aparecen primero. }
+    </div>
     }
-    @if (evaluacion.objetoEntregado) {
+    @if (evaluando) {
+    <div class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+    </div>
+    }
+
+    <!-- Se vuelve a dibujar (y animar) en cada evaluacion -->
+    @for (e of (evaluacion ? [evaluacion] : []); track e) {
+
+    <!-- AVISOS -->
+    @if (e.aviso) {
+    <div class="alert alert-info"><i class="bi bi-info-circle"></i> {{ e.aviso }}</div>
+    }
+    @if (e.objetoEntregado) {
     <div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> Este objeto ya fue entregado.</div>
     }
-    @if (evaluacion.decisionExistente) {
+    @if (e.decisionExistente) {
     <div class="alert alert-secondary">
-        <i class="bi bi-lock"></i> Esta pareja ya fue revisada: <strong>{{ evaluacion.decisionExistente }}</strong>.
+        <i class="bi bi-lock"></i> Esta pareja ya fue revisada: <strong>{{ e.decisionExistente }}</strong>.
     </div>
     }
 
-    <div class="row g-4">
-        <!-- COMPARACION -->
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-upeu-primary text-white">
-                    <h6 class="m-0">Comparación</h6>
-                </div>
-                <div class="table-responsive">
-                    <table class="table mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 18%;"></th>
-                                <th>Perdido (reporte #{{ evaluacion.idReportePerdida }})</th>
-                                <th>Hallado (hallazgo #{{ evaluacion.idHallazgo }})</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>Nombre</th>
-                                <td>{{ evaluacion.nombrePerdido }}</td>
-                                <td>{{ evaluacion.nombreHallado }}</td>
-                            </tr>
-                            <tr>
-                                <th>Marca</th>
-                                <td>{{ evaluacion.marcaPerdido || '—' }}</td>
-                                <td>{{ evaluacion.marcaHallado || '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Color</th>
-                                <td>{{ evaluacion.colorPerdido || '—' }}</td>
-                                <td>{{ evaluacion.colorHallado || '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Descripción</th>
-                                <td><small>{{ evaluacion.descripcionPerdido || '—' }}</small></td>
-                                <td><small>{{ evaluacion.descripcionHallado || '—' }}</small></td>
-                            </tr>
-                            <tr>
-                                <th>Estado</th>
-                                <td><span class="badge bg-light text-dark">{{ evaluacion.estadoPerdida }}</span></td>
-                                <td><span class="badge bg-light text-dark">{{ evaluacion.estadoHallazgo }}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <!-- ===== DUELO: PERDIDO vs HALLADO ===== -->
+    <div class="duelo">
+
+        <!-- PERDIDO (entra por la izquierda) -->
+        <div class="lado perdido">
+            <div class="lado-cabecera">
+                <span class="etiqueta-lado"><i class="bi bi-search"></i> Perdido</span>
+                <small>Reporte #{{ e.idReportePerdida }}</small>
+            </div>
+            <div class="lado-foto vacia">
+                <i class="bi bi-person-raised-hand"></i>
+                <small>Reporte del estudiante<br>(no lleva foto)</small>
+            </div>
+            <div class="lado-cuerpo">
+                <h5>{{ e.nombrePerdido }}</h5>
+                <ul class="rasgos">
+                    <li [class.igual]="coincide(e.marcaPerdido, e.marcaHallado)">
+                        <span>Marca</span><strong>{{ e.marcaPerdido || '—' }}</strong>
+                    </li>
+                    <li [class.igual]="coincide(e.colorPerdido, e.colorHallado)">
+                        <span>Color</span><strong>{{ e.colorPerdido || '—' }}</strong>
+                    </li>
+                    <li class="desc">
+                        <span>Descripción</span>
+                        <p>{{ e.descripcionPerdido || '—' }}</p>
+                    </li>
+                    <li><span>Estado</span><span class="chip">{{ bonito(e.estadoPerdida) }}</span></li>
+                </ul>
             </div>
         </div>
 
-        <!-- PUNTAJES Y DECISION -->
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
+        <!-- CENTRO: PUNTAJE -->
+        <div class="centro">
+            <div class="anillo">
+                <svg viewBox="0 0 42 42">
+                    <circle class="anillo-fondo" cx="21" cy="21" r="15.915"></circle>
+                    <circle class="anillo-valor" cx="21" cy="21" r="15.915" [attr.stroke]="colorPuntaje(e.prioridad)"
+                        [style.stroke-dasharray]="e.prioridad + ' ' + (100 - e.prioridad)"></circle>
+                </svg>
+                <div class="anillo-texto">
+                    <strong>{{ e.prioridad }}</strong>
+                    <small [style.color]="colorPuntaje(e.prioridad)">{{ nivel(e.prioridad) }}</small>
+                </div>
+            </div>
+            <span class="vs">VS</span>
+        </div>
+
+        <!-- HALLADO (entra por la derecha) -->
+        <div class="lado hallado">
+            <div class="lado-cabecera">
+                <span class="etiqueta-lado"><i class="bi bi-hand-thumbs-up"></i> Hallado</span>
+                <small>Hallazgo #{{ e.idHallazgo }}</small>
+            </div>
+            @if (fotoHallazgo) {
+            <div class="lado-foto"><img [src]="fotoHallazgo" alt="Foto del hallazgo"></div>
+            } @else if (cargandoFoto) {
+            <div class="lado-foto vacia">
+                <div class="spinner-border text-primary"></div>
+            </div>
+            } @else {
+            <div class="lado-foto vacia"><i class="bi bi-image"></i><small>Sin foto</small></div>
+            }
+            <div class="lado-cuerpo">
+                <h5>{{ e.nombreHallado }}</h5>
+                <ul class="rasgos">
+                    <li [class.igual]="coincide(e.marcaPerdido, e.marcaHallado)">
+                        <span>Marca</span>
+                        <strong>{{ e.marcaHallado || '—' }}
+                            @if (coincide(e.marcaPerdido, e.marcaHallado)) { <i class="bi bi-check-circle-fill"></i> }
+                        </strong>
+                    </li>
+                    <li [class.igual]="coincide(e.colorPerdido, e.colorHallado)">
+                        <span>Color</span>
+                        <strong>{{ e.colorHallado || '—' }}
+                            @if (coincide(e.colorPerdido, e.colorHallado)) { <i class="bi bi-check-circle-fill"></i> }
+                        </strong>
+                    </li>
+                    <li class="desc">
+                        <span>Descripción</span>
+                        <p>{{ e.descripcionHallado || '—' }}</p>
+                    </li>
+                    <li><span>Estado</span><span class="chip">{{ bonito(e.estadoHallazgo) }}</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PUNTAJES Y DECISION ===== -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="card shadow h-100 subir" style="animation-delay: .5s;">
+                <div class="card-header bg-upeu-primary text-white">
+                    <h6 class="m-0"><i class="bi bi-speedometer2"></i> Puntajes</h6>
+                </div>
                 <div class="card-body">
                     @for (m of [
-                    { nombre: 'Similitud', valor: evaluacion.similitud },
-                    { nombre: 'Cobertura', valor: evaluacion.cobertura },
-                    { nombre: 'Prioridad', valor: evaluacion.prioridad }
-                    ]; track m.nombre) {
+                    { nombre: 'Similitud', valor: e.similitud, ayuda: 'Qué tan parecidos son los textos' },
+                    { nombre: 'Cobertura', valor: e.cobertura, ayuda: 'Cuántos datos se pudieron comparar' },
+                    { nombre: 'Prioridad', valor: e.prioridad, ayuda: 'Puntaje final para decidir' }
+                    ]; track m.nombre; let i = $index) {
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between small"><span>{{ m.nombre }}</span><strong>{{ m.valor
-                                }}</strong></div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar {{ claseBarra(m.valor) }}" [style.width.%]="m.valor"></div>
+                        <div class="d-flex justify-content-between small">
+                            <span><strong>{{ m.nombre }}</strong> <span class="text-muted">· {{ m.ayuda }}</span></span>
+                            <strong>{{ m.valor }}</strong>
+                        </div>
+                        <div class="progress" style="height: 9px;">
+                            <div class="progress-bar barra {{ claseBarra(m.valor) }}" [style.width.%]="m.valor"
+                                [style.animation-delay.s]="0.7 + i * 0.2"></div>
                         </div>
                     </div>
                     }
                 </div>
             </div>
+        </div>
 
-            <div class="card shadow">
+        <div class="col-lg-7">
+            <div class="card shadow h-100 subir" style="animation-delay: .65s;">
+                <div class="card-header bg-upeu-primary text-white">
+                    <h6 class="m-0"><i class="bi bi-clipboard-check"></i> Decisión</h6>
+                </div>
                 <div class="card-body">
-                    <label class="form-label fw-semibold">Observación *</label>
+                    <label class="form-label">Observación *</label>
                     <textarea class="form-control mb-3" rows="3" maxlength="255" [(ngModel)]="observacion"
-                        [disabled]="!!evaluacion.decisionExistente"
+                        [disabled]="!!e.decisionExistente"
                         placeholder="Ej.: Coinciden marca, color y el sticker descrito."></textarea>
                     <div class="d-flex gap-2">
                         <button class="btn btn-outline-secondary flex-grow-1" (click)="decidir('DESCARTADA')"
-                            [disabled]="guardando || !!evaluacion.decisionExistente">
+                            [disabled]="guardando || !!e.decisionExistente">
                             <i class="bi bi-x-circle"></i> Descartar
                         </button>
                         <button class="btn btn-upeu flex-grow-1" (click)="decidir('CONFIRMADA')"
-                            [disabled]="guardando || !!evaluacion.decisionExistente">
+                            [disabled]="guardando || !!e.decisionExistente">
                             @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
                             <i class="bi bi-check-circle"></i> Confirmar
                         </button>
@@ -143,8 +273,10 @@
     </div>
 
     <!-- HISTORIAL DEL REPORTE -->
-    <h5 class="mt-5 mb-3">Revisiones del reporte #{{ evaluacion.idReportePerdida }}</h5>
-    <div class="card shadow">
+    <div class="card shadow subir" style="animation-delay: .8s;">
+        <div class="card-header bg-upeu-primary text-white">
+            <h6 class="m-0"><i class="bi bi-clock-history"></i> Revisiones del reporte #{{ e.idReportePerdida }}</h6>
+        </div>
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
                 <thead class="table-light">

@@ -44,3 +44,30 @@ export interface CoincidenciaRevisada {
     fechaRevision: string;
     observacion: string;
 }
+
+// ===== Listas para elegir la pareja (PERSONAL / ADMIN) =====
+export interface PerdidaCandidata {
+    idReportePerdida: number;
+    idObjeto: number;
+    nombreObjeto: string;
+    categoria: string;
+    estado: string;
+    fechaPerdida?: string;
+    fechaReporte: string;
+    ubicacionPerdida?: string;
+}
+
+export interface HallazgoCandidato {
+    idHallazgo: number;
+    idObjeto: number;
+    nombreObjeto: string;
+    categoria: string;
+    estado: string;
+    fechaReporte: string;
+    ubicacionDestino?: string;
+}
+
+export interface CandidatosRevision {
+    perdidas: PerdidaCandidata[];
+    hallazgos: HallazgoCandidato[];
+}

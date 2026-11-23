@@ -9,10 +9,12 @@ import pe.edu.upeu.objetosperdidos.dto.CrearReportePerdidaRequest;
 import pe.edu.upeu.objetosperdidos.dto.MiPerdidaDTO;
 import pe.edu.upeu.objetosperdidos.dto.ReportePerdidaCreadoDTO;
 import pe.edu.upeu.objetosperdidos.entity.Categoria;
+import pe.edu.upeu.objetosperdidos.entity.EstadoReportePerdida;
 import pe.edu.upeu.objetosperdidos.entity.Objeto;
 import pe.edu.upeu.objetosperdidos.entity.Persona;
 import pe.edu.upeu.objetosperdidos.entity.ReportePerdida;
 import pe.edu.upeu.objetosperdidos.entity.Ubicacion;
+import pe.edu.upeu.objetosperdidos.exception.ResourceInUseException;
 import pe.edu.upeu.objetosperdidos.exception.ResourceNotFoundException;
 import pe.edu.upeu.objetosperdidos.repository.CategoriaRepository;
 import pe.edu.upeu.objetosperdidos.repository.ObjetoRepository;
@@ -110,6 +112,35 @@ public class ReportePerdidaServiceImpl implements IReportePerdidaService {
     public List<MiPerdidaDTO> misPerdidas(Long idPersona) {
         // Reutiliza el metodo existente de consulta por propietario.
         return consultas.misPerdidas(idPersona);
+    }
+
+    // NUEVO
+    @Override
+    @Transactional
+    public void marcarRecuperado(Long idReportePerdida, Long idPersona) {
+        // Bloqueo de la fila para que no choque con una entrega al mismo tiempo
+        ReportePerdida reporte = perdidas.bloquearParaEntrega(idReportePerdida)
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte de perdida no encontrado"));
+
+        // Si no es su reporte, respondemos "no encontrado" (no revelamos que existe)
+        if (!reporte.getPersona().getIdPersona().equals(idPersona)) {
+            throw new ResourceNotFoundException("Reporte de perdida no encontrado");
+        }
+        if (reporte.getEstado() != EstadoReportePerdida.REPORTADO) {
+            throw new ResourceInUseException("Solo un reporte en busqueda puede marcarse como recuperado");
+        }
+
+        reporte.setEstado(EstadoReportePerdida.RECUPERADO);
+        perdidas.saveAndFlush(reporte);
+    }
+
+    // NUEVO
+    @Override
+    @Transactional(readOnly = true)
+    public List<MiPerdidaDTO> abiertasDePersona(Long idPersona) {
+        return consultas.misPerdidas(idPersona).stream()
+                .filter(p -> EstadoReportePerdida.REPORTADO.name().equals(p.estado()))
+                .toList();
     }
 
     private String normalizarObligatorio(String valor, String campo) {

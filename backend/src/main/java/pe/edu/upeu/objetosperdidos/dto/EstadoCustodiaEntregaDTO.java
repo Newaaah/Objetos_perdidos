@@ -5,5 +5,10 @@ public record EstadoCustodiaEntregaDTO(
         Long idObjeto,
         String nombreObjeto,
         boolean disponibleParaEntrega,
-        Long idEntrega
+        Long idEntrega,
+        // NUEVO: coincidencia CONFIRMADA del hallazgo de esta custodia (si existe)
+        Long idCoincidenciaConfirmada,
+        Long idReporteConfirmado,
+        String nombreReporteConfirmado,
+        Long idPersonaReporteConfirmado
 ) { }

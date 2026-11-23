@@ -1,18 +1,26 @@
-<div class="container pagina" style="max-width: 760px;">
-  <div class="encabezado-pagina">
-    <div class="icono"><i class="bi bi-search"></i></div>
-    <div>
-      <h1>Reportar pérdida</h1>
-      <p>Cuéntanos qué perdiste; te avisaremos si aparece algo parecido.</p>
+<div class="container pagina" style="max-width: 860px;">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="encabezado-pagina">
+      <div class="icono"><i class="bi bi-search"></i></div>
+      <div>
+        <h1>Reportar pérdida</h1>
+        <p>Cuéntanos qué perdiste; te avisaremos si aparece algo parecido.</p>
+      </div>
     </div>
+    <a class="btn btn-outline-primario btn-sm" href="/mi-cuenta?tab=reportes">
+      <i class="bi bi-clock-history"></i> Ver mis reportes
+    </a>
   </div>
 
   <div class="card shadow">
     <div class="card-header bg-upeu-primary text-white">
-      <h5 class="m-0">Datos del objeto</h5>
+      <h5 class="m-0"><i class="bi bi-box-seam"></i> Datos del objeto</h5>
     </div>
-    <div class="card-body">
+    <div class="card-body p-4">
       <form [formGroup]="form" (ngSubmit)="guardar()">
+
+        <!-- 1. EL OBJETO -->
+        <h6 class="fw-bold text-upeu-primary mb-3">1. ¿Qué perdiste?</h6>
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label">Categoría *</label>
@@ -26,7 +34,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label">¿Qué perdiste? *</label>
+            <label class="form-label">Nombre del objeto *</label>
             <input type="text" class="form-control" formControlName="nombre" maxlength="100"
               placeholder="Ej.: Audífonos inalámbricos" [class.is-invalid]="invalido('nombre')">
             <div class="invalid-feedback">Escribe el nombre del objeto.</div>
@@ -41,6 +49,25 @@
             <input type="text" class="form-control" formControlName="color" maxlength="50" placeholder="Opcional">
           </div>
 
+          <div class="col-12 mb-3">
+            <label class="form-label">Descripción *</label>
+            <textarea class="form-control" rows="3" formControlName="descripcion" maxlength="255"
+              placeholder="Detalles que ayuden a reconocerlo: stickers, rayones, contenido..."
+              [class.is-invalid]="invalido('descripcion')"></textarea>
+            <div class="d-flex justify-content-between">
+              <div class="invalid-feedback d-block">
+                @if (invalido('descripcion')) { Describe el objeto. }
+              </div>
+              <small class="text-muted">{{ form.value.descripcion?.length || 0 }}/255</small>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-3">
+
+        <!-- 2. DONDE Y CUANDO -->
+        <h6 class="fw-bold text-upeu-primary mb-3">2. ¿Dónde y cuándo?</h6>
+        <div class="row mb-2">
           <div class="col-md-6 mb-3">
             <label class="form-label">¿Dónde crees que lo perdiste?</label>
             <select class="form-select" formControlName="idUbicacionPerdida">
@@ -53,19 +80,6 @@
           <div class="col-md-6 mb-3">
             <label class="form-label">¿Cuándo?</label>
             <input type="date" class="form-control" formControlName="fechaPerdida" [max]="hoy">
-          </div>
-
-          <div class="col-12 mb-4">
-            <label class="form-label">Descripción *</label>
-            <textarea class="form-control" rows="3" formControlName="descripcion" maxlength="255"
-              placeholder="Detalles que ayuden a reconocerlo: stickers, rayones, contenido..."
-              [class.is-invalid]="invalido('descripcion')"></textarea>
-            <div class="d-flex justify-content-between">
-              <div class="invalid-feedback d-block">
-                @if (invalido('descripcion')) { Describe el objeto. }
-              </div>
-              <small class="text-muted">{{ form.value.descripcion?.length || 0 }}/255</small>
-            </div>
           </div>
         </div>
 

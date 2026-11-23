@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PersonaService } from '../../core/services/persona.service';
+import { TemaService } from '../../core/services/tema.service';
 import { PersonaResumen } from '../../core/interfaces/persona.interface';
 import { CampanaComponent } from '../campana/campana.component';
 
@@ -14,6 +15,7 @@ import { CampanaComponent } from '../campana/campana.component';
 })
 export class HeaderComponent implements OnInit {
   authService = inject(AuthService);
+  tema = inject(TemaService);           // modo claro / oscuro
   private personaService = inject(PersonaService);
 
   rol = '';
@@ -60,4 +62,4 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.authService.logout();
   }
-}
+} 

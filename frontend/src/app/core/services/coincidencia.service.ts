@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CoincidenciaRevisada, EvaluacionCoincidencia, ResultadoSugerencias } from '../interfaces/coincidencia.interface';
+import {
+  CandidatosRevision, CoincidenciaRevisada, EvaluacionCoincidencia, ResultadoSugerencias
+} from '../interfaces/coincidencia.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +19,11 @@ export class CoincidenciaService {
   }
 
   // ===== PERSONAL / ADMIN =====
+  // Perdidas en busqueda y hallazgos aprobados para elegir la pareja
+  candidatos(): Observable<CandidatosRevision> {
+    return this.http.get<CandidatosRevision>(`${this.apiUrl}/revision/candidatos`);
+  }
+
   evaluar(idReportePerdida: number, idHallazgo: number): Observable<EvaluacionCoincidencia> {
     return this.http.get<EvaluacionCoincidencia>(`${this.apiUrl}/revision/evaluar`,
       { params: { idReportePerdida, idHallazgo } });
@@ -30,5 +37,10 @@ export class CoincidenciaService {
 
   porReporte(idReportePerdida: number): Observable<CoincidenciaRevisada[]> {
     return this.http.get<CoincidenciaRevisada[]>(`${this.apiUrl}/revision/reporte/${idReportePerdida}`);
+  }
+
+  // Foto privada del hallazgo (solo PERSONAL / ADMIN, va con token)
+  imagenHallazgo(idHallazgo: number): Observable<Blob> {
+    return this.http.get(`/api/v1/hallazgos/revision/${idHallazgo}/imagen`, { responseType: 'blob' });
   }
 }

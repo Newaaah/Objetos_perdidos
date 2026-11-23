@@ -74,12 +74,29 @@ public class EntregaServiceImpl implements IEntregaService {
         ObjetosCustodiados custodia = buscarCustodia(idCustodia);
         Long idEntrega = entregas.findByCustodiaIdCustodia(idCustodia)
                 .map(Entrega::getIdEntrega).orElse(null);
+
+        // NUEVO: si el hallazgo de esta custodia tiene una coincidencia CONFIRMADA,
+        // se informa para que la entrega la vincule (el backend la exige).
+        Coincidencia confirmada = null;
+        if (custodia.getHallazgo() != null) {
+            confirmada = coincidencias.findByHallazgoIdHallazgo(custodia.getHallazgo().getIdHallazgo())
+                    .stream()
+                    .filter(c -> c.getEstado() == EstadoCoincidencia.CONFIRMADA)
+                    .findFirst()
+                    .orElse(null);
+        }
+        ReportePerdida reporte = confirmada == null ? null : confirmada.getReportePerdida();
+
         return new EstadoCustodiaEntregaDTO(
                 idCustodia,
                 custodia.getObjeto().getIdObjeto(),
                 custodia.getObjeto().getNombre(),
                 idEntrega == null,
-                idEntrega);
+                idEntrega,
+                confirmada == null ? null : confirmada.getIdCoincidencia(),
+                reporte == null ? null : reporte.getIdReportePerdida(),
+                reporte == null ? null : reporte.getObjeto().getNombre(),
+                reporte == null ? null : reporte.getPersona().getIdPersona());
     }
 
     @Override
@@ -143,7 +160,7 @@ public class EntregaServiceImpl implements IEntregaService {
             }
             if (custodia.getHallazgo() == null
                     || !custodia.getHallazgo().getIdHallazgo()
-                            .equals(coincidencia.getHallazgo().getIdHallazgo())) {
+                    .equals(coincidencia.getHallazgo().getIdHallazgo())) {
                 throw new ResourceInUseException(
                         "La coincidencia no corresponde al hallazgo de esta custodia");
             }
@@ -166,7 +183,7 @@ public class EntregaServiceImpl implements IEntregaService {
             }
         } else if (custodia.getHallazgo() != null
                 && coincidencias.existsByHallazgoIdHallazgoAndEstado(
-                        custodia.getHallazgo().getIdHallazgo(), EstadoCoincidencia.CONFIRMADA)) {
+                custodia.getHallazgo().getIdHallazgo(), EstadoCoincidencia.CONFIRMADA)) {
             throw new ResourceInUseException(
                     "Este hallazgo tiene coincidencia CONFIRMADA; indica su idCoincidencia para entregar");
         }
